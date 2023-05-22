@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/style.css"/>
+    <script type="text/javascript" src="../Js/jquery.js"></script>
+    <script type="text/javascript" src="../Js/jquery.sorted.js"></script>
+    <script type="text/javascript" src="../Js/bootstrap.js"></script>
+    <script type="text/javascript" src="../Js/ckform.js"></script>
+    <script type="text/javascript" src="../Js/common.js"></script>
+    <script type="text/javascript" src="../Js/cookieHelp.js"></script>
+
+
+    <style type="text/css">
+        body {
+            padding-bottom: 40px;
+        }
+
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<form action="index.html" method="post" class="definewidth m20">
+    <table class="table table-bordered table-hover definewidth m10">
+        <tr>
+
+            <td class="tableleft">名称</td>
+            <td><input id="cp_name" type="text" name="cp_name"/></td>
+        </tr>
+        <tr>
+            <td class="tableleft">简介</td>
+            <td><input id="cp_desc" type="text" name="cp_desc"/></td>
+        </tr>
+        <tr>
+            <td class="tableleft">产品分类</td>
+            <td>
+                <select id="cp_type_code">
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableleft">产品规格</td>
+            <td><input id="cp_gui_ge" type="text" name="cp_gui_ge"/></td>
+        </tr>
+        <tr>
+            <td class="tableleft">成本价(元)</td>
+            <td><input id="price" type="text" name="price"/></td>
+        </tr>
+        <tr>
+            <td class="tableleft">主计量单位</td>
+            <td>
+                <select id="man_unit">
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="tableleft">辅助计量单位</td>
+            <td>
+                <select id="fuzhu_unit">
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="tableleft">主系数</td>
+            <td><input id="main_xi_shu" type="text" name="main_xi_shu"/></td>
+        </tr>
+        <tr>
+            <td class="tableleft">辅助系数</td>
+            <td><input id="fu_zhu_xi_shu" type="text" name="fu_zhu_xi_shu"/></td>
+        </tr>
+        <tr>
+
+            <td class="tableleft">尺寸(单位cm)</td>
+            <td><input id="goods_size" type="text" name="goods_size" placeholder="例如：3*5*6"/></td>
+        </tr>
+        <tr>
+            <td class="tableleft">损耗(%)</td>
+            <td><input id="goods_shunhao" type="text" name="goods_shunhao"/></td>
+        </tr>
+        <tr>
+            <td class="tableleft">换算系数</td>
+            <td><input id="goods_xishu" type="text" name="goods_xishu"/></td>
+
+        </tr>
+        <tr>
+            <td class="tableleft">DOM转换</td>
+            <td>
+                <select id="goods_dom">
+                </select>
+            </td>
+
+        </tr>
+        <tr>
+            <td class="tableleft">材料合并</td>
+            <td>
+                <select id="goods_merge">
+                </select>
+            </td>
+
+        </tr>
+        <tr>
+            <td class="tableleft"></td>
+            <td>
+                <button type="button" class="btn btn-primary" type="button" onclick="posChangeData()">保存</button> &nbsp;&nbsp;
+                <button
+                        type="button" class="btn btn-success" name="backid" id="backid">返回列表
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>
+<script>
+    $(function () {
+        $('#backid').click(function () {
+            window.location.href = "index.html";
+        });
+
+    });
+
+
+    function loadBasedata() {
+
+    }
+
+    const username = getUserName();
+    const bb = checkCookie();
+
+    if (bb == false) {
+        self.location = 'Public/login.html'
+
+    }
+    goods_size = GetQueryString("goods_size")
+    goods_shunhao = GetQueryString("goods_shunhao")
+    goods_xishu = GetQueryString("goods_xishu")
+
+    cp_code = GetQueryString("cp_code")
+
+
+    function changeManiUnit(name) {
+        var numsss = $("#man_unit").find('option')
+        name = name.replace(/\s+/g, '');
+        name = name.replace(/[ ]/g, "");
+        name = name.replace(/[\r\n]/g, "");
+        alert(name + 1)
+        for (let i = 0; i < numsss.length; i++) {
+            if ($(numsss[i]).text() == name) {
+                $(numsss[i]).attr('selected', "selected")
+                break
+            }
+        }
+    }
+
+    function changeFunUnit(name) {
+        var numsss = $("#fuzhu_unit").find('option')
+        name = name.replace(/\s+/g, '');
+        name = name.replace(/[ ]/g, "");
+        name = name.replace(/[\r\n]/g, "");
+        for (let i = 0; i < numsss.length; i++) {
+            if ($(numsss[i]).text() == name) {
+                $(numsss[i]).attr('selected', "selected")
+                break
+            }
+        }
+    }
+
+    function changeCpType(name) {
+        var numsss = $("#cp_type_code").find('option')
+        name = name.replace(/\s+/g, '');
+        name = name.replace(/[ ]/g, "");
+        name = name.replace(/[\r\n]/g, "");
+        for (let i = 0; i < numsss.length; i++) {
+            if ($(numsss[i]).text() == name) {
+                $(numsss[i]).attr('selected', "selected")
+                break
+            }
+        }
+    }
+
+
+    $(document).ready(function () {
+        //产品分类
+        GoodsTypeOp = GetGoodsType()
+        //单位
+        UnitOP = GetUnit()
+        merge_id = GetQueryString("merge_id")
+        goods_dom_id = GetQueryString("goods_dom_id")
+        $("select#cp_type_code").append(GoodsTypeOp)
+        $("select#man_unit").append(UnitOP)
+        $("select#fuzhu_unit").append(UnitOP)
+        GetChanegList()
+        GetMergeList()
+        //填充数据
+        $.ajax({
+            url: "http://localhost:8889/v2/get_goods_by_id",
+            dataType: "json",
+            data: {
+                "cp_code": cp_code
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    $("#cp_desc").val(data.data.cp_desc)
+                    $("#cp_name").val(data.data.cp_name)
+                    $("#cp_gui_ge").val(data.data.cp_gui_ge)
+                    $("#main_xi_shu").val(data.data.main_xi_shu)
+                    $("#fu_zhu_xi_shu").val(data.data.fu_zhu_xi_shu)
+                    $("#man_unit").val(data.data.cp_main_unit_id)
+                    $("#fuzhu_unit").val(data.data.fu_zhu_unit_id)
+                    $("#goods_size").val(data.data.main_size)
+                    $("#price").val(data.data.price)
+                    $("#goods_shunhao").val(data.data.shun_hao)
+                    $("#goods_xishu").val(goods_xishu)
+                    $("#cp_type_code").val(data.data.cp_type_code)
+                    changeManiUnit(data.data.cp_main_unit)
+                    changeFunUnit(data.data.fu_zhu_unit)
+                    changeCpType(data.data.cp_type)
+
+
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+        $("#goods_merge").val(merge_id)
+        $("#goods_dom").val(goods_dom_id)
+    })
+
+
+    function GetChanegList() {
+        chocw = ""
+        str = ""
+        //获取数据
+        $.ajax({
+            url: "http://localhost:8889/v2/get_goods_changeList",
+            dataType: "json",
+            data: {
+                "page": 1,
+                "size": 10000,
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $.each(data.data.list, function (index, element) {
+                    if (element.change_type == "换算") {
+                        str += " <option    value='" + element.id + "' >" + element.c_name + "</option>\n"
+                    }
+
+
+                })
+
+            },
+        })
+        $("select#goods_dom").append(str)
+    }
+
+
+    function GetMergeList() {
+        chocw = ""
+        str = ""
+        //获取数据
+        $.ajax({
+            url: "http://localhost:8889/v2/get_merge_list",
+            dataType: "json",
+            data: {
+                "page": 1,
+                "size": 10000,
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $.each(data.data.list, function (index, element) {
+                    str += " <option    value='" + element.id + "' >" + element.name + "</option>\n"
+
+
+                })
+
+            },
+        })
+        $("select#goods_merge").append(str)
+    }
+
+
+    function posChangeData() {
+
+        //开始请求数据
+        $.ajax({
+            url: "http://localhost:8889/v2/update_goods",
+            dataType: "json",
+            data: {
+                "goods_size": $('#goods_size').val(),
+                "goods_shunhao": $('#goods_shunhao').val(),
+                "goods_xishu": $('#goods_xishu').val(),
+                "goods_dom": $('#goods_dom').val(),
+                "goods_merge": $('#goods_merge').val(),
+                "cp_code": cp_code,
+                "cp_name": $("#cp_name").val(),
+                "main_xi_shu": $("#main_xi_shu").val(),
+                "fu_zhu_xi_shu": $("#fu_zhu_xi_shu").val(),
+                "main_unit": $("#man_unit").val(),
+                "fu_unit": $("#fuzhu_unit").val(),
+                "price": $("#price").val(),
+                "cp_gui_ge": $("#cp_gui_ge").val(),
+                "cp_type_code": $("#cp_type_code").val(),
+                "cp_desc": $("#cp_desc").val(),
+            },
+            type: "POST",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("修改成功")
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+
+
+    }
+
+</script>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/style.css"/>
+    <script type="text/javascript" src="../Js/jquery.js"></script>
+    <script type="text/javascript" src="../Js/jquery.sorted.js"></script>
+    <script type="text/javascript" src="../Js/bootstrap.js"></script>
+    <script type="text/javascript" src="../Js/ckform.js"></script>
+    <script type="text/javascript" src="../Js/common.js"></script>
+    <script type="text/javascript" src="../Js/cookieHelp.js"></script>
+    <script type="text/javascript" src="../Js/page.js"></script>
+
+    <style type="text/css">
+        body {
+            padding-bottom: 40px;
+        }
+
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="form-inline definewidth m20" action="index.html" method="get">
+    材料编码：
+    <input type="text" name="username" id="goodsCode" class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
+    材料名称：
+    <input type="text" name="username" id="goodsName" class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
+    分类名称：
+    <select name="username" id='className'>
+        <option></option>
+    </select>
+
+    <button id="search" type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp;
+    <button id="search1" type="submit" class="btn btn-primary" onclick="addClick()">换算损耗</button>
+    &nbsp; &nbsp;
+    <button id="goods_merge" type="submit" class="btn btn-success" onclick="addMerge()">编辑材料合并</button>&nbsp;&nbsp;
+
+</div>
+<table id='ClassTable' class="table table-bordered table-hover definewidth m10">
+    <thead>
+    <tr>
+        <th><input id="all_select" type="checkbox" name="all" style="height: 20px;" style="width: 20px;"
+                   value="全选"></th>
+        <th>ID</th>
+        <th>产品编码</th>
+        <th>产品名称</th>
+        <th>产品简介</th>
+        <th>产品分类名称</th>
+        <th>产品分类编码</th>
+        <th>物料计算规格</th>
+        <th>主计量单位</th>
+        <th>辅计量单位</th>
+        <th>成本单价</th>
+        <th>损耗(%)</th>
+        <th>换算系数</th>
+        <th>DOM转换</th>
+        <th>材料合并配置</th>
+        <th>创建时间</th>
+        <th>编辑</th>
+    </tr>
+    </thead>
+</table>
+<!--l遮罩层实现-->
+
+
+<input id="page" type="hidden">
+<input id="size" type="hidden">
+
+
+<div class="shadow" id="radioDiv">
+    <!-- 这是显示 配置参数 的DIV-->
+    <div style="text-align: center">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        配置名称：
+        <input type="text" name="chang_desc_name" id="chang_desc_name" class="abc input-default" placeholder=""
+               value="">&nbsp;&nbsp;
+        <button id="search_goods_change" type="submit" class="btn btn-primary" onclick="loadChangeData()">查询</button>&nbsp;&nbsp;
+    </div>
+    <table id='ClassTable_goods_change' class="table table-bordered table-hover definewidth m10">
+        <thead>
+        <tr>
+            <th>.</th>
+            <th>名称</th>
+            <th>配置类型</th>
+            <th>换算类型</th>
+            <th>值</th>
+            <th>创建时间</th>
+        </tr>
+        </thead>
+
+
+    </table>
+
+
+    <div style="text-align: center">
+        <button type="button" class="btn btn-success" onclick="postGoodsChange()">提交</button>
+        <button type="button" class="btn btn-warning" onclick="closeClick()">关闭</button>
+    </div>
+</div>
+<div id="addBox" class="addBox">
+    <a href="javascript:;" onclick="jQuery('.addBox').hide();jQuery('.shadow').hide();" class="close"></a>
+</div>
+<!--
+==================================================================
+-->
+
+<div class="shadow1" id="radioDiv_merge">
+    <!-- 这是显示 配置参数 的DIV-->
+    <div style="text-align: center">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        配置名称：
+        <input type="text" name="merge_name" id="merge_name" class="abc input-default" placeholder=""
+               value="">&nbsp;&nbsp;
+        <button id="search_goods_merge" type="submit" class="btn btn-primary" onclick="loadMergeData()">查询</button>&nbsp;&nbsp;
+    </div>
+    <table id='ClassTable_goods_merge' class="table table-bordered table-hover definewidth m10">
+        <thead>
+        <tr>
+            <th>.</th>
+            <th>配置名称</th>
+            <th>材料名称</th>
+            <th>单位</th>
+            <th>价格</th>
+            <th>创建时间</th>
+        </tr>
+        </thead>
+
+
+    </table>
+
+
+    <div style="text-align: center">
+        <button type="button" class="btn btn-success" onclick="posMergeChange()">提交</button>
+        <button type="button" class="btn btn-warning" onclick="closeClickMerge()">关闭</button>
+    </div>
+</div>
+<div id="addBox1" class="addBox1">
+    <a href="javascript:;" onclick="jQuery('.addBox1').hide();jQuery('.shadow1').hide();" class="close"></a>
+</div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+    function postGoodsChange() {
+        //绑定 关系
+        //change_id
+        change_id = $("#radioDiv input[type='radio']:checked").val()
+        alert(change_id)
+        alert(changeCodeStr)
+        if (change_id == null) {
+            alert("配置id不存在")
+            return
+        }
+        $.ajax({
+            url: "http://localhost:8889/v2/post_goods_change_desc",
+            dataType: "json",
+            data: {
+                "id": change_id,
+                "goods_ids": changeCodeStr
+            },
+            type: "POST",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("修改成功")
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+
+    }
+
+    function posMergeChange() {
+        //绑定 关系
+        //change_id
+        merge_id = $("#radioDiv_merge input[type='radio']:checked").val()
+        alert(merge_id)
+        alert(changeCodeStr)
+        if (merge_id == null) {
+            alert("配置id不存在")
+            return
+        }
+        $.ajax({
+            url: "http://localhost:8889/v2/post_goods_merge_desc",
+            dataType: "json",
+            data: {
+                "id": merge_id,
+                "goods_ids": changeCodeStr
+            },
+            type: "POST",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("修改成功")
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+
+    }
+
+
+    function addClick() {
+        loadChangeData()
+        //alert(changeCodeStr)
+        $(".shadow").css({'display': 'block'});
+        // $('.addBox').show();
+        return 0;
+    }
+
+    function closeClick() {
+        $(".shadow").css({'display': 'none'});
+        //  $('.addBox').show();
+        return 0;
+    }
+
+
+    function addMerge() {
+        loadMergeData()
+        //alert(changeCodeStr)
+        $(".shadow1").css({'display': 'block'});
+        // $('.addBox').show();
+        return 0;
+    }
+
+    function closeClickMerge() {
+        $(".shadow1").css({'display': 'none'});
+        //  $('.addBox').show();
+        return 0;
+    }
+
+    function loadChangeData() {
+        $('tr.data_2222').remove()
+        $.ajax({
+            url: "http://localhost:8889/v2/get_goods_changeList",
+            dataType: "json",
+            data: {
+                "page": 1,
+                "size": 10000,
+                "change_name": $("#chang_desc_name").val(),
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $.each(data.data.list, function (index, element) {
+                    $("#ClassTable_goods_change").append('<tr class="data_2222" >      ' +
+                        '<td> <input type="radio" name="select_changes" value=' + element.id + '> </td> ' +
+                        '<td> ' + element.c_name + '</td> ' +
+                        '<td> ' + element.change_type + '</td> ' +
+                        '<td> ' + element.types + '</td> ' +
+                        '<td> ' + element.values_l + '</td> ' +
+                        '<td> ' + element.create_time + '</td> ' +
+                        '    </tr>');
+                })
+
+            },
+        })
+    }
+
+
+    function loadMergeData() {
+        $('tr.data_3333').remove()
+        $.ajax({
+            url: "http://localhost:8889/v2/get_merge_list",
+            dataType: "json",
+            data: {
+                "page": 1,
+                "size": 10000,
+                "merge_name": $("#merge_name").val(),
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $.each(data.data.list, function (index, element) {
+                    $("#ClassTable_goods_merge").append('<tr class="data_3333" >      ' +
+                        '<td> <input type="radio" name="select_merge" value=' + element.id + '> </td> ' +
+                        '<td> ' + element.name + '</td> ' +
+                        '<td> ' + element.cl_name + '</td> ' +
+                        '<td> ' + element.unit + '</td> ' +
+                        '<td> ' + element.price + '</td> ' +
+                        '<td> ' + element.create_time + '</td> ' +
+                        '    </tr>');
+                })
+
+            },
+        })
+    }
+
+
+    $(function () {
+        //全选 按钮
+        $("#all_select").click(function () {
+
+            $('input[name="change_box"]').prop("checked", this.checked);
+
+            if (this.checked) {
+
+                $("input[name='change_box']").each(function (i) {	//遍历
+                    thisVal = $(this).val()
+                    if (changeCodeStr.indexOf(thisVal) == -1) {
+                        changeCodeStr += thisVal + ","
+                    }
+                })
+            } else {
+                $("input[name='change_box']").each(function (i) {	//遍历
+                    thisVal = $(this).val()
+                    changeCodeStr = changeCodeStr.replace(thisVal + ",", "")
+                })
+            }
+
+
+        });
+
+
+    });
+</script>
+<script>
+    function setSellctButtom() {
+        // 如果全部选中 要 把全选框设置成全选
+        allSelect = true
+        $("input[name='change_box']").each(function (i) {	//遍历
+            if (!this.checked) {
+                allSelect = false
+            }
+        })
+        $("#all_select").prop("checked", allSelect);
+        // alert(changeCodeStr)
+    }
+
+    function checkBoxChange(event) {
+
+        val = event.target.value
+        ck = event.target.checked
+        if (ck) {
+            changeCodeStr += val + ","
+            //  alert(changeCodeStr)
+        } else {
+            changeCodeStr = changeCodeStr.replace(val + ",", "")
+            //   alert(changeCodeStr)
+        }
+        // setSellctButtom()
+    }
+
+    /*    function allSelect(event) {
+            ck = event.target.checked
+
+        }*/
+
+    let changeCodeStr = ""
+
+    var GoodsTypeOp1 = "";
+    let page = 1
+    let size = 20
+    let total = 0
+    $('#page').val(page)
+    $('#size').val(size)
+    $('#search').on('click', function () {
+        $('tr.data_1').remove();
+        ReloadData()
+
+    })
+
+
+    $(document).ready(function () {
+        GoodsTypeOp1 = GetGoodsType()
+        $("#className").append(GoodsTypeOp1)
+        const username = getUserName();
+        const bb = checkCookie();
+
+        if (bb == false) {
+            //document.location.url = '/Public/login.html'
+            self.location = 'Public/login.html'
+            // top.location = '/Public/login.html'
+        } else {
+            $("#name").html(username)
+        }
+        //查询列表
+        $.ajax({
+            url: "http://localhost:8889/v2/get_goods_list",
+            dataType: "json",
+            data: {
+                "page": $("#page").val(),
+                "size": $("#size").val(),
+                "goods_name": $("#goodsName").val(),
+                "goods_code": $("#goodsCode").val(),
+                "goods_type": $("#className").val(),
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $.each(data.data.list, function (index, element) {
+                    $("#ClassTable").append('<tr class="data_1" >      ' +
+                        '<td> <input onchange="checkBoxChange(event)" type="checkbox" name="change_box" style="height: 20px;" style="width: 20px;" value=' + element.cp_code + '> </td>' +
+                        '<td> ' + element.id + ' </td>' +
+                        '<td> ' + element.cp_code + '</td> ' +
+                        '<td> ' + element.cp_name + '</td> ' +
+                        '<td> ' + element.cp_desc + '</td> ' +
+                        '<td> ' + element.cp_type + '</td> ' +
+                        '<td> ' + element.cp_type_code + '</td> ' +
+                        '<td> ' + element.main_size + '</td> ' +
+                        '<td> ' + element.cp_main_unit + '</td> ' +
+                        '<td> ' + element.fu_zhu_unit + '</td> ' +
+                        '<td> ' + element.price + '</td> ' +
+                        '<td> ' + element.shun_hao + '</td> ' +
+                        '<td> ' + element.change_p + '</td> ' +
+                        '<td> ' + element.dom_h + '</td> ' +
+                        '<td> ' + element.merge_name + '</td> ' +
+                        '<td> ' + element.create_time + '</td> ' +
+                        '<td>   <a href="good_edit.html?goods_size=' + element.main_size + '&goods_shunhao=' + element.shun_hao + '&goods_xishu=' + element.change_p + '&goods_dom_id=' + element.dom_id + '&cp_code=' + element.cp_code + '&merge_id=' + element.merge_id + '">编辑</a> </td> ' +
+                        '    </tr>');
+                })
+                total = data.data.total
+                LoadDiv(data.data.total, data.data.page);
+            },
+        })
+    })
+
+
+    function ReloadData() {
+
+        //先清除数据
+        $('tr.data_1').remove()
+
+        $.ajax({
+            url: "http://localhost:8889/v2/get_goods_list",
+            dataType: "json",
+            data: {
+                "page": $("#page").val(),
+                "size": $("#size").val(),
+                "goods_name": $("#goodsName").val(),
+                "goods_code": $("#goodsCode").val(),
+                "goods_type": $("#className").val(),
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $.each(data.data.list, function (index, element) {
+                    ssss = '<tr class="data_1">      '
+                    if (changeCodeStr.indexOf(element.cp_code) != -1) {
+                        //说明选中了
+                        ssss += '<td> <input onchange="checkBoxChange(event)" checked="checked" type="checkbox" name="change_box" style="height: 20px;" style="width: 20px;" value=' + element.cp_code + '> </td>'
+                    } else {
+                        //没有选中
+                        ssss += '<td> <input onchange="checkBoxChange(event)" type="checkbox" name="change_box" style="height: 20px;" style="width: 20px;" value=' + element.cp_code + '> </td>'
+                    }
+                    ssss +=
+                        '<td> ' + element.id + ' </td>' +
+                        '<td> ' + element.cp_code + '</td> ' +
+                        '<td> ' + element.cp_name + '</td> ' +
+                        '<td> ' + element.cp_desc + '</td> ' +
+                        '<td> ' + element.cp_type + '</td> ' +
+                        '<td> ' + element.cp_type_code + '</td> ' +
+                        '<td> ' + element.main_size + '</td> ' +
+                        '<td> ' + element.cp_main_unit + '</td> ' +
+                        '<td> ' + element.fu_zhu_unit + '</td> ' +
+                        '<td> ' + element.price + '</td> ' +
+                        '<td> ' + element.shun_hao + '</td> ' +
+                        '<td> ' + element.change_p + '</td> ' +
+                        '<td> ' + element.dom_h + '</td> ' +
+                        '<td> ' + element.merge_name + '</td> ' +
+                        '<td> ' + element.create_time + '</td> ' +
+                        '<td>   <a href="good_edit.html?goods_size=' + element.main_size + '&goods_shunhao=' + element.shun_hao + '&goods_xishu=' + element.change_p + '&goods_dom_id=' + element.dom_id + '&cp_code=' + element.cp_code + '&merge_id=' + element.merge_id + '">编辑</a> </td> ' +
+                        '    </tr>'
+
+                    $("#ClassTable").append(ssss);
+                })
+                total = data.data.total
+                LoadDiv(data.data.total, data.data.page);
+                setSellctButtom()
+            },
+        })
+
+    }
+
+    function LoadDiv(total, page) {
+        $("#ClassTable").append('    <tr class="data_1">\n' +
+            '        <td colspan="16" style="text-align: right"><span class="next"><a onclick="NextPage()">下一页</a></span>\n' +
+            '            <span class="prev"><a  onclick="LastPage()">上一页</a></span>\n' +
+            '            <span class="total" > ' + '总共 <a>' + total + ' </a>条' + '</span>\n' +
+            '            <span class="cur_page" >' + '当前第 <a>' + page + ' </a>页' + '</span></td>\n' +
+            '    </tr>')
+    }
+
+
+    function NextPage() {
+
+        maxPage = parseInt(total / size) + 1
+        if (page >= maxPage) {
+            alert("当前已是第最后一页")
+        } else {
+            page = page + 1
+            $('#page').val(page)
+            $('.cur_page').html('当前第' + page + '页')
+            ReloadData()
+        }
+    }
+
+    function LastPage() {
+        if (page == 1) {
+            alert("当前已是第一页")
+        } else {
+            page = page - 1
+            $('#page').val(page)
+            $('.cur_page').html('当前第' + page + '页')
+            ReloadData()
+        }
+    }
+
+    //退出登陆
+    $('#logout').on('click', function () {
+        alert("logout")
+        logout()
+        self.location = 'Public/login.html'
+    })
+
+
+</script>
+
+<script>
+
+
+</script>

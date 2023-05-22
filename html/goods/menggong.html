@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/style.css"/>
+    <script type="text/javascript" src="../Js/jquery.js"></script>
+    <!--   <script type="text/javascript" src="../Js/jquery.sorted.js"></script>-->
+    <script type="text/javascript" src="../Js/bootstrap.js"></script>
+    <script type="text/javascript" src="../Js/ckform.js"></script>
+    <script type="text/javascript" src="../Js/common.js"></script>
+    <script type="text/javascript" src="../Js/cookieHelp.js"></script>
+    <script type="text/javascript" src="../Js/page.js"></script>
+
+    <style type="text/css">
+        body {
+            padding-bottom: 40px;
+        }
+
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<form id="post_form" method="post" class="definewidth m20">
+    <input type="hidden" name="id" value="{$user.id}"/>
+    <input id="sofa" type="hidden" name="id" value="xxxxxx"/>
+    <table id='menggong_ClassTable' class="table table-bordered table-hover definewidth m10">
+        <tr>
+            <td rowspan="" id="menggongName" style="text-align: center;background: #0e90d2;font-size: 30px"></td>
+
+        </tr>
+
+    </table>
+
+    <table id='menggong_dataTable' class="table table-bordered table-hover definewidth m10">
+        <tr>
+            <td>工艺名称</td>
+            <td>分位</td>
+            <td>材料名称</td>
+            <td>使用尺寸</td>
+            <td>数量</td>
+            <td>单位</td>
+            <td>备注</td>
+            <td>成本</td>
+            <td>操作</td>
+        </tr>
+
+
+    </table>
+
+
+    <table id='menggong_dataTable_export' style="display: none">
+
+        <tr>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">分位名称</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">材料名称</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">材料编码</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">使用尺寸</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">数量</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">单位</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">备注</td>
+        </tr>
+
+    </table>
+
+    <table id='menggong_buttonClassTable' class="table table-bordered table-hover definewidth m10">
+        <tr>
+            <td>
+                <span>工艺名称:</span>
+                <input type="text" name="menggong_select" id='menggong_name'
+                       autocomplete="off"
+                       placeholder="车间工艺标题">
+            </td>
+            <td>
+                <span>分位:</span>
+                <input type="text" name="menggong_select" id='menggong_select' list="menggong_select_list"
+                       autocomplete="off"
+                       placeholder="分位">
+                <datalist id="menggong_select_list"></datalist>
+                <br>
+                <span>物料:</span>
+                <input type="text" name="menggong_goodObjs_str" id='menggong_goodObjs_str' list="menggong_batch_list"
+                       autocomplete="off"
+                       placeholder="物料" onchange="menggong_goodsChange()">
+                <datalist id="menggong_batch_list"></datalist>
+
+                <input type="hidden" name="menggong_goodsName_str" id='menggong_goodsName_str'>
+
+            </td>
+
+            <td rowspan="">
+                <span>备注:</span>
+                <textarea placeholder="备注" id='menggong_good_desc'></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>尺&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;寸:</span>
+                <input type="text" name="menggong_goodSize_str" id='menggong_goodSize_str'
+                       autocomplete="off"
+                       placeholder="长宽高用*链接且不能改变顺序" onchange="menggong_Sums()">
+            </td>
+            <td>
+                <span>使用数量:</span>
+                <input type="text" id='menggong_goodNum_str'
+                       autocomplete="off"
+                       placeholder="数量" onchange="menggong_Sums">
+            </td>
+
+            <td>
+                <span>单位:</span>
+                <select name="menggong_insert_unit" id='menggong_insert_unit'>
+                </select>
+            </td>
+        </tr>
+
+    </table>
+    <table class="table table-bordered table-hover definewidth m10">
+
+        <tr>
+            <td>
+                <span>换算系数:</span>
+                <input type="text" id='menggong_hy_p' autocomplete="off" placeholder="换算系数" readonly="readonly">
+
+            </td>
+            <td>
+                <span>主计量单位:</span>
+                <input type="text" id='menggong_main_uint' autocomplete="off" placeholder="主计量单位" readonly="readonly">
+
+            </td>
+            <td rowspan="4">
+                <span>物料实际成本:</span>
+                <input type="hidden" value="0" hidden="hidden" id='menggong_ji_jia_nums' readonly="readonly">
+                <input type="text" value="0" id='menggong_shiji_price' readonly="readonly">元
+                <br>
+                <span style="color: red">
+                    注意 :
+                    <br>&nbsp;&nbsp;1、填写物料尺寸时  统一单位为CM；长宽用 * 连接
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;例如 3*5 、表示长3CM 宽5CM；
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;只有长度的 直接输入长度值 例如 2、3表示 2CM 、3CM
+                    <br>&nbsp;&nbsp; 2、 物料实际成本为计算后的最终成本
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>价格(元):</span>
+                <input type="text" id='menggong_price_p' autocomplete="off" placeholder="价格" readonly="readonly">
+            </td>
+            <td>
+                <span>辅计量单位:</span>
+                <input type="text" id='menggong_fuzhu_uint' autocomplete="off" placeholder="辅计量单位" readonly="readonly">
+            </td>
+
+
+        </tr>
+        <tr>
+            <td>
+                <span>损耗(%):</span>
+                <input type="text" id='menggong_shunhao_p' autocomplete="off" placeholder="损耗" readonly="readonly">
+            </td>
+            <td>
+                <span>主计量系数:</span>
+                <input type="text" id='menggong_main_xishu' autocomplete="off" placeholder="主系数" readonly="readonly">
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                <span>规格:</span>
+                <input type="text" id='menggong_size' autocomplete="off" placeholder="规格" readonly="readonly">
+            </td>
+            <td>
+                <span>辅计量系数:</span>
+                <input type="text" id='menggong_fuzhu_xishu' autocomplete="off" placeholder="辅系数" readonly="readonly">
+            </td>
+        </tr>
+
+        </td>
+        <tr>
+            <td colspan="3" style="text-align: center">
+                <button id='menggong_select_bu' class="btn btn-primary" type="button">增加材料</button>
+                <button id='menggong_select_bu1' class="btn btn-success" type="button">保存数据</button>
+                <button id='menggong_select_bu2' class="btn btn-primary" type="button"
+                        onclick="menggonggetExportInfo()">
+                    导出物料表
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>
+
+<script>
+    //初始化的时候加载
+    var iscommit = false
+    $(document).ready(function () {
+        menggong_loadData()
+        Delete();
+        $("datalist#menggong_select_list").append(getShaFaFenWei(SF_GG))
+        $("datalist#menggong_batch_list").append(GoodObjs_str)
+        // $("datalist#menggong_goodSize_str_list").append(GoodObjs_str)
+        $("#menggong_insert_unit").append(UnitOP)
+        $("#menggongName").html(SF_NAME + "  扪工")
+
+    })
+
+    function menggong_Sums() {
+        $("#menggong_shiji_price").val("")
+        $("#menggong_ji_jia_nums").val("")
+        //计算价格  必须 所有单位都已经赋值
+        // 体积的这种 需要用到size
+        let size = $('#menggong_goodSize_str').val()
+        let num = $('#menggong_goodNum_str').val()
+        let shunhao = $("#menggong_shunhao_p").val()
+        let price = $("#menggong_price_p").val()
+        let huansuan = $("#menggong_hy_p").val()
+        let main_xishu = $("#menggong_main_xishu").val()
+        let fuzhu_xishu = $("#menggong_fuzhu_xishu").val()
+
+        if (num == null || num == "") {
+            return
+        }
+
+
+        //goods_cpcode = ((goods_name.split('&'))[1].replace("《", "")).replace("》", "")
+        // （数量+损耗） * 换算比例 * 单价  = 总价
+
+
+        //开始计算数据
+        $.ajax({
+            url: "http://localhost:8889/v2/sums",
+            dataType: "json",
+            data: {
+                "num": num,
+                "cp_code": menggonggetCpCode(),
+                "shun_hao": shunhao,
+                "price": price,
+                "huan_suan": huansuan,
+                "size": size,
+                "main_xishu": main_xishu,
+                "fuzhu_xishu": fuzhu_xishu
+            },
+            type: "get",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    $("#menggong_ji_jia_nums").val(data.data.ji_jia_nums)
+                    $("#menggong_shiji_price").val(data.data.total_price)
+                    iscommit = true
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+
+
+    }
+
+    function menggonggetCpCode() {
+        /*    let goods_name = $('#menggong_goodObjs_str').val()
+            //要解析 物料Code
+            goods_cpcode = ((goods_name.split('&'))[1].replace("《", "")).replace("》", "")
+            return goods_cpcode*/
+        return $('#menggong_goodObjs_str').val()
+    }
+
+
+    function clearmenggongData() {
+        $("#menggong_hy_p").val("")
+        $("#menggong_price_p").val("")
+        $("#menggong_shunhao_p").val("")
+        $("#menggong_main_uint").val("")
+        $("#menggong_fuzhu_uint").val("")
+
+        $("#menggong_main_xishu").val("")
+        $("#menggong_fuzhu_xishu").val("")
+        $("#menggong_size").val("")
+        $('#menggong_shiji_price').val("0")
+        $("#menggong_ji_jia_nums").val("0")
+
+
+        $('#menggong_goodSize_str').val("")
+        $('#menggong_goodNum_str').val("")
+        $('#menggong_insert_unit').val("")
+        $('#menggong_goodsName_strs').val("")
+
+    }
+
+    function menggong_changeUnit(name) {
+        var numsss = $("#menggong_insert_unit").find('option')
+        for (let i = 0; i < numsss.length; i++) {
+            if ($(numsss[i]).val() == name) {
+                $(numsss[i]).attr('selected', "selected")
+            }
+        }
+    }
+
+    function menggong_goodsChange() {
+        clearmenggongData()
+
+        //要解析 物料Code
+        goods_cpcode = menggonggetCpCode()
+
+        //获取物料信息
+        //开始请求数据
+        $.ajax({
+            url: "http://localhost:8889/v2/get_goods_by_id",
+            dataType: "json",
+            data: {
+                "cp_code": goods_cpcode,
+            },
+            type: "get",
+            async: false,
+            success: function (data) {
+                //在这里 要填充 数据了
+                $("#menggong_hy_p").val(data.data.change_p)
+                $("#menggong_price_p").val(data.data.price)
+                $("#menggong_shunhao_p").val(data.data.shun_hao)
+                $("#menggong_main_uint").val(data.data.cp_main_unit)
+                $("#menggong_fuzhu_uint").val(data.data.fu_zhu_unit)
+
+                $("#menggong_main_xishu").val(data.data.main_xi_shu)
+                $("#menggong_fuzhu_xishu").val(data.data.fu_zhu_xi_shu)
+                $("#menggong_size").val(data.data.main_size)
+
+                menggong_changeUnit()
+                //$("#menggong_insert_unit").val(data.data.cp_main_unit)
+                $("#menggong_goodsName_str").val(data.data.cp_name)
+
+            },
+        })
+    }
+
+
+    function menggong_AddTr() {
+        let menggong_name = $('#menggong_name').val()
+        let fenWeiName = $('#menggong_select').val()
+        let goods_name = $('#menggong_goodsName_str').val()
+        let size = $('#menggong_goodSize_str').val()
+        let num = $('#menggong_goodNum_str').val()
+        let unit = $('#menggong_insert_unit').val()
+        let desc = $('#menggong_good_desc').val()
+        let totalPrice = $('#menggong_shiji_price').val()
+        let jijiaNum = $('#menggong_ji_jia_nums').val()
+
+        str = "        <tr class='menggong_dd'>" +
+            "            <td  name=\"gongyi_name\" >" + menggong_name + "</td>\n" +
+            "            <td  name=\"fw_name\" >" + fenWeiName + "</td>\n" +
+            "            <td ><input  readonly='readonly' class='name' name=\"input_name\" value='" + goods_name + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + menggonggetCpCode() + "'/></td>\n" +
+            "            <td ><input  readonly='readonly' class='name' name=\"input_size\"value='" + size + "'/></td>\n" +
+            "            <td><input  readonly='readonly' class='name' name=\"input_num\" value='" + num + "'/></td>\n" +
+            "            <td ><input  readonly='readonly' class='name' name=\"input_unit\" value='" + unit + "'/></td>\n" +
+            "            <td><textarea  readonly='readonly' class='name' > " + desc + "</textarea></td>\n" +
+            "            <td ><input  readonly='readonly' class='name' name=\"input_total_price\" value='" + totalPrice + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + jijiaNum + "'/></td>\n" +
+            "            <td ><a id='delte'style='color: red' >删除</a></td>\n" +
+
+            "        </tr>"
+        $("#menggong_dataTable").append(str)
+        //
+        Delete();
+
+        str2 = "        <tr >" +
+            "            <td   >" + fenWeiName + "</td>\n" +
+            "            <td   >" + goods_name + "</td>\n" +
+            "            <td   >" + size + "</td>\n" +
+            "            <td   >" + num + "</td>\n" +
+            "            <td   >" + unit + "</td>\n" +
+            "            <td   >" + desc + "</td>\n" +
+            "        </tr>"
+        $("#menggong_dataTable_export").append(str2)
+    }
+
+    function menggong_PostData() {
+        var list = []
+        var dto = {}
+
+        //拼接数据
+        $(".menggong_dd").each(function () {
+            //这是一行数据
+            var importObj = {}
+            //
+            $(this).find("td").each(function (i, item) {
+                if (i == 0) {
+                    importObj["gong_yi_name"] = $(this).text()
+                } else if (i == 1) {
+                    importObj["fen_wei_name"] = $(this).text()
+                } else if (i == 6) {
+                    importObj["descs"] = $(this).text()
+                } else if (i == 2) {
+                    importObj['cl_name'] = $(this).find(".name").val()
+                    importObj['cp_code'] = $(this).find(".name_id").val()
+                } else if (i == 3) {
+                    importObj['size'] = $(this).find(".name").val()
+                } else if (i == 4) {
+                    importObj['nums'] = $(this).find(".name").val()
+                } else if (i == 5) {
+                    importObj['unit'] = $(this).find(".name").val()
+                } else if (i == 7) {
+                    importObj['total_price'] = $(this).find(".name").val()
+                    importObj['ji_jia_num'] = $(this).find(".name_id").val()
+                }
+
+            });
+            //将这行数据 放入 list中
+            list.push(importObj)
+
+        });
+        dto['details'] = list
+        dto['types'] = "扪工"
+        dto['shafa_id'] = SF_CODE
+        var json = JSON.stringify(dto)
+
+
+        //开始请求数据
+        $.ajax({
+            url: "http://localhost:8889/v2/post_feng_wei",
+            dataType: "json",
+            data: {
+                "data": json,
+            },
+            type: "POST",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("保存成功")
+                } else {
+                    alert("保存失败")
+
+                }
+            },
+        })
+
+
+    }
+
+    // 初始化的时候加载
+    function menggong_loadData() {
+        //开始请求数据
+        $.ajax({
+            url: "http://localhost:8889/v2/get_feng_wei",
+            dataType: "json",
+            data: {
+                "shafa_id": SF_CODE,
+                "types": "扪工"
+            },
+            type: "get",
+            async: false,
+            success: function (data) {
+                $.each(data.data, function (index, element) {
+
+                    //绘制数据 element.size
+                    str = "        <tr class='menggong_dd'>" +
+                        "            <td  name=\"gongyi_name\" >" + element.gong_yi_name + "</td>\n" +
+                        "            <td  name=\"fw_name\" >" + element.fen_wei_name + "</td>\n" +
+                        "            <td ><input readonly='readonly' class='name' name=\"input_name\" value=\"" + element.cl_name + "\"/ ><input  type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value=\"" + element.cp_code + "\"/ ></td>\n" +
+                        "            <td ><input readonly='readonly' class='name' name=\"input_size\" value=\"" + element.size + "\"/ ></td>\n" +
+                        "            <td><input readonly='readonly' class='name' name=\"input_num\" value=\"" + element.nums + "\"/ ></td>\n" +
+                        "            <td ><input  readonly='readonly' class='name' name=\"input_unit\" value=\"" + element.unit + "\"/ ></td>\n" +
+                        "            <td><textarea  readonly='readonly' class='name' >\n" + element.descs + " </textarea></td>\n" +
+                        "            <td ><input  readonly='readonly' class='name' name=\"input_total_price\" value='" + element.total_price + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + element.ji_jia_num + "'/></td>\n" +
+
+                        "            <td ><a id='delte' style='color: red' >删除</a></td>\n" +
+                        "        </tr>"
+                    $("#menggong_dataTable").append(str)
+
+
+                    //绘制导出表
+                    str2 = "        <tr >" +
+                        "            <td   >" + element.fen_wei_name + "</td>\n" +
+                        "            <td   >" + element.cl_name + "</td>\n" +
+                        "            <td   >" + element.cp_code + "</td>\n" +
+                        "            <td   >" + element.size + "</td>\n" +
+                        "            <td   >" + element.nums + "</td>\n" +
+                        "            <td   >" + element.unit + "</td>\n" +
+                        "            <td   >" + element.descs + "</td>\n" +
+                        "        </tr>"
+                    $("#menggong_dataTable_export").append(str2)
+                })
+
+            },
+        })
+
+    }
+
+    //删除方法
+
+
+    $('#menggong_select_bu').on('click', function () {
+        menggong_AddTr();
+    })
+
+    $('#menggong_select_bu1').on('click', function () {
+        menggong_PostData();
+    })
+
+    //退出登陆
+    $('#logout').on('click', function () {
+        alert("logout")
+        logout()
+        self.location = 'Public/login.html'
+    })
+
+
+</script>
+
+<script>
+
+
+    function base64(content) {
+        return window.btoa(unescape(encodeURIComponent(content)));
+    }
+
+    var format = function (s, c) {
+        return s.replace(/{(\w+)}/g,
+            function (m, p) {
+                return c[p];
+            });
+    }
+
+
+    function menggonggetExportInfo() {
+        alert("数据导出中 请稍后")
+        //开始请求数据
+        $.ajax({
+            url: "http://localhost:8889/v2/get_feng_wei_group_by_name",
+            dataType: "json",
+            data: {
+                "shafa_id": SF_CODE,
+                "types": "扪工"
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    $.each(data.data, function (index, element) {
+                        let g_y_name = element.gong_yi_name
+                        let g_y_size = element.size
+                        let exp_str = ""
+                        exp_str += "   <tr>\n" +
+                            "            <td colspan=\"6\" style=\"text-align: center ;background: #0e90d2;font-size: 50px\">" + SF_NAME + " 扪工清单</td>\n" +
+                            "        </tr>"
+                        exp_str += "   <tr>\n" +
+                            "            <td colspan=\"6\" style=\"text-align: center ;background: #0e90d2;font-size: 50px\">" + g_y_name + "</td>\n" +
+                            "        </tr>"
+                        exp_str += "                <tr>\n" +
+                            "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">分位名称</td>\n" +
+                            "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">材料名称</td>\n" +
+                            "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">材料编码</td>\n" +
+                            "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">使用尺寸</td>\n" +
+                            "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">数量</td>\n" +
+                            "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">单位</td>\n" +
+                            "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">备注</td>\n" +
+                            "                </tr>"
+                        $.each(element.list, function (index, element2) {
+                            exp_str += "        <tr >" +
+                                "            <td   >" + element2.fen_wei_name + "</td>\n" +
+                                "            <td   >" + element2.cl_name + "</td>\n" +
+                                "            <td   >" + element2.cp_code + "</td>\n" +
+                                "            <td   >" + element2.size + "</td>\n" +
+                                "            <td   >" + element2.nums + "</td>\n" +
+                                "            <td   >" + element2.unit + "</td>\n" +
+                                "            <td   >" + element2.descs + "</td>\n" +
+                                "        </tr>"
+                        })
+                        //处理了一个了
+                        menggong_toExcel(exp_str, g_y_name)
+
+                    })
+                } else {
+                    alert("导出失败")
+                }
+            },
+        })
+    }
+
+
+    //导出html表格为 excel 文件
+    function menggong_toExcel(content, gongyi_name) {
+
+        var excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
+        excelFile += "<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>";
+        excelFile += "<body><table width='50%'  border='1'>";
+        excelFile += content;
+        excelFile += "</table></body>";
+        excelFile += "</html>";
+        //定义excel 的sheet名称
+        var ctx = {worksheet: "扪工清单"};
+        var link = "data:application/vnd.ms-excel;base64," + base64(format(excelFile, ctx));
+        var a = document.createElement("a");
+        //定义excel 的文件名称
+        var fileName = "扪工清单_";
+        a.download = fileName + SF_NAME + "_" + gongyi_name + "_" + ".xls";
+        a.href = link;
+        a.click();
+    }
+
+</script>

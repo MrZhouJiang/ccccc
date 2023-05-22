@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/style.css"/>
+    <script type="text/javascript" src="../Js/jquery.js"></script>
+    <!--   <script type="text/javascript" src="../Js/jquery.sorted.js"></script>-->
+    <script type="text/javascript" src="../Js/bootstrap.js"></script>
+    <script type="text/javascript" src="../Js/ckform.js"></script>
+    <script type="text/javascript" src="../Js/common.js"></script>
+    <script type="text/javascript" src="../Js/cookieHelp.js"></script>
+    <script type="text/javascript" src="../Js/page.js"></script>
+
+    <style type="text/css">
+        body {
+            padding-bottom: 40px;
+        }
+
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<form id="post_form" method="post" class="definewidth m20">
+    <input type="hidden" name="id" value="{$user.id}"/>
+    <input id="sofa" type="hidden" name="id" value="xxxxxx"/>
+
+    <table id='rengong_ClassTable' class="table table-bordered table-hover definewidth m10">
+        <tr>
+            <td rowspan="" style="text-align: center;background: #0e90d2;font-size: 30px">人工成本</td>
+
+        </tr>
+
+
+    </table>
+
+    <table id='rengong_dataTable' class="table table-bordered table-hover definewidth m10">
+        <tr>
+            <td>分位</td>
+            <td>描述</td>
+            <td>工价</td>
+            <td>备注</td>
+            <td>操作</td>
+        </tr>
+
+
+    </table>
+
+
+    <table id='rengong_dataTable_export' style="display: none">
+
+        <tr>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">分位名称</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">描述</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">工价</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">备注</td>
+        </tr>
+
+
+    </table>
+
+    <table id='rengong_buttonClassTable' class="table table-bordered table-hover definewidth m10">
+        <tr>
+            <td>
+                <span>分位:</span>
+                <input type="text" name="rengong_select" id='rengong_select' list="rengong_select_list"
+                       autocomplete="off"
+                       placeholder="分位">
+                <datalist id="rengong_select_list"></datalist>
+            </td>
+            <td>
+                <span>描述:</span>
+                <input type="text" name="rengong_desc_str" id='rengong_desc_str'
+                       autocomplete="off"
+                       placeholder="描述">
+            </td>
+            <td>
+                <span>工价:</span>
+                <input type="text" name="rengong_desc_price" id='rengong_desc_price'
+                       autocomplete="off"
+                       placeholder="工价">
+            </td>
+
+            <td rowspan="">
+                <span>备注:</span>
+                <textarea placeholder="备注" id='rengong_good_desc'></textarea>
+            </td>
+        </tr>
+
+    </table>
+    <table class="table table-bordered table-hover definewidth m10">
+
+        <tr>
+            <td colspan="3" style="text-align: center">
+                <button id='rengong_select_bu' class="btn btn-primary" type="button">增加材料</button>
+                <button id='rengong_select_bu1' class="btn btn-success" type="button">保存数据</button>
+                <button id='rengong_select_bu2' class="btn btn-primary" type="button" onclick="rengong_toExcel()">
+                    导出成本表
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>
+
+<script>
+    //初始化的时候加载
+    var iscommit = false
+    $(document).ready(function () {
+        rengong_loadData()
+        Delete();
+        $("datalist#rengong_select_list").append(getShaFaFenWei(SF_GG))
+
+
+    })
+
+
+    function rengong_AddTr() {
+        let fenWeiName = $('#rengong_select').val()
+        let goods_name = $('#rengong_desc_str').val()
+        let desc = $('#rengong_good_desc').val()
+        let totalPrice = $('#rengong_desc_price').val()
+
+        str = "        <tr class='rengong_dd'>" +
+            "            <td  name=\"fw_name\" >" + fenWeiName + "</td>\n" +
+            "            <td ><input  readonly='readonly' class='name' name=\"input_name\" value='" + goods_name + "'/></td>\n" +
+            "            <td ><input  readonly='readonly' class='name' name=\"input_total_price\" value='" + totalPrice + "'/></td>\n" +
+            "            <td><textarea  readonly='readonly' class='name' > " + desc + "</textarea></td>\n" +
+            "            <td ><a id='delte'style='color: red' >删除</a></td>\n" +
+
+            "        </tr>"
+        $("#rengong_dataTable").append(str)
+        //
+        Delete();
+    }
+
+    function rengong_PostData() {
+        var list = []
+        var dto = {}
+
+        //拼接数据
+        $(".rengong_dd").each(function () {
+            //这是一行数据
+            var importObj = {}
+            //
+            $(this).find("td").each(function (i, item) {
+                if (i == 0) {
+                    importObj["fen_wei_name"] = $(this).text()
+                } else if (i == 1) {
+                    importObj['cl_name'] = $(this).find(".name").val()
+                } else if (i == 2) {
+                    importObj['total_price'] = $(this).find(".name").val()
+                } else if (i == 3) {
+                    importObj['descs'] = $(this).find(".name").val()
+                }
+
+            });
+            //将这行数据 放入 list中
+            list.push(importObj)
+
+        });
+        dto['details'] = list
+        dto['types'] = "人工"
+        dto['shafa_id'] = SF_CODE
+        var json = JSON.stringify(dto)
+
+
+        //开始请求数据
+        $.ajax({
+            url: "http://localhost:8889/v2/post_feng_wei",
+            dataType: "json",
+            data: {
+                "data": json,
+            },
+            type: "POST",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("保存成功")
+                } else {
+                    alert("保存失败")
+
+                }
+            },
+        })
+
+
+    }
+
+    // 初始化的时候加载
+    function rengong_loadData() {
+        //开始请求数据
+        $.ajax({
+            url: "http://localhost:8889/v2/get_feng_wei",
+            dataType: "json",
+            data: {
+                "shafa_id": SF_CODE,
+                "types": "人工"
+            },
+            type: "get",
+            async: false,
+            success: function (data) {
+                $.each(data.data, function (index, element) {
+
+                    //绘制数据 element.size
+                    str = "        <tr class='rengong_dd'>" +
+                        "            <td  name=\"fw_name\" >" + element.fen_wei_name + "</td>\n" +
+                        "            <td ><input readonly='readonly' class='name' name=\"input_name\" value=\"" + element.cl_name + "\"/ ></td>\n" +
+                        "            <td ><input readonly='readonly' class='name' name=\"input_size\" value=\"" + element.total_price + "\"/ ></td>\n" +
+                        "            <td><textarea  readonly='readonly' class='name' >\n" + element.descs + " </textarea></td>\n" +
+                        "            <td ><a id='delte' style='color: red' >删除</a></td>\n" +
+                        "        </tr>"
+                    $("#rengong_dataTable").append(str)
+
+
+                    //绘制导出表
+                    str2 = "        <tr >" +
+                        "            <td   >" + element.fen_wei_name + "</td>\n" +
+                        "            <td   >" + element.cl_name + "</td>\n" +
+                        "            <td   >" + element.total_price + "</td>\n" +
+                        "            <td   >" + element.descs + "</td>\n" +
+                        "        </tr>"
+                    $("#rengong_dataTable_export").append(str2)
+                })
+
+            },
+        })
+
+    }
+
+    //删除方法
+
+
+    $('#rengong_select_bu').on('click', function () {
+        rengong_AddTr();
+    })
+
+    $('#rengong_select_bu1').on('click', function () {
+        rengong_PostData();
+    })
+
+    //退出登陆
+    $('#logout').on('click', function () {
+        alert("logout")
+        logout()
+        self.location = 'Public/login.html'
+    })
+
+
+</script>
+
+<script>
+
+
+    function base64(content) {
+        return window.btoa(unescape(encodeURIComponent(content)));
+    }
+
+    var format = function (s, c) {
+        return s.replace(/{(\w+)}/g,
+            function (m, p) {
+                return c[p];
+            });
+    }
+
+    //导出html表格为 excel 文件
+    function rengong_toExcel() {
+
+        var head = "   <tr>\n" +
+            "            <td colspan=\"4\" style=\"text-align: center ;background: #0e90d2;font-size: 50px\">" + SF_NAME + " 人工成本</td>\n" +
+            "        </tr>"
+        var excelContent = head + $("#rengong_dataTable_export").html();
+
+        //    alert(excelContent)
+        var excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
+        excelFile += "<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>";
+        excelFile += "<body><table width='50%'  border='1'>";
+        excelFile += excelContent;
+        excelFile += "</table></body>";
+        excelFile += "</html>";
+        //定义excel 的sheet名称
+        var ctx = {worksheet: "人工清单"};
+        var link = "data:application/vnd.ms-excel;base64," + base64(format(excelFile, ctx));
+        var a = document.createElement("a");
+        //定义excel 的文件名称
+        var fileName = "人工清单_";
+        a.download = fileName + SF_NAME + ".xls";
+        a.href = link;
+        a.click();
+    }
+
+</script>

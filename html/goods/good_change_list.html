@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/style.css"/>
+    <script type="text/javascript" src="../Js/jquery.js"></script>
+    <script type="text/javascript" src="../Js/jquery.sorted.js"></script>
+    <script type="text/javascript" src="../Js/bootstrap.js"></script>
+    <script type="text/javascript" src="../Js/ckform.js"></script>
+    <script type="text/javascript" src="../Js/common.js"></script>
+    <script type="text/javascript" src="../Js/cookieHelp.js"></script>
+    <script type="text/javascript" src="../Js/page.js"></script>
+
+    <style type="text/css">
+        body {
+            padding-bottom: 40px;
+        }
+
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="form-inline definewidth m20" action="index.html" method="get">
+    &nbsp;
+    类型：
+    <input type="text" name="types" id='change_types' list="change_types_list" autocomplete="off" placeholder="配置的类型">
+    <datalist id="change_types_list"></datalist>
+    <button id="search" type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a class="btn btn-success " href="good_change_add.html">新增</a>
+    <!--<button type="button" class="btn btn-success" id="addnew">新增用户</button>-->
+</div>
+<table id='ClassTable' class="table table-bordered table-hover definewidth m10">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>名称</th>
+        <th>配置类型</th>
+        <th>换算类型</th>
+        <th>值</th>
+        <th>创建时间</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+</table>
+
+<input id="page" type="hidden">
+<input id="size" type="hidden">
+</body>
+</html>
+
+<script>
+    let page = 1
+    let size = 20
+    let total = 0
+    $('#page').val(page)
+    $('#size').val(size)
+    $('#search').on('click', function () {
+        $('tr.data_1').remove();
+        ReloadData()
+
+    })
+
+
+    $(document).ready(function () {
+        let str2 = " <option  value='损耗' ></option>\n"
+        str2 += " <option  value='换算' ></option>\n"
+        $("datalist#change_types_list").append(str2)
+        const username = getUserName();
+        const bb = checkCookie();
+
+        if (bb == false) {
+            //document.location.url = '/Public/login.html'
+            self.location = 'Public/login.html'
+            // top.location = '/Public/login.html'
+        } else {
+            $("#name").html(username)
+        }
+        //查询列表
+        $.ajax({
+            url: "http://localhost:8889/v2/get_goods_changeList",
+            dataType: "json",
+            data: {
+                "page": $("#page").val(),
+                "size": $("#size").val(),
+                "change_type": $("#change_types").val(),
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $.each(data.data.list, function (index, element) {
+                    $("#ClassTable").append('<tr class="data_1" >      ' +
+                        '<td> ' + element.id + ' </td>' +
+                        '<td> ' + element.c_name + '</td> ' +
+                        '<td> ' + element.change_type + '</td> ' +
+                        '<td> ' + element.types + '</td> ' +
+                        '<td> ' + element.values_l + '</td> ' +
+                        '<td> ' + element.create_time + '</td> ' +
+                        '<td>  <input class="delete_change" type="hidden" value="' + element.id + '"> <a href="good_change_edit.html?change_id=' + element.id + '">编辑</a> <a id=\'delte11\' style=\'color: red\' >删除</a></td> ' +
+
+                        '    </tr>');
+                })
+                total = data.data.total
+                LoadDiv(data.data.total, data.data.page);
+                DelteChange()
+            },
+        })
+    })
+
+    function DelteChange() {
+        $("a#delte11").on('click', function () {
+
+            //  alert( $(this).parent().parent().parent().remove())
+            change_delete_id = $(this).parent().find(".delete_change").val()
+            alert(change_delete_id)
+            $.ajax({
+                url: "http://localhost:8889/v2/delete_change",
+                dataType: "json",
+                data: {
+                    "id": change_delete_id
+                },
+                type: "GET",
+                async: false,
+                success: function (data) {
+                    if (data.status == 200) {
+                        alert("删除成功")
+                        ReloadData()
+                    } else {
+                        alert("删除失败")
+
+                    }
+                },
+            })
+        })
+
+    }
+
+    function ReloadData() {
+        //先清除数据
+        $('tr.data_1').remove()
+
+        $.ajax({
+            url: "http://localhost:8889/v2/get_goods_changeList",
+            dataType: "json",
+            data: {
+                "page": $("#page").val(),
+                "size": $("#size").val(),
+                "change_type": $("#change_types").val(),
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $.each(data.data.list, function (index, element) {
+                    $("#ClassTable").append('<tr class="data_1">      ' +
+                        '<td> ' + element.id + ' </td>' +
+                        '<td> ' + element.c_name + '</td> ' +
+                        '<td> ' + element.change_type + '</td> ' +
+                        '<td> ' + element.types + '</td> ' +
+                        '<td> ' + element.values_l + '</td> ' +
+                        '<td> ' + element.create_time + '</td> ' +
+                        '<td>  <input class="delete_change" type="hidden" value="' + element.id + '"> <a href="good_change_edit.html?change_id=' + element.id + '">编辑</a> <a id=\'delte11\' style=\'color: red\' >删除</a></td> ' +
+
+                        '    </tr>');
+                })
+                total = data.data.total
+                LoadDiv(data.data.total, data.data.page);
+                DelteChange()
+            },
+        })
+
+    }
+
+    function LoadDiv(total, page) {
+        $("#ClassTable").append('    <tr class="data_1">\n' +
+            '        <td colspan="16" style="text-align: right"><span class="next"><a onclick="NextPage()">下一页</a></span>\n' +
+            '            <span class="prev"><a  onclick="LastPage()">上一页</a></span>\n' +
+            '            <span class="total" > ' + '总共 <a>' + total + ' </a>条' + '</span>\n' +
+            '            <span class="cur_page" >' + '当前第 <a>' + page + ' </a>页' + '</span></td>\n' +
+            '    </tr>')
+    }
+
+
+    function NextPage() {
+
+        maxPage = parseInt(total / size) + 1
+        if (page >= maxPage) {
+            alert("当前已是第最后一页")
+        } else {
+            page = page + 1
+            $('#page').val(page)
+            $('.cur_page').html('当前第' + page + '页')
+            ReloadData()
+        }
+    }
+
+    function LastPage() {
+        if (page == 1) {
+            alert("当前已是第一页")
+        } else {
+            page = page - 1
+            $('#page').val(page)
+            $('.cur_page').html('当前第' + page + '页')
+            ReloadData()
+        }
+    }
+
+    //退出登陆
+    $('#logout').on('click', function () {
+        alert("logout")
+        logout()
+        self.location = 'Public/login.html'
+    })
+
+
+</script>
+
+<script>
+
+
+</script>

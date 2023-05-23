@@ -38,13 +38,15 @@
 <body>
 <div class="form-inline definewidth m20" action="index.html" method="get">
     材料编码：
-    <input type="text" name="username" id="goodsCode" class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
+    <input type="text" name="goodsCode" id="goodsCode" class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
     材料名称：
-    <input type="text" name="username" id="goodsName" class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
+    <input type="text" name="goodsName" id="goodsName" class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
     分类名称：
     <select name="username" id='className'>
         <option></option>
     </select>
+    损耗值：
+    <input type="text" name="shunhao_num" id="shunhao_num" class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
 
     <button id="search" type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp;
     <button id="search1" type="submit" class="btn btn-primary" onclick="addClick()">换算损耗</button>
@@ -167,7 +169,7 @@
             return
         }
         $.ajax({
-            url: GetBaseHost() +"/v2/post_goods_change_desc",
+            url: GetBaseHost() + "/v2/post_goods_change_desc",
             dataType: "json",
             data: {
                 "id": change_id,
@@ -195,7 +197,7 @@
             return
         }
         $.ajax({
-            url: GetBaseHost() +"/v2/post_goods_merge_desc",
+            url: GetBaseHost() + "/v2/post_goods_merge_desc",
             dataType: "json",
             data: {
                 "id": merge_id,
@@ -247,7 +249,7 @@
     function loadChangeData() {
         $('tr.data_2222').remove()
         $.ajax({
-            url: GetBaseHost() +"/v2/get_goods_changeList",
+            url: GetBaseHost() + "/v2/get_goods_changeList",
             dataType: "json",
             data: {
                 "page": 1,
@@ -276,7 +278,7 @@
     function loadMergeData() {
         $('tr.data_3333').remove()
         $.ajax({
-            url: GetBaseHost() +"/v2/get_merge_list",
+            url: GetBaseHost() + "/v2/get_merge_list",
             dataType: "json",
             data: {
                 "page": 1,
@@ -370,6 +372,12 @@
     $('#page').val(page)
     $('#size').val(size)
     $('#search').on('click', function () {
+        $('#page').val(1)
+        $('#size').val(20)
+        page = 1
+        size = 20
+        total = 0
+        changeCodeStr = ""
         $('tr.data_1').remove();
         ReloadData()
 
@@ -391,7 +399,7 @@
         }
         //查询列表
         $.ajax({
-            url: GetBaseHost() +"/v2/get_goods_list",
+            url: GetBaseHost() + "/v2/get_goods_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -399,6 +407,7 @@
                 "goods_name": $("#goodsName").val(),
                 "goods_code": $("#goodsCode").val(),
                 "goods_type": $("#className").val(),
+                "shunhao": $("#shunhao_num").val(),
             },
             type: "GET",
             async: false,
@@ -437,7 +446,7 @@
         $('tr.data_1').remove()
 
         $.ajax({
-            url: GetBaseHost() +"/v2/get_goods_list",
+            url: GetBaseHost() + "/v2/get_goods_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -445,6 +454,7 @@
                 "goods_name": $("#goodsName").val(),
                 "goods_code": $("#goodsCode").val(),
                 "goods_type": $("#className").val(),
+                "shunhao": $("#shunhao_num").val(),
             },
             type: "GET",
             async: false,
@@ -498,8 +508,11 @@
 
 
     function NextPage() {
-
-        maxPage = parseInt(total / size) + 1
+        yushu = total % size
+        maxPage = parseInt(total / size)
+        if (yushu > 0) {
+            maxPage = maxPage + 1
+        }
         if (page >= maxPage) {
             alert("当前已是第最后一页")
         } else {

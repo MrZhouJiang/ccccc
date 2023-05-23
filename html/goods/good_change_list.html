@@ -93,7 +93,7 @@
         }
         //查询列表
         $.ajax({
-            url: GetBaseHost() +"/v2/get_goods_changeList",
+            url: GetBaseHost() + "/v2/get_goods_changeList",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -128,7 +128,7 @@
             //  alert( $(this).parent().parent().parent().remove())
             change_delete_id = $(this).parent().find(".delete_change").val()
             $.ajax({
-                url: GetBaseHost() +"/v2/delete_change",
+                url: GetBaseHost() + "/v2/delete_change",
                 dataType: "json",
                 data: {
                     "id": change_delete_id
@@ -154,7 +154,7 @@
         $('tr.data_1').remove()
 
         $.ajax({
-            url: GetBaseHost() +"/v2/get_goods_changeList",
+            url: GetBaseHost() + "/v2/get_goods_changeList",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -195,8 +195,11 @@
 
 
     function NextPage() {
-
-        maxPage = parseInt(total / size) + 1
+        yushu = total % size
+        maxPage = parseInt(total / size)
+        if (yushu > 0) {
+            maxPage = maxPage + 1
+        }
         if (page >= maxPage) {
             alert("当前已是第最后一页")
         } else {

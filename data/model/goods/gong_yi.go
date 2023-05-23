@@ -24,7 +24,8 @@ type GongYi struct {
 	CreateTime time.Time `json:"create_time"`
 	JiJiaNum   string    `json:"ji_jia_num"`
 	//使用部位
-	GoodsPoint string `json:"goods_point"`
+	GoodsPoint   string  `json:"goods_point"`
+	ShunHaoPrice float64 `json:"shun_hao_price"`
 }
 
 const gongyiTableName = "sofa_gong_yi"

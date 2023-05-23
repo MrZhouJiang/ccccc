@@ -37,7 +37,7 @@ function LoadBaseData() {
 
 function GetBaseHost(){
     return "http://192.168.202.5:8889"
-
+   // return "http://127.0.0.1:8889"
 }
 
 function GetQueryString(name) {

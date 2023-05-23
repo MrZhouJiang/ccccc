@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func GetGoodsList(page, size int, name, goodsCode, typeName string) (gs []GoodsDto, total int, err error) {
+func GetGoodsList(page, size int, name, goodsCode, typeName, shunhao string) (gs []GoodsDto, total int, err error) {
 	offset := (page - 1) * size
 
 	data := model.GoodsList{}
@@ -22,7 +22,7 @@ func GetGoodsList(page, size int, name, goodsCode, typeName string) (gs []GoodsD
 		typeCode = typeInfo.GoodsTypeId
 	}
 
-	total, err = data.GetListPage(name, goodsCode, typeCode, offset, size, nil)
+	total, err = data.GetListPage(name, goodsCode, typeCode, shunhao, offset, size, nil)
 	if err != nil {
 		log.Printf("GetShaFaImportList err :%v", err)
 		return
@@ -40,9 +40,9 @@ func GetGoodsList(page, size int, name, goodsCode, typeName string) (gs []GoodsD
 		errx := changeDesc.GetListByCpCode(datum.CpCode, nil)
 		if errx == nil {
 			for _, info := range changeDesc {
-				if info.ChangeType == "损耗" && (datum.ShunHao == "" || datum.ShunHao == "0") {
-					data[i].ShunHao = fmt.Sprintf("%.3f", info.ValuesL)
-				}
+				/*				if info.ChangeType == "损耗" && (datum.ShunHao == "" || datum.ShunHao == "0") {
+								data[i].ShunHao = fmt.Sprintf("%.3f", info.ValuesL)
+							}*/
 				if info.ChangeType == "换算" {
 
 					data[i].DomH = fmt.Sprintf("%s%.3f", info.Types, info.ValuesL)
@@ -276,6 +276,8 @@ func GetFenWeiListGroupByName(shafaId, types string) (list []GetFenWeiListGroupB
 	}
 
 	for gongyiName, infos := range typeMaps {
+
+		// 这里 还要处理下数据
 		outList := GetFenWeiListGroupByNameDto{
 			GongYiName: gongyiName,
 			Size:       len(infos),
@@ -288,9 +290,16 @@ func GetFenWeiListGroupByName(shafaId, types string) (list []GetFenWeiListGroupB
 }
 
 type GetFenWeiListGroupByNameDto struct {
-	GongYiName string                         `json:"gong_yi_name"`
-	Size       int                            `json:"size"`
-	List       []GetFenWeiListGroupByNameInfo `json:"list"`
+	GongYiName  string                         `json:"gong_yi_name"`
+	Size        int                            `json:"size"`
+	List        []GetFenWeiListGroupByNameInfo `json:"list"`
+	ShunhaoList []ShunHaoInfo                  `json:"shunhao_list"`
+}
+type ShunHaoInfo struct {
+	Name    string  `json:"name"`
+	ClList  string  `json:"cl_list"`
+	Shunhao float64 `json:"shunhao"`
+	Price   float64 `json:"price"`
 }
 type GetFenWeiListGroupByNameInfo struct {
 

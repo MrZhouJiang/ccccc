@@ -114,6 +114,13 @@
                 </button>
             </td>
         </tr>
+        <tr>
+            <td colspan="3" style="text-align: center">
+                <button
+                        type="button" class="btn btn-success" name="backid" onclick="backIndex()">返回列表
+                </button>
+            </td>
+        </tr>
     </table>
 </form>
 </body>
@@ -151,7 +158,7 @@
             "            <td   >" + fenWeiName + "</td>\n" +
             "            <td   >" + goods_name + "</td>\n" +
             "            <td   >" + totalPrice + "</td>\n" +
-            "            <td   >" +desc + "</td>\n" +
+            "            <td   >" + desc + "</td>\n" +
             "        </tr>"
         $("#rengong_dataTable_export").append(str2)
         //
@@ -191,7 +198,7 @@
 
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/post_feng_wei",
+            url: GetBaseHost() + "/v2/post_feng_wei",
             dataType: "json",
             data: {
                 "data": json,
@@ -215,7 +222,7 @@
     function rengong_loadData() {
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_feng_wei",
+            url: GetBaseHost() + "/v2/get_feng_wei",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,

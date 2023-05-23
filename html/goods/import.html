@@ -194,8 +194,11 @@
 
 
     function NextPage() {
-
-        maxPage = parseInt(total / size) + 1
+        yushu = total % size
+        maxPage = parseInt(total / size)
+        if (yushu > 0) {
+            maxPage = maxPage + 1
+        }
         if (page >= maxPage) {
             alert("当前已是第最后一页")
         } else {

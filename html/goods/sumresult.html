@@ -71,6 +71,14 @@
                 导出物料表
             </button>
         </td>
+        <td colspan="2" style="text-align: center">
+            <button
+                    type="button" class="btn btn-primary" name="backid" onclick="backIndex()">返回列表
+            </button>
+        </td>
+    </tr>
+    <tr>
+
     </tr>
 
 </table>
@@ -82,12 +90,16 @@
 
 <script>
 
+    function backIndex() {
+        window.location.href = "import.html";
+    }
+
     ssf_code = GetQueryString("sf_code")
     sofa_name = ""
 
     function getExportGoodsData() {
         $.ajax({
-            url: GetBaseHost() +"/v2/get_export_goods_group_by_fen_wei",
+            url: GetBaseHost() + "/v2/get_export_goods_group_by_fen_wei",
             dataType: "json",
             data: {
                 "shafa_id": ssf_code
@@ -129,7 +141,7 @@
         getExportGoodsData()
         //查询列表
         $.ajax({
-            url: GetBaseHost() +"/v2/get_all_price",
+            url: GetBaseHost() + "/v2/get_all_price",
             dataType: "json",
             data: {
 
@@ -159,7 +171,7 @@
                     if (element.type_name == "裁工") {
                         ll = element.list.length
                         str1 = '<tr class="data_1"  >      ' +
-                            '<td colspan="6" style="text-align: center"> 裁工成本 </td>' +
+                            '<td colspan="7" style="text-align: center"> 裁工成本 </td>' +
                             '    </tr>'
                         str1 += '<tr class="data_1"  >      ' +
                             '<td > 分位名称 </td>' +
@@ -168,6 +180,7 @@
                             '<td > 单位</td>' +
                             '<td > 单价</td>' +
                             '<td > 总价</td>' +
+                            '<td > 损耗</td>' +
                             '    </tr>'
                         $.each(element.list, function (index, element1) {
                             str1 += '<tr class="data_1"  >      ' +
@@ -177,11 +190,18 @@
                                 '<td >' + element1.unit + ' </td>' +
                                 '<td >' + element1.price + ' </td>' +
                                 '<td >' + element1.total_price + ' </td>' +
+                                '<td >' + element1.shun_hao_nums + ' </td>' +
                                 '    </tr>'
                         })
                         str1 += '<tr class="data_1"  >      ' +
-                            '<td > 裁工成本合计 </td>' +
-                            '<td colspan="5">' + element.total_price + ' </td>' +
+                            '<td colspan="5"> 裁工成本合计 </td>' +
+                            '<td >' + element.total_price + ' </td>' +
+                            '<td > </td>' +
+                            '    </tr>'
+                        str1 += '<tr class="data_1"  >      ' +
+                            '<td colspan="5"> 损耗合计 </td>' +
+                            '<td > </td>' +
+                            '<td >' + element.total_sunhao + ' </td>' +
                             '    </tr>'
                         $('#ClassTable_sums').append(str1)
                     }// 结束一个了
@@ -189,7 +209,7 @@
                     if (element.type_name == "车工") {
                         ll = element.list.length
                         str2 = '<tr class="data_1"  >      ' +
-                            '<td colspan="6" style="text-align: center"> 车工成本 </td>' +
+                            '<td colspan="7" style="text-align: center"> 车工成本 </td>' +
                             '    </tr>'
                         str2 += '<tr class="data_1"  >      ' +
                             '<td > 分位名称 </td>' +
@@ -198,6 +218,7 @@
                             '<td > 单位</td>' +
                             '<td > 单价</td>' +
                             '<td > 总价</td>' +
+                            '<td > 损耗</td>' +
                             '    </tr>'
                         $.each(element.list, function (index, element1) {
                             str2 += '<tr class="data_1"  >      ' +
@@ -207,11 +228,18 @@
                                 '<td >' + element1.unit + ' </td>' +
                                 '<td >' + element1.price + ' </td>' +
                                 '<td >' + element1.total_price + ' </td>' +
+                                '<td >' + element1.shun_hao_nums + ' </td>' +
                                 '    </tr>'
                         })
                         str2 += '<tr class="data_1"  >      ' +
-                            '<td > 车工成本合计 </td>' +
-                            '<td colspan="5">' + element.total_price + ' </td>' +
+                            '<td colspan="5"> 车工成本合计 </td>' +
+                            '<td >' + element.total_price + ' </td>' +
+                            '<td > </td>' +
+                            '    </tr>'
+                        str2 += '<tr class="data_1"  >      ' +
+                            '<td colspan="5"> 损耗合计 </td>' +
+                            '<td > </td>' +
+                            '<td >' + element.total_sunhao + ' </td>' +
                             '    </tr>'
                         $('#ClassTable_sums').append(str2)
                     }// 结束一个了
@@ -219,7 +247,7 @@
                     if (element.type_name == "海绵") {
                         ll = element.list.length
                         str3 = '<tr class="data_1"  >      ' +
-                            '<td colspan="6" style="text-align: center"> 海绵成本 </td>' +
+                            '<td colspan="7" style="text-align: center"> 海绵成本 </td>' +
                             '    </tr>'
                         str3 += '<tr class="data_1"  >      ' +
                             '<td > 分位名称 </td>' +
@@ -228,6 +256,7 @@
                             '<td > 单位</td>' +
                             '<td > 单价</td>' +
                             '<td > 总价</td>' +
+                            '<td > 损耗</td>' +
                             '    </tr>'
                         $.each(element.list, function (index, element1) {
                             str3 += '<tr class="data_1"  >      ' +
@@ -237,11 +266,18 @@
                                 '<td >' + element1.unit + ' </td>' +
                                 '<td >' + element1.price + ' </td>' +
                                 '<td >' + element1.total_price + ' </td>' +
+                                '<td >' + element1.shun_hao_nums + ' </td>' +
                                 '    </tr>'
                         })
                         str3 += '<tr class="data_1"  >      ' +
-                            '<td > 海绵成本合计 </td>' +
-                            '<td colspan="5">' + element.total_price + ' </td>' +
+                            '<td colspan="5"> 海绵成本合计 </td>' +
+                            '<td >' + element.total_price + ' </td>' +
+                            '<td > </td>' +
+                            '    </tr>'
+                        str3 += '<tr class="data_1"  >      ' +
+                            '<td colspan="5"> 损耗合计 </td>' +
+                            '<td > </td>' +
+                            '<td >' + element.total_sunhao + ' </td>' +
                             '    </tr>'
                         $('#ClassTable_sums').append(str3)
                     }// 结束一个了
@@ -251,7 +287,7 @@
                     if (element.type_name == "扪工") {
                         ll = element.list.length
                         str4 = '<tr class="data_1"  >      ' +
-                            '<td colspan="6" style="text-align: center"> 扪工成本 </td>' +
+                            '<td colspan="7" style="text-align: center"> 扪工成本 </td>' +
                             '    </tr>'
                         str4 += '<tr class="data_1"  >      ' +
                             '<td > 分位名称 </td>' +
@@ -260,6 +296,7 @@
                             '<td > 单位</td>' +
                             '<td > 单价</td>' +
                             '<td > 总价</td>' +
+                            '<td > 损耗</td>' +
                             '    </tr>'
                         $.each(element.list, function (index, element1) {
                             str4 += '<tr class="data_1"  >      ' +
@@ -269,11 +306,20 @@
                                 '<td >' + element1.unit + ' </td>' +
                                 '<td >' + element1.price + ' </td>' +
                                 '<td >' + element1.total_price + ' </td>' +
+                                '<td >' + element1.shun_hao_nums + ' </td>' +
                                 '    </tr>'
                         })
                         str4 += '<tr class="data_1"  >      ' +
-                            '<td > 扪工成本合计 </td>' +
-                            '<td colspan="5">' + element.total_price + ' </td>' +
+                            '<td colspan="5"> 扪工成本合计 </td>' +
+
+                            '<td >' + element.total_price + ' </td>' +
+                            '<td > </td>' +
+                            '    </tr>'
+                        str4 += '<tr class="data_1"  >      ' +
+                            '<td colspan="5"> 损耗合计 </td>' +
+                            '<td > </td>' +
+                            '<td >' + element.total_sunhao + ' </td>' +
+
                             '    </tr>'
                         $('#ClassTable_sums').append(str4)
                     }// 结束一个了
@@ -282,7 +328,7 @@
                     if (element.type_name == "木工") {
                         ll = element.list.length
                         str5 = '<tr class="data_1"  >      ' +
-                            '<td colspan="6" style="text-align: center"> 木工成本 </td>' +
+                            '<td colspan="7" style="text-align: center"> 木工成本 </td>' +
                             '    </tr>'
                         str5 += '<tr class="data_1"  >      ' +
                             '<td > 分位名称 </td>' +
@@ -291,6 +337,7 @@
                             '<td > 单位</td>' +
                             '<td > 单价</td>' +
                             '<td > 总价</td>' +
+                            '<td > 损耗</td>' +
                             '    </tr>'
                         $.each(element.list, function (index, element1) {
                             str5 += '<tr class="data_1"  >      ' +
@@ -300,11 +347,18 @@
                                 '<td >' + element1.unit + ' </td>' +
                                 '<td >' + element1.price + ' </td>' +
                                 '<td >' + element1.total_price + ' </td>' +
+                                '<td >' + element1.shun_hao_nums + ' </td>' +
                                 '    </tr>'
                         })
                         str5 += '<tr class="data_1"  >      ' +
-                            '<td > 木工成本合计 </td>' +
-                            '<td colspan="5">' + element.total_price + ' </td>' +
+                            '<td colspan="5"> 木工成本合计 </td>' +
+                            '<td >' + element.total_price + ' </td>' +
+                            '<td > </td>' +
+                            '    </tr>'
+                        str5 += '<tr class="data_1"  >      ' +
+                            '<td colspan="5"> 损耗合计 </td>' +
+                            '<td > </td>' +
+                            '<td >' + element.total_sunhao + ' </td>' +
                             '    </tr>'
                         $('#ClassTable_sums').append(str5)
                     }// 结束一个了
@@ -312,7 +366,7 @@
                     if (element.type_name == "人工") {
                         ll = element.list.length
                         str6 = '<tr class="data_1"  >      ' +
-                            '<td colspan="6" style="text-align: center"> 人工成本 </td>' +
+                            '<td colspan="7" style="text-align: center"> 人工成本 </td>' +
                             '    </tr>'
                         str6 += '<tr class="data_1"  >      ' +
                             '<td > 分位名称 </td>' +
@@ -325,12 +379,12 @@
                                 '<td >' + element1.fen_wei_name + ' </td>' +
                                 '<td >' + element1.cl_name + ' </td>' +
                                 '<td >' + element1.total_price + ' </td>' +
-                                '<td colspan="3">' + element1.descs + ' </td>' +
+                                '<td colspan="4">' + element1.descs + ' </td>' +
                                 '    </tr>'
                         })
                         str6 += '<tr class="data_1"  >      ' +
-                            '<td > 人工成本合计 </td>' +
-                            '<td colspan="5">' + element.total_price + ' </td>' +
+                            '<td colspan="5"> 人工成本合计 </td>' +
+                            '<td >' + element.total_price + ' </td>' +
                             '    </tr>'
                         $('#ClassTable_sums').append(str6)
                     }// 结束一个了
@@ -338,7 +392,7 @@
                     if (element.type_name == "其他") {
                         ll = element.list.length
                         str7 = '<tr class="data_1"  >      ' +
-                            '<td colspan="6" style="text-align: center"> 其他成本 </td>' +
+                            '<td colspan="7" style="text-align: center"> 其他成本 </td>' +
                             '    </tr>'
                         str7 += '<tr class="data_1"  >      ' +
                             '<td > 分位名称 </td>' +
@@ -351,12 +405,12 @@
                                 '<td >' + element1.fen_wei_name + ' </td>' +
                                 '<td >' + element1.cl_name + ' </td>' +
                                 '<td >' + element1.total_price + ' </td>' +
-                                '<td colspan="3">' + element1.descs + ' </td>' +
+                                '<td colspan="4">' + element1.descs + ' </td>' +
                                 '    </tr>'
                         })
                         str7 += '<tr class="data_1"  >      ' +
-                            '<td > 其他成本合计 </td>' +
-                            '<td colspan="5">' + element.total_price + ' </td>' +
+                            '<td  colspan="5"> 其他成本合计 </td>' +
+                            '<td>' + element.total_price + ' </td>' +
                             '    </tr>'
                         $('#ClassTable_sums').append(str7)
                     }// 结束一个了
@@ -364,11 +418,16 @@
 
                 //结束了分位计算价格
                 //开始汇总
-                $('#ClassTable_sums').append('<tr> <td colspan="6" style="text-align: center" >总计</td>  </tr>')
+                $('#ClassTable_sums').append('<tr> <td colspan="7" style="text-align: center" >总计</td>  </tr>')
                 str_str = '<tr class="data_1"  >      ' +
 
-                    '<td colspan="3" style="text-align: center;color: red" >' + "沙发总计成本" + ' </td>' +
+                    '<td colspan="4" style="text-align: center;color: red" >' + "沙发总计成本" + ' </td>' +
                     '<td colspan="3"  style="text-align: center;color: red">' + data.data.total_price + ' </td>' +
+                    '    </tr>'
+                str_str += '<tr class="data_1"  >      ' +
+
+                    '<td colspan="4" style="text-align: center;color: red" >' + "损耗合计" + ' </td>' +
+                    '<td colspan="3"  style="text-align: center;color: red">' + data.data.total_shun_hao + ' </td>' +
                     '    </tr>'
                 $('#ClassTable_sums').append(str_str)
             },

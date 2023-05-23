@@ -27,9 +27,11 @@ func main() {
 
 	common.InitBaseData()
 	//sysnc.Task()
-	sysnc.StartSyncCp()
+	//sysnc.StartSyncCp()
+
 	//sysnc.Task()
 	//默认地址
+	go sysnc.Task_base()
 	engine.Run("192.168.202.5:8889")
 
 }

@@ -210,8 +210,12 @@
                 <button id='caigong_select_bu2' class="btn btn-primary" type="button" onclick="caigonggetExportInfo()">
                     导出物料表
                 </button>
+                <button
+                        type="button" class="btn btn-warning" name="backid"  onclick="backIndex()">返回列表
+                </button>
             </td>
         </tr>
+
     </table>
 </form>
 </body>
@@ -254,7 +258,7 @@
 
         //开始计算数据
         $.ajax({
-            url: GetBaseHost() +"/v2/sums",
+            url: GetBaseHost() + "/v2/sums",
             dataType: "json",
             data: {
                 "num": num,
@@ -346,7 +350,7 @@
         //获取物料信息
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_goods_by_id",
+            url: GetBaseHost() + "/v2/get_goods_by_id",
             dataType: "json",
             data: {
                 "cp_code": goods_cpcode,
@@ -419,6 +423,9 @@
         $("#caigong_dataTable_export").append(str2)
     }
 
+
+
+
     function caigong_PostData() {
         var list = []
         var dto = {}
@@ -464,7 +471,7 @@
 
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/post_feng_wei",
+            url: GetBaseHost() + "/v2/post_feng_wei",
             dataType: "json",
             data: {
                 "data": json,
@@ -488,7 +495,7 @@
     function caigong_loadData() {
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_feng_wei",
+            url: GetBaseHost() + "/v2/get_feng_wei",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,

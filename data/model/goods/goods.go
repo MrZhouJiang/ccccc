@@ -41,6 +41,8 @@ type Goods struct {
 	DomId int `json:"dom_id"`
 	//通用名称
 	TyName string `json:"ty_name"`
+	//是否停用  1 停用
+	SFTY int `json:"sfty"`
 }
 
 const tabel_name = "goods"
@@ -96,7 +98,7 @@ func (r *GoodsList) GetByType(d *gorm.DB, cpType string) error {
 	return err
 }
 
-func (rList *GoodsList) GetListPage(name, code, types string, offset, limit int, d *gorm.DB) (total int, err error) {
+func (rList *GoodsList) GetListPage(name, code, types, shunhao string, offset, limit int, d *gorm.DB) (total int, err error) {
 	if d == nil {
 		d = db.BaseDB
 	}
@@ -114,6 +116,11 @@ func (rList *GoodsList) GetListPage(name, code, types string, offset, limit int,
 		//说明查询条件不为空
 		query = query.Where("cp_type_code = ? ", types)
 	}
+	if shunhao != "" {
+		//说明查询条件不为空
+		query = query.Where(" convert(shun_hao,decimal)=convert( ?,decimal) ", shunhao)
+	}
+	query = query.Where("sfty = 0")
 
 	query.Count(&total)
 	err = query.Order("id desc").Offset(offset).Limit(limit).Find(&rList).Error
@@ -168,7 +175,7 @@ func (rList *GoodsList) GetAllGoodsList(d *gorm.DB) (list []AllGoodsDesc, err er
 	}
 	query := d.Table(tabel_name)
 	query = query.Select("cp_code , cp_name,cp_gui_ge,cp_main_unit,fu_zhu_unit,main_xi_shu,fu_zhu_xi_shu,main_size,price,shun_hao,change_p,cp_type_code,cp_desc")
-	err = query.Order("id desc").Find(&list).Error
+	err = query.Where(" sfty=0 ").Order("id desc").Find(&list).Error
 	return
 
 }

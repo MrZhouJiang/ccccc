@@ -251,9 +251,10 @@ func GetGoodsList(c *gin.Context) {
 	name := params["goods_name"]
 	code := params["goods_code"]
 	types := params["goods_type"]
+	shunhao := params["shunhao"]
 	log.Printf("goods_name:%s goods_code: %s goods_type:%s", name, code, types)
 
-	d, total, err := service.GetGoodsList(page, size, name, code, types)
+	d, total, err := service.GetGoodsList(page, size, name, code, types, shunhao)
 	if err != nil {
 		log.Printf("GetGoodsList err :%v", err)
 
@@ -395,6 +396,23 @@ func PostFengWei(c *gin.Context) {
 		insertInfo.GongYiName = detail.GongYiName
 		insertInfo.JiJiaNum = detail.JiJiaNum
 		insertInfo.GoodsPoint = detail.GoodsPoint
+		//获取物料信息
+		goods := model.Goods{}
+		err1 := goods.Get("", detail.CpCode)
+		if err1 != nil {
+			log.Printf("goods.Get err :%v", err)
+			resp.Status = 201
+			resp.Desc = err.Error()
+			return
+		}
+		//
+		if goods.ShunHao != "" {
+			price_f, _ := strconv.ParseFloat(detail.TotalPrice, 64)
+			shunhao_f, _ := strconv.ParseFloat(goods.ShunHao, 64)
+
+			xx := shunhao_f / 100
+			insertInfo.ShunHaoPrice = (xx / (xx + 1)) * price_f
+		}
 		err = insertInfo.Create(nil)
 		if err != nil {
 			log.Printf("insertInfo.Create err :%v", err)
@@ -786,7 +804,7 @@ out:
 	////////是否有材料合并规则
 	mergeDesc := model.GoodsMergeDesInfoDtoList{}
 	errx1 := mergeDesc.GetListByCpCode(cpCode, nil)
-	if errx1 == nil && len(mergeDesc) > 0 {
+	if errx1 == nil && len(mergeDesc) > 0 && mergeDesc[0].Price > 0 {
 		newPric := mergeDesc[0].Price
 		totalPrice = newPric * totalPrice_t
 	} else {
@@ -1225,6 +1243,7 @@ func GetAllPrice(c *gin.Context) {
 	}
 	AllTotalPrice := 0.0
 	var p1, p2, p3, p4, p5, p6, p7 float64
+	var s1, s2, s3, s4, s5, s6, s7 float64
 	yy1 := IInfo{}
 	yy2 := IInfo{}
 	yy3 := IInfo{}
@@ -1247,80 +1266,95 @@ func GetAllPrice(c *gin.Context) {
 			yy1.TypeName = "裁工"
 			p1 += price
 			yy1.TotalPrice = p1
+			yy1.TotalSunhao += yi.ShunHaoPrice
+			s1 = yy1.TotalSunhao
 			pp1 = append(pp1, IIIIInfo{
-				FenWeiName: yi.FenWeiName,
-				CLName:     yi.CLName,
-				CpCode:     yi.CpCode,
-				Size:       yi.Size,
-				Nums:       yi.Nums,
-				Unit:       yi.Unit,
-				TotalPrice: yi.TotalPrice,
-				Price:      GetCpPrice(yi.CpCode),
-				JiJiaNum:   yi.JiJiaNum,
+				FenWeiName:  yi.FenWeiName,
+				CLName:      yi.CLName,
+				CpCode:      yi.CpCode,
+				Size:        yi.Size,
+				Nums:        yi.Nums,
+				Unit:        yi.Unit,
+				TotalPrice:  yi.TotalPrice,
+				Price:       GetCpPrice(yi.CpCode),
+				JiJiaNum:    yi.JiJiaNum,
+				ShunHaoNums: fmt.Sprintf("%f", yi.ShunHaoPrice),
 			})
 		}
 		if yi.Types == "车工" {
 			yy2.TypeName = "车工"
 			p2 += price
 			yy2.TotalPrice = p2
+			yy2.TotalSunhao += yi.ShunHaoPrice
+			s2 = yy2.TotalSunhao
 			pp2 = append(pp2, IIIIInfo{
-				FenWeiName: yi.FenWeiName,
-				CpCode:     yi.CpCode,
-				CLName:     yi.CLName,
-				Size:       yi.Size,
-				Nums:       yi.Nums,
-				Unit:       yi.Unit,
-				TotalPrice: yi.TotalPrice,
-				Price:      GetCpPrice(yi.CpCode),
-				JiJiaNum:   yi.JiJiaNum,
+				FenWeiName:  yi.FenWeiName,
+				CpCode:      yi.CpCode,
+				CLName:      yi.CLName,
+				Size:        yi.Size,
+				Nums:        yi.Nums,
+				Unit:        yi.Unit,
+				TotalPrice:  yi.TotalPrice,
+				Price:       GetCpPrice(yi.CpCode),
+				JiJiaNum:    yi.JiJiaNum,
+				ShunHaoNums: fmt.Sprintf("%f", yi.ShunHaoPrice),
 			})
 		}
 		if yi.Types == "海绵" {
 			yy3.TypeName = "海绵"
 			p3 += price
 			yy3.TotalPrice = p3
+			yy3.TotalSunhao += yi.ShunHaoPrice
+			s3 = yy3.TotalSunhao
 			pp3 = append(pp3, IIIIInfo{
-				FenWeiName: yi.FenWeiName,
-				CpCode:     yi.CpCode,
-				CLName:     yi.CLName,
-				Size:       yi.Size,
-				Nums:       yi.Nums,
-				Unit:       yi.Unit,
-				TotalPrice: yi.TotalPrice,
-				Price:      GetCpPrice(yi.CpCode),
-				JiJiaNum:   yi.JiJiaNum,
+				FenWeiName:  yi.FenWeiName,
+				CpCode:      yi.CpCode,
+				CLName:      yi.CLName,
+				Size:        yi.Size,
+				Nums:        yi.Nums,
+				Unit:        yi.Unit,
+				TotalPrice:  yi.TotalPrice,
+				Price:       GetCpPrice(yi.CpCode),
+				JiJiaNum:    yi.JiJiaNum,
+				ShunHaoNums: fmt.Sprintf("%f", yi.ShunHaoPrice),
 			})
 		}
 		if yi.Types == "扪工" {
 			yy4.TypeName = "扪工"
 			p4 += price
 			yy4.TotalPrice = p4
+			yy4.TotalSunhao += yi.ShunHaoPrice
+			s4 = yy4.TotalSunhao
 			pp4 = append(pp4, IIIIInfo{
-				FenWeiName: yi.FenWeiName,
-				CLName:     yi.CLName,
-				CpCode:     yi.CpCode,
-				Size:       yi.Size,
-				Nums:       yi.Nums,
-				Unit:       yi.Unit,
-				TotalPrice: yi.TotalPrice,
-				Price:      GetCpPrice(yi.CpCode),
-				JiJiaNum:   yi.JiJiaNum,
+				FenWeiName:  yi.FenWeiName,
+				CLName:      yi.CLName,
+				CpCode:      yi.CpCode,
+				Size:        yi.Size,
+				Nums:        yi.Nums,
+				Unit:        yi.Unit,
+				TotalPrice:  yi.TotalPrice,
+				Price:       GetCpPrice(yi.CpCode),
+				JiJiaNum:    yi.JiJiaNum,
+				ShunHaoNums: fmt.Sprintf("%f", yi.ShunHaoPrice),
 			})
 		}
 		if yi.Types == "木工" {
 			yy5.TypeName = "木工"
 			p5 += price
 			yy5.TotalPrice = p5
+			yy5.TotalSunhao += yi.ShunHaoPrice
+			s5 = yy5.TotalSunhao
 			pp5 = append(pp5, IIIIInfo{
-				FenWeiName: yi.FenWeiName,
-				CLName:     yi.CLName,
-				CpCode:     yi.CpCode,
-				Size:       yi.Size,
-				Nums:       yi.Nums,
-				Unit:       yi.Unit,
-				TotalPrice: yi.TotalPrice,
-				Price:      GetCpPrice(yi.CpCode),
-				JiJiaNum:   yi.JiJiaNum,
+				FenWeiName:  yi.FenWeiName,
+				CLName:      yi.CLName,
+				CpCode:      yi.CpCode,
+				Size:        yi.Size,
+				Nums:        yi.Nums,
+				Unit:        yi.Unit,
+				TotalPrice:  yi.TotalPrice,
+				Price:       GetCpPrice(yi.CpCode),
+				JiJiaNum:    yi.JiJiaNum,
+				ShunHaoNums: fmt.Sprintf("%f", yi.ShunHaoPrice),
 			})
 		}
 		if yi.Types == "人工" {
@@ -1387,7 +1421,7 @@ func GetAllPrice(c *gin.Context) {
 		outInfo.List = append(outInfo.List, yy7)
 	}
 	outInfo.TotalPrice = AllTotalPrice
-
+	outInfo.TotalShunHao = s1 + s2 + s3 + s4 + s5 + s6 + s7
 	//处理下合并材料规则 todo
 
 	for i, info := range outInfo.List {
@@ -1408,18 +1442,26 @@ func GetAllPrice(c *gin.Context) {
 						jjj1, _ := strconv.ParseFloat(lll.JiJiaNum, 64)
 						jjj2, _ := strconv.ParseFloat(gongyiInfo.JiJiaNum, 64)
 						lll.JiJiaNum = fmt.Sprintf("%f", jjj1+jjj2)
+
+						// 设置损耗值
+						xxx1, _ := strconv.ParseFloat(lll.ShunHaoNums, 64)
+						xxx2, _ := strconv.ParseFloat(gongyiInfo.ShunHaoNums, 64)
+						lll.ShunHaoNums = fmt.Sprintf("%f", xxx1+xxx2)
+
 						tempMap[mergeDesc[0].MergeId] = lll
+
 					} else {
 						tempMap[mergeDesc[0].MergeId] = IIIIInfo{
-							FenWeiName: "",
-							CLName:     mergeDesc[0].CLName,
-							Size:       "",
-							Nums:       "",
-							Unit:       mergeDesc[0].Unit,
-							JiJiaNum:   gongyiInfo.JiJiaNum,
-							Price:      mergeDesc[0].Price,
-							TotalPrice: gongyiInfo.TotalPrice,
-							Descs:      "",
+							FenWeiName:  "",
+							CLName:      mergeDesc[0].CLName,
+							Size:        "",
+							Nums:        "",
+							Unit:        mergeDesc[0].Unit,
+							JiJiaNum:    gongyiInfo.JiJiaNum,
+							Price:       mergeDesc[0].Price,
+							TotalPrice:  gongyiInfo.TotalPrice,
+							Descs:       "",
+							ShunHaoNums: gongyiInfo.ShunHaoNums,
 						}
 					}
 
@@ -1453,30 +1495,33 @@ func GetCpPrice(cp_code string) float64 {
 }
 
 type Outt struct {
-	SofaName   string  `json:"sofa_name"`
-	SofaCode   string  `json:"sofa_code"`
-	TotalPrice float64 `json:"total_price"`
-	List       []IInfo `json:"list"`
+	SofaName     string  `json:"sofa_name"`
+	SofaCode     string  `json:"sofa_code"`
+	TotalPrice   float64 `json:"total_price"`
+	TotalShunHao float64 `json:"total_shun_hao"`
+	List         []IInfo `json:"list"`
 }
 
 type IInfo struct {
 	//车工 裁工
-	TypeName   string     `json:"type_name"`
-	TotalPrice float64    `json:"total_price"`
-	List       []IIIIInfo `json:"list"`
+	TypeName    string     `json:"type_name"`
+	TotalPrice  float64    `json:"total_price"`
+	TotalSunhao float64    `json:"total_sunhao"`
+	List        []IIIIInfo `json:"list"`
 }
 
 type IIIIInfo struct {
-	CpCode     string  `json:"cp_code"`
-	FenWeiName string  `json:"fen_wei_name"`
-	CLName     string  `json:"cl_name"`
-	Size       string  `json:"size"`
-	Nums       string  `json:"nums"`
-	Unit       string  `json:"unit"`
-	Descs      string  `json:"descs"`
-	TotalPrice string  `json:"total_price"`
-	Price      float64 `json:"price"`
-	JiJiaNum   string  `json:"ji_jia_num"`
+	CpCode      string  `json:"cp_code"`
+	FenWeiName  string  `json:"fen_wei_name"`
+	CLName      string  `json:"cl_name"`
+	Size        string  `json:"size"`
+	Nums        string  `json:"nums"`
+	Unit        string  `json:"unit"`
+	Descs       string  `json:"descs"`
+	TotalPrice  string  `json:"total_price"`
+	Price       float64 `json:"price"`
+	JiJiaNum    string  `json:"ji_jia_num"`
+	ShunHaoNums string  `json:"shun_hao_nums"`
 }
 
 func GetFinWeiGroupByName(c *gin.Context) {

@@ -160,7 +160,6 @@
         name = name.replace(/\s+/g, '');
         name = name.replace(/[ ]/g, "");
         name = name.replace(/[\r\n]/g, "");
-        alert(name + 1)
         for (let i = 0; i < numsss.length; i++) {
             if ($(numsss[i]).text() == name) {
                 $(numsss[i]).attr('selected', "selected")
@@ -195,6 +194,32 @@
         }
     }
 
+    function MergeDesc(id) {
+        var numsss = $("#goods_merge").find('option')
+        id = id.replace(/\s+/g, '');
+        id = id.replace(/[ ]/g, "");
+        id = id.replace(/[\r\n]/g, "");
+        for (let i = 0; i < numsss.length; i++) {
+            if ($(numsss[i]).val() == id) {
+                $(numsss[i]).attr('selected', "selected")
+                break
+            }
+        }
+    }
+
+    function DomDesc(id) {
+        var numsss = $("#goods_dom").find('option')
+        id = id.replace(/\s+/g, '');
+        id = id.replace(/[ ]/g, "");
+        id = id.replace(/[\r\n]/g, "");
+        for (let i = 0; i < numsss.length; i++) {
+            if ($(numsss[i]).val() == id) {
+                $(numsss[i]).attr('selected', "selected")
+                break
+            }
+        }
+    }
+
 
     $(document).ready(function () {
         //产品分类
@@ -210,7 +235,7 @@
         GetMergeList()
         //填充数据
         $.ajax({
-            url: "http://localhost:8889/v2/get_goods_by_id",
+            url: GetBaseHost() +"/v2/get_goods_by_id",
             dataType: "json",
             data: {
                 "cp_code": cp_code
@@ -234,6 +259,8 @@
                     changeManiUnit(data.data.cp_main_unit)
                     changeFunUnit(data.data.fu_zhu_unit)
                     changeCpType(data.data.cp_type)
+                    MergeDesc(merge_id)
+                    DomDesc(goods_dom_id)
 
 
                 } else {
@@ -241,8 +268,6 @@
                 }
             },
         })
-        $("#goods_merge").val(merge_id)
-        $("#goods_dom").val(goods_dom_id)
     })
 
 
@@ -251,7 +276,7 @@
         str = ""
         //获取数据
         $.ajax({
-            url: "http://localhost:8889/v2/get_goods_changeList",
+            url: GetBaseHost() +"/v2/get_goods_changeList",
             dataType: "json",
             data: {
                 "page": 1,
@@ -260,6 +285,7 @@
             type: "GET",
             async: false,
             success: function (data) {
+                str += " <option    value='0' > 无</option>\n"
                 $.each(data.data.list, function (index, element) {
                     if (element.change_type == "换算") {
                         str += " <option    value='" + element.id + "' >" + element.c_name + "</option>\n"
@@ -279,7 +305,7 @@
         str = ""
         //获取数据
         $.ajax({
-            url: "http://localhost:8889/v2/get_merge_list",
+            url: GetBaseHost() +"/v2/get_merge_list",
             dataType: "json",
             data: {
                 "page": 1,
@@ -288,6 +314,7 @@
             type: "GET",
             async: false,
             success: function (data) {
+                str += " <option   value='0' > 无</option>\n"
                 $.each(data.data.list, function (index, element) {
                     str += " <option    value='" + element.id + "' >" + element.name + "</option>\n"
 
@@ -304,7 +331,7 @@
 
         //开始请求数据
         $.ajax({
-            url: "http://localhost:8889/v2/update_goods",
+            url: GetBaseHost() +"/v2/update_goods",
             dataType: "json",
             data: {
                 "goods_size": $('#goods_size').val(),

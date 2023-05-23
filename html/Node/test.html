@@ -82,7 +82,7 @@
         $('#sds').on('click', function () {
             window.alert($("#sds").text())
             $.ajax({
-                url: "http://localhost:8889/v2/get1",
+                url: GetBaseHost() +"/v2/get1",
                 dataType: "json",
                 data: {
                     "p1": $("#sds").text(),
@@ -106,7 +106,7 @@
             window.alert(document.cookie)
             window.alert(getCookie("username"))
             $.ajax({
-                url: "http://localhost:8889/v2/post1",
+                url: GetBaseHost() +"/v2/post1",
                 dataType: "json",
                 data: {
                     "p1": $("#po1").text(),

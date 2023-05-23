@@ -2,6 +2,7 @@ package common
 
 import (
 	model "ccccc/data/model/goods"
+	"fmt"
 	"log"
 	"strings"
 )
@@ -100,48 +101,6 @@ func initFenWei() {
 //初始化单位 直接写死了
 func initUnit() {
 	UnitList = make([]Unit, 0)
-	/*	UnitList = append(UnitList, Unit{"套", 1})
-		UnitList = append(UnitList, Unit{"公斤", 1})
-		UnitList = append(UnitList, Unit{"件", 1})
-		UnitList = append(UnitList, Unit{"根", 1})
-		UnitList = append(UnitList, Unit{"个", 1})
-		UnitList = append(UnitList, Unit{"米", 1})
-		UnitList = append(UnitList, Unit{"立方米", 1})
-		UnitList = append(UnitList, Unit{"张", 1})
-		UnitList = append(UnitList, Unit{"CM", 1})
-		UnitList = append(UnitList, Unit{"片", 1})
-		UnitList = append(UnitList, Unit{"板", 1})
-		UnitList = append(UnitList, Unit{"把", 1})
-		UnitList = append(UnitList, Unit{"条", 1})
-		UnitList = append(UnitList, Unit{"对", 1})
-		UnitList = append(UnitList, Unit{"把(根)", 1})
-		UnitList = append(UnitList, Unit{"只", 1})
-		UnitList = append(UnitList, Unit{"盘", 1})
-		UnitList = append(UnitList, Unit{"KG", 1})
-		UnitList = append(UnitList, Unit{"桶", 1})
-		UnitList = append(UnitList, Unit{"盒", 1})
-		UnitList = append(UnitList, Unit{"码", 1})
-		UnitList = append(UnitList, Unit{"扎", 1})
-		UnitList = append(UnitList, Unit{"本", 1})
-		UnitList = append(UnitList, Unit{"支", 1})
-		UnitList = append(UnitList, Unit{"瓶", 1})
-		UnitList = append(UnitList, Unit{"卷", 1})
-		UnitList = append(UnitList, Unit{"包", 1})
-		UnitList = append(UnitList, Unit{"台", 1})
-		UnitList = append(UnitList, Unit{"颗", 1})
-		UnitList = append(UnitList, Unit{"双", 1})
-		UnitList = append(UnitList, Unit{"圈", 1})
-		UnitList = append(UnitList, Unit{"副", 1})
-		UnitList = append(UnitList, Unit{"米", 1})
-		UnitList = append(UnitList, Unit{"排", 1})
-		UnitList = append(UnitList, Unit{"箱", 1})
-		UnitList = append(UnitList, Unit{"英尺", 1})
-		UnitList = append(UnitList, Unit{"份", 1})
-		UnitList = append(UnitList, Unit{"立方", 1})
-		UnitList = append(UnitList, Unit{"平方米", 1})
-		UnitList = append(UnitList, Unit{"套数", 1})
-	*/
-
 	uuList := model.UnitDescList{}
 	err := uuList.GetAll(nil)
 
@@ -155,13 +114,13 @@ func initUnit() {
 			name = strings.Replace(name, "/r", "", -1)
 			name = strings.Replace(name, "\r", "", -1)
 			name = strings.Replace(name, "\n", "", -1)
-			_, ok := mapp[desc.Name]
+			_, ok := mapp[name]
 			if !ok {
 				UnitList = append(UnitList, Unit{
 					desc.Id,
-					desc.Name,
+					name,
 					desc.Types})
-				mapp[desc.Name] = true
+				mapp[name] = true
 			}
 
 		}
@@ -169,5 +128,6 @@ func initUnit() {
 		log.Printf("init uuList error : %v", err)
 		panic("init uuList error")
 	}
+	fmt.Sprint("xxxx")
 
 }

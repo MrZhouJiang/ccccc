@@ -102,7 +102,7 @@ func (rList *GoodsChangeDesInfoDtoList) GetListByCpCode(cpCode string, d *gorm.D
 }
 
 func (r *GoodsChangeDesInfo) Save(d *gorm.DB) error {
-
+	r.CreateTime = time.Now()
 	if d == nil {
 		d = db.BaseDB
 	}

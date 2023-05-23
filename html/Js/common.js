@@ -35,6 +35,11 @@ function LoadBaseData() {
     GetGoodsType()
 }
 
+function GetBaseHost(){
+    return "http://192.168.202.5:8889"
+
+}
+
 function GetQueryString(name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
     var r = decodeURI(window.location.search.substr(1)).match(reg);
@@ -46,7 +51,7 @@ function GetFenWei() {
     str = ""
     //开始请求数据
     $.ajax({
-        url: "http://localhost:8889/v2/get_all_fen_wei_list",
+        url: GetBaseHost() +"/v2/get_all_fen_wei_list",
         dataType: "json",
         data: {
             "shafa_id": "CESAE",
@@ -70,7 +75,7 @@ function GetUnit() {
     str = ""
     //开始请求数据
     $.ajax({
-        url: "http://localhost:8889/v2/get_uint",
+        url: GetBaseHost() +"/v2/get_uint",
         dataType: "json",
         data: {},
         type: "get",
@@ -91,7 +96,7 @@ function GetUnitNoId() {
     str = ""
     //开始请求数据
     $.ajax({
-        url: "http://localhost:8889/v2/get_uint",
+        url: GetBaseHost() +"/v2/get_uint",
         dataType: "json",
         data: {},
         type: "get",
@@ -113,7 +118,7 @@ function GetGoodsType() {
     str = ""
     //开始请求数据
     $.ajax({
-        url: "http://localhost:8889/v2/get_goods_type",
+        url: GetBaseHost() +"/v2/get_goods_type",
         dataType: "json",
         data: {},
         type: "get",

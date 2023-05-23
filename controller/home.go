@@ -394,6 +394,7 @@ func PostFengWei(c *gin.Context) {
 		insertInfo.CpCode = detail.CpCode
 		insertInfo.GongYiName = detail.GongYiName
 		insertInfo.JiJiaNum = detail.JiJiaNum
+		insertInfo.GoodsPoint = detail.GoodsPoint
 		err = insertInfo.Create(nil)
 		if err != nil {
 			log.Printf("insertInfo.Create err :%v", err)
@@ -671,14 +672,14 @@ func Sums(c *gin.Context) {
 	size := params["size"]
 
 	main_xishu := params["main_xishu"]
-	main_xishu_i, e1 := strconv.Atoi(main_xishu)
+	main_xishu_i, e1 := strconv.ParseFloat(main_xishu, 64)
 	if e1 != nil {
 		log.Printf("Sums:err :%v", e1)
 
 	}
 
 	fuzhu_xishu := params["fuzhu_xishu"]
-	fuzhu_xishu_i, e1 := strconv.Atoi(fuzhu_xishu)
+	fuzhu_xishu_i, e1 := strconv.ParseFloat(fuzhu_xishu, 64)
 	if e1 != nil {
 		log.Printf("Sums:err :%v", e1)
 
@@ -764,6 +765,12 @@ func Sums(c *gin.Context) {
 		}
 	}
 
+	if huansuan_i == 0 {
+		huansuan_i = 1
+	}
+	if fuzhu_xishu_i == 0 {
+		fuzhu_xishu_i = 1
+	}
 	//	算了损耗的 数量
 	//jijiaNums = (((shunhao_i/100 + 1) * (a1 * a2 * a3 * a4) * num_i) / huansuan_i) * float64(main_xishu_i) / float64(fuzhu_xishu_i)
 	//没有算损耗的数量
@@ -1073,9 +1080,14 @@ func UpdatGoods(c *gin.Context) {
 	fu_unit := params["fu_unit"]
 	price := params["price"]
 	cp_gui_ge := params["cp_gui_ge"]
-	cp_type_code := params["cp_type_code"]
+	cp_type_name := params["cp_type_code"]
 	cp_desc := params["cp_desc"]
 
+	typeInfo, ok := common.GoodsTypeMap[cp_type_name]
+	typeCode := ""
+	if ok {
+		typeCode = typeInfo.GoodsTypeId
+	}
 	//处理合并的
 	GoodsChangeDesInfo := model.GoodsChangeDesInfo{}
 	GoodsChangeDesInfo.CpCode = cp_code
@@ -1083,7 +1095,7 @@ func UpdatGoods(c *gin.Context) {
 	GoodsChangeDesInfo.DeleteByType(nil)
 
 	//再新增
-	if goods_dom != "" {
+	if goods_dom != "0" && goods_dom != "" {
 		info := model.GoodsChangeDesc{}
 		c123, _ := strconv.Atoi(goods_dom)
 		err := info.GetById(nil, c123)
@@ -1103,7 +1115,7 @@ func UpdatGoods(c *gin.Context) {
 	GoodsMerge.CpCode = cp_code
 	GoodsMerge.DeleteByType(nil)
 	//再新增
-	if goods_merge != "" {
+	if goods_merge != "0" && goods_merge != "" {
 		info := model.GoodMergeDesc{}
 		c1234, _ := strconv.Atoi(goods_merge)
 		err := info.GetById(nil, c1234)
@@ -1115,6 +1127,7 @@ func UpdatGoods(c *gin.Context) {
 			return
 		}
 		//
+		GoodsMerge.CreateTime = time.Now()
 		GoodsMerge.MergeId = info.Id
 		GoodsMerge.Save(nil)
 	}
@@ -1138,8 +1151,8 @@ func UpdatGoods(c *gin.Context) {
 	cccccl, _ := strconv.ParseFloat(goods_xishu, 64)
 	goods.ChangeP = cccccl
 
-	x1, _ := strconv.Atoi(main_xi_shu)
-	f1, _ := strconv.Atoi(fu_zhu_xi_shu)
+	x1, _ := strconv.ParseFloat(main_xi_shu, 64)
+	f1, _ := strconv.ParseFloat(fu_zhu_xi_shu, 64)
 
 	p1, _ := strconv.ParseFloat(price, 64)
 	updateData := map[string]interface{}{
@@ -1153,7 +1166,7 @@ func UpdatGoods(c *gin.Context) {
 		"fu_zhu_unit":   fu_unit,
 		"price":         p1,
 		"cp_gui_ge":     cp_gui_ge,
-		"cp_type_code":  cp_type_code,
+		"cp_type_code":  typeCode,
 		"cp_desc":       cp_desc,
 	}
 
@@ -1795,6 +1808,29 @@ func DeleteCharge(c *gin.Context) {
 	GoodsChangeDesInfo.DeleteByChange_id(nil)
 
 	resp.Data = info
+	util.ReturnCompFunc(c, resp)
+	return
+}
+
+func DeleteUser(c *gin.Context) {
+	log.Printf("DeleteUser")
+	params := common.GetUrlParams(c.Request)
+	resp := Response{
+		Status: 200,
+	}
+	id := params["user_id"]
+
+	user := model2.UserInfo{
+		UserId: id,
+	}
+	err := user.Delete(nil)
+	if err != nil {
+		log.Printf("user.Delete err :%v", err)
+		resp.Status = 201
+		resp.Desc = err.Error()
+	}
+	//删除desc
+	resp.Data = ""
 	util.ReturnCompFunc(c, resp)
 	return
 }

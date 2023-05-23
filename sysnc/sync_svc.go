@@ -85,8 +85,8 @@ func StartSyncCp() {
 						goods.CpGuiGe = base.GG
 						goods.CpMainUnit = fmt.Sprintf("%d", base.JLDWID_Z)
 						goods.FuZhuUnit = fmt.Sprintf("%d", base.JLDWID_F)
-						goods.MainXiShu = int(base.XS_ZJL)
-						goods.FuZhuXiShu = int(base.XS_FJL)
+						goods.MainXiShu = base.XS_ZJL
+						goods.FuZhuXiShu = base.XS_FJL
 						goods.Price = base.CBJ
 						goods.ChangeP, _ = strconv.ParseFloat(base.ZHL, 64)
 						goods.TyName = base.TYMC

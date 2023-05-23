@@ -146,6 +146,16 @@
 
             "        </tr>"
         $("#qita_dataTable").append(str)
+
+
+        //绘制导出表
+        str2 = "        <tr >" +
+            "            <td   >" + fenWeiName + "</td>\n" +
+            "            <td   >" + goods_name + "</td>\n" +
+            "            <td   >" + totalPrice + "</td>\n" +
+            "            <td   >" + desc + "</td>\n" +
+            "        </tr>"
+        $("#qita_dataTable_export").append(str2)
         //
         Delete();
     }
@@ -183,7 +193,7 @@
 
         //开始请求数据
         $.ajax({
-            url: "http://localhost:8889/v2/post_feng_wei",
+            url: GetBaseHost() +"/v2/post_feng_wei",
             dataType: "json",
             data: {
                 "data": json,
@@ -207,7 +217,7 @@
     function qita_loadData() {
         //开始请求数据
         $.ajax({
-            url: "http://localhost:8889/v2/get_feng_wei",
+            url: GetBaseHost() +"/v2/get_feng_wei",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,
@@ -287,7 +297,7 @@
             "        </tr>"
         var excelContent = head + $("#qita_dataTable_export").html();
 
-   //     alert(excelContent)
+        //     alert(excelContent)
         var excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
         excelFile += "<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>";
         excelFile += "<body><table width='50%'  border='1'>";

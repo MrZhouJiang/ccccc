@@ -52,6 +52,7 @@
         <th>联系电话</th>
         <th>创建人</th>
         <th>备注</th>
+        <td>编辑</td>
     </tr>
     </thead>
 
@@ -97,7 +98,7 @@
 
         role = getUserRole()
         if (role == "1") {
-           // alert(role)
+            // alert(role)
         } else {
             alert("您没有操作权限 请联系管理员")
             $("form").remove()
@@ -107,7 +108,7 @@
 
         //查询列表
         $.ajax({
-            url: "http://localhost:8889/v2/get_user_list",
+            url: GetBaseHost() +"/v2/get_user_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -124,22 +125,51 @@
                         '<td> ' + element.role_name + '</td> ' +
                         '<td> ' + element.phone + '</td> ' +
                         '<td> ' + element.create_user + '</td> ' +
+
                         '<td> ' + element.desc_info + '</td> ' +
+                        '<td> <input class="delete_user" type="hidden" value="' + element.user_id + '"> <a id="delte11" style="color: red" >删除</a></td> ' +
                         '    </tr>');
                 })
                 total = data.data.total
                 LoadDiv(data.data.total, data.data.page);
+                DelteUser()
             },
         })
     })
 
+    function DelteUser() {
+        $("a#delte11").on('click', function () {
+
+            //  alert( $(this).parent().parent().parent().remove())
+            user_id = $(this).parent().find(".delete_user").val()
+            $.ajax({
+                url: GetBaseHost() +"/v2/delete_user",
+                dataType: "json",
+                data: {
+                    "user_id": user_id
+                },
+                type: "GET",
+                async: false,
+                success: function (data) {
+                    if (data.status == 200) {
+                        alert("删除成功")
+                        ReloadData()
+                    } else {
+                        alert("删除失败")
+
+                    }
+                },
+            })
+        })
+
+    }
 
     function ReloadData() {
         //先清除数据
         $('tr.data_1').remove()
 
         $.ajax({
-            url: "http://localhost:8889/v2/get_user_list",
+            url: GetBaseHost() +"/v2/get_user_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -157,10 +187,14 @@
                         '<td> ' + element.phone + '</td> ' +
                         '<td> ' + element.create_user + '</td> ' +
                         '<td> ' + element.desc_info + '</td> ' +
+                        '<td> <input class="delete_user" type="hidden" value="' + element.user_id + '"> <a id="delte11" style="color: red" >删除</a></td> ' +
+
                         '    </tr>');
                 })
                 total = data.data.total
                 LoadDiv(data.data.total, data.data.page);
+                DelteUser()
+
             },
         })
 

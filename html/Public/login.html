@@ -58,7 +58,7 @@
     <form id="login" class="form-signin" action="../index.html" onsubmit="return myFunction()">
         <h2 class="form-signin-heading">成本核算系统登陆</h2>
         <input id="username" type="text" name="username" class="input-block-level" placeholder="账号">
-        <input id="password" type="text" name="password" class="input-block-level" placeholder="密码">
+        <input id="password" type="password" name="password" class="input-block-level" placeholder="密码">
         <p>
             <button id="user_login" class="btn btn-large btn-primary" type="submit">登录</button>
         </p>
@@ -70,7 +70,7 @@
     function myFunction() {
         let cd = false;
         $.ajax({
-            url: "http://localhost:8889/v2/user_login",
+            url: GetBaseHost() +"/v2/user_login",
             dataType: "json",
             data: {
                 "username": $("#username").val(),
@@ -80,7 +80,6 @@
             async: false,
             success: function (data) {
                 if (data.status != 200) {
-                    window.alert(data.desc)
                     cd = false
                 } else {
                     //登陆成功
@@ -97,13 +96,9 @@
     }
 
     function setUserInfo(name, roleId) {
-        alert("start set")
-        alert(name)
-        alert(roleId)
-        alert(getpath())
         $.cookie("username", name, {expires: 1, domain: "127.0.0.1", path: getpath()})
         $.cookie("role_id", roleId, {expires: 1,domain: "127.0.0.1", path: getpath()})
-        alert( $.cookie("username"))
+
     }
 
     function getpath() {

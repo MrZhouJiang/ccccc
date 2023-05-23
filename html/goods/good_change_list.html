@@ -93,7 +93,7 @@
         }
         //查询列表
         $.ajax({
-            url: "http://localhost:8889/v2/get_goods_changeList",
+            url: GetBaseHost() +"/v2/get_goods_changeList",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -127,9 +127,8 @@
 
             //  alert( $(this).parent().parent().parent().remove())
             change_delete_id = $(this).parent().find(".delete_change").val()
-            alert(change_delete_id)
             $.ajax({
-                url: "http://localhost:8889/v2/delete_change",
+                url: GetBaseHost() +"/v2/delete_change",
                 dataType: "json",
                 data: {
                     "id": change_delete_id
@@ -155,7 +154,7 @@
         $('tr.data_1').remove()
 
         $.ajax({
-            url: "http://localhost:8889/v2/get_goods_changeList",
+            url: GetBaseHost() +"/v2/get_goods_changeList",
             dataType: "json",
             data: {
                 "page": $("#page").val(),

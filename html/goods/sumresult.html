@@ -87,7 +87,7 @@
 
     function getExportGoodsData() {
         $.ajax({
-            url: "http://localhost:8889/v2/get_export_goods_group_by_fen_wei",
+            url: GetBaseHost() +"/v2/get_export_goods_group_by_fen_wei",
             dataType: "json",
             data: {
                 "shafa_id": ssf_code
@@ -129,7 +129,7 @@
         getExportGoodsData()
         //查询列表
         $.ajax({
-            url: "http://localhost:8889/v2/get_all_price",
+            url: GetBaseHost() +"/v2/get_all_price",
             dataType: "json",
             data: {
 

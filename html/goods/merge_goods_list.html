@@ -88,7 +88,7 @@
         }
         //查询列表
         $.ajax({
-            url: "http://localhost:8889/v2/get_merge_list",
+            url: GetBaseHost() +"/v2/get_merge_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -122,9 +122,8 @@
         $("a#delte11").on('click', function () {
             //  alert( $(this).parent().parent().parent().remove())
             change_delete_id = $(this).parent().find(".delete_merge").val()
-            alert(change_delete_id)
             $.ajax({
-                url: "http://localhost:8889/v2/delete_merge",
+                url: GetBaseHost() +"/v2/delete_merge",
                 dataType: "json",
                 data: {
                     "id": change_delete_id
@@ -150,7 +149,7 @@
         $('tr.data_1').remove()
 
         $.ajax({
-            url: "http://localhost:8889/v2/get_merge_list",
+            url: GetBaseHost() +"/v2/get_merge_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),

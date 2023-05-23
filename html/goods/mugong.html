@@ -42,7 +42,7 @@
 
     <table id='mugong_ClassTable' class="table table-bordered table-hover definewidth m10">
         <tr>
-            <td rowspan=""  id = "mugongName"style="text-align: center;background: #0e90d2;font-size: 30px"></td>
+            <td rowspan="" id="mugongName" style="text-align: center;background: #0e90d2;font-size: 30px"></td>
 
         </tr>
 
@@ -52,6 +52,7 @@
         <tr>
             <td>工艺名称</td>
             <td>分位</td>
+            <td>使用部位</td>
             <td>材料名称</td>
             <td>使用尺寸</td>
             <td>数量</td>
@@ -69,6 +70,7 @@
 
         <tr>
             <td style="text-align: center ;background: #3c5412;font-size: 30px">分位名称</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">使用部位</td>
             <td style="text-align: center ;background: #3c5412;font-size: 30px">材料名称</td>
             <td style="text-align: center ;background: #3c5412;font-size: 30px">材料编码</td>
             <td style="text-align: center ;background: #3c5412;font-size: 30px">使用尺寸</td>
@@ -86,14 +88,15 @@
                 <input type="text" name="mugong_select" id='mugong_name'
                        autocomplete="off"
                        placeholder="车间工艺标题">
-            </td>
-            <td>
-                <span>分位:</span>
+                <br>
+                <span>分&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位:</span>
                 <input type="text" name="mugong_select" id='mugong_select' list="mugong_select_list"
                        autocomplete="off"
                        placeholder="分位">
                 <datalist id="mugong_select_list"></datalist>
-                <br>
+            </td>
+            <td>
+
                 <span>物料:</span>
                 <input type="text" name="mugong_goodObjs_str" id='mugong_goodObjs_str' list="mugong_batch_list"
                        autocomplete="off"
@@ -101,6 +104,11 @@
                 <datalist id="mugong_batch_list"></datalist>
 
                 <input type="hidden" name="mugong_goodsName_str" id='mugong_goodsName_str'>
+                <br>
+                <span>尺寸:</span>
+                <input type="text" name="mugong_goodSize_str" id='mugong_goodSize_str'
+                       autocomplete="off"
+                       placeholder="长宽高用*链接且不能改变顺序" onchange="mugong_Sums()">
 
             </td>
 
@@ -111,10 +119,11 @@
         </tr>
         <tr>
             <td>
-                <span>尺&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;寸:</span>
-                <input type="text" name="mugong_goodSize_str" id='mugong_goodSize_str'
+                <span>使用部位:</span>
+                <input type="text" name="mugong_goods_point" id='mugong_goods_point'
                        autocomplete="off"
-                       placeholder="长宽高用*链接且不能改变顺序" onchange="mugong_Sums()">
+                       placeholder="物料使用位置">
+                <br>
             </td>
             <td>
                 <span>使用数量:</span>
@@ -124,10 +133,10 @@
             </td>
 
             <td>
-
-                <span>单位:</span>
-                <select name="mugong_insert_unit" id='mugong_insert_unit'>
-                </select>
+                <!--         <span >单位:</span>
+                         <select name="mugong_insert_unit" id='mugong_insert_unit'>
+                         </select>
+         -->
             </td>
         </tr>
 
@@ -218,8 +227,7 @@
         $("datalist#mugong_batch_list").append(GoodObjs_str)
         // $("datalist#mugong_goodSize_str_list").append(GoodObjs_str)
         $("#mugong_insert_unit").append(UnitOP)
-        $("#mugongName").html(SF_NAME+"  木工")
-
+        $("#mugongName").html(SF_NAME + "  木工")
     })
 
     function mugong_Sums() {
@@ -246,7 +254,7 @@
 
         //开始计算数据
         $.ajax({
-            url: "http://localhost:8889/v2/sums",
+            url: GetBaseHost() +"/v2/sums",
             dataType: "json",
             data: {
                 "num": num,
@@ -302,18 +310,34 @@
         $('#mugong_insert_unit').val("")
         $('#mugong_goodsName_strs').val("")
 
+        var numsss = $("#mugong_insert_unit").find('option')
+        for (let i = 0; i < numsss.length; i++) {
+            $(numsss[i]).removeAttr("selected")
+        }
+
     }
 
     function mugong_changeUnit(name) {
         var numsss = $("#mugong_insert_unit").find('option')
+        name = name.replace(/\s+/g, '');
+        name = name.replace(/[ ]/g, "");
+        name = name.replace(/[\r\n]/g, "");
         for (let i = 0; i < numsss.length; i++) {
-            if ($(numsss[i]).val() == name) {
+            n1 = $(numsss[i]).text()
+            n1 = n1.replace(/\s+/g, '');
+            n1 = n1.replace(/[ ]/g, "");
+            n1 = n1.replace(/[\r\n]/g, "");
+            n1 = n1.replace(/[\r\n]/g, "");
+            if (n1 == name) {
                 $(numsss[i]).attr('selected', "selected")
+                break
             }
         }
+
     }
 
     function mugong_goodsChange() {
+
         clearmugongData()
 
         //要解析 物料Code
@@ -322,7 +346,7 @@
         //获取物料信息
         //开始请求数据
         $.ajax({
-            url: "http://localhost:8889/v2/get_goods_by_id",
+            url: GetBaseHost() +"/v2/get_goods_by_id",
             dataType: "json",
             data: {
                 "cp_code": goods_cpcode,
@@ -331,6 +355,7 @@
             async: false,
             success: function (data) {
                 //在这里 要填充 数据了
+                mugong_changeUnit(data.data.cp_main_unit)
                 $("#mugong_hy_p").val(data.data.change_p)
                 $("#mugong_price_p").val(data.data.price)
                 $("#mugong_shunhao_p").val(data.data.shun_hao)
@@ -341,8 +366,9 @@
                 $("#mugong_fuzhu_xishu").val(data.data.fu_zhu_xi_shu)
                 $("#mugong_size").val(data.data.main_size)
 
-                mugong_changeUnit()
-               // $("#mugong_insert_unit").val(data.data.cp_main_unit)
+
+                // $("#mugong_insert_unit").val(data.data.cp_main_unit)
+                //$("#mugong_insert_unit").attr("value", data.data.cp_main_unit);
                 $("#mugong_goodsName_str").val(data.data.cp_name)
 
             },
@@ -356,14 +382,17 @@
         let goods_name = $('#mugong_goodsName_str').val()
         let size = $('#mugong_goodSize_str').val()
         let num = $('#mugong_goodNum_str').val()
-        let unit = $('#mugong_insert_unit').val()
+        //  let unit = $('#mugong_insert_unit').val()
+        let unit = $('#mugong_main_uint').val()
+
         let desc = $('#mugong_good_desc').val()
         let totalPrice = $('#mugong_shiji_price').val()
         let jijiaNum = $('#mugong_ji_jia_nums').val()
-
+        let goodsPoint = $('#mugong_goods_point').val()
         str = "        <tr class='mugong_dd'>" +
             "            <td  name=\"gongyi_name\" >" + mugong_name + "</td>\n" +
             "            <td  name=\"fw_name\" >" + fenWeiName + "</td>\n" +
+            "            <td  name=\"goods_point\" >" + goodsPoint + "</td>\n" +
             "            <td ><input  readonly='readonly' class='name' name=\"input_name\" value='" + goods_name + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + mugonggetCpCode() + "'/></td>\n" +
             "            <td ><input  readonly='readonly' class='name' name=\"input_size\"value='" + size + "'/></td>\n" +
             "            <td><input  readonly='readonly' class='name' name=\"input_num\" value='" + num + "'/></td>\n" +
@@ -379,7 +408,9 @@
 
         str2 = "        <tr >" +
             "            <td   >" + fenWeiName + "</td>\n" +
+            "            <td   >" + goodsPoint + "</td>\n" +
             "            <td   >" + goods_name + "</td>\n" +
+            "            <td   >" + mugonggetCpCode() + "</td>\n" +
             "            <td   >" + size + "</td>\n" +
             "            <td   >" + num + "</td>\n" +
             "            <td   >" + unit + "</td>\n" +
@@ -402,18 +433,20 @@
                     importObj["gong_yi_name"] = $(this).text()
                 } else if (i == 1) {
                     importObj["fen_wei_name"] = $(this).text()
-                } else if (i == 6) {
-                    importObj["descs"] = $(this).text()
                 } else if (i == 2) {
+                    importObj["goods_point"] = $(this).text()
+                } else if (i == 7) {
+                    importObj["descs"] = $(this).text()
+                } else if (i == 3) {
                     importObj['cl_name'] = $(this).find(".name").val()
                     importObj['cp_code'] = $(this).find(".name_id").val()
-                } else if (i == 3) {
-                    importObj['size'] = $(this).find(".name").val()
                 } else if (i == 4) {
-                    importObj['nums'] = $(this).find(".name").val()
+                    importObj['size'] = $(this).find(".name").val()
                 } else if (i == 5) {
+                    importObj['nums'] = $(this).find(".name").val()
+                } else if (i == 6) {
                     importObj['unit'] = $(this).find(".name").val()
-                } else if (i == 7) {
+                } else if (i == 8) {
                     importObj['total_price'] = $(this).find(".name").val()
                     importObj['ji_jia_num'] = $(this).find(".name_id").val()
                 }
@@ -431,7 +464,7 @@
 
         //开始请求数据
         $.ajax({
-            url: "http://localhost:8889/v2/post_feng_wei",
+            url: GetBaseHost() +"/v2/post_feng_wei",
             dataType: "json",
             data: {
                 "data": json,
@@ -455,7 +488,7 @@
     function mugong_loadData() {
         //开始请求数据
         $.ajax({
-            url: "http://localhost:8889/v2/get_feng_wei",
+            url: GetBaseHost() +"/v2/get_feng_wei",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,
@@ -470,6 +503,8 @@
                     str = "        <tr class='mugong_dd'>" +
                         "            <td  name=\"gongyi_name\" >" + element.gong_yi_name + "</td>\n" +
                         "            <td  name=\"fw_name\" >" + element.fen_wei_name + "</td>\n" +
+                        "            <td  name=\"goods_point\" >" + element.goods_point + "</td>\n" +
+
                         "            <td ><input readonly='readonly' class='name' name=\"input_name\" value=\"" + element.cl_name + "\"/ ><input  type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value=\"" + element.cp_code + "\"/ ></td>\n" +
                         "            <td ><input readonly='readonly' class='name' name=\"input_size\" value=\"" + element.size + "\"/ ></td>\n" +
                         "            <td><input readonly='readonly' class='name' name=\"input_num\" value=\"" + element.nums + "\"/ ></td>\n" +
@@ -485,6 +520,7 @@
                     //绘制导出表
                     str2 = "        <tr >" +
                         "            <td   >" + element.fen_wei_name + "</td>\n" +
+                        "            <td   >" + element.goods_point + "</td>\n" +
                         "            <td   >" + element.cl_name + "</td>\n" +
                         "            <td   >" + element.cp_code + "</td>\n" +
                         "            <td   >" + element.size + "</td>\n" +
@@ -537,9 +573,10 @@
 
 
     function mugonggetExportInfo() {
+        alert("数据导出中 请稍后")
         //开始请求数据
         $.ajax({
-            url: "http://localhost:8889/v2/get_feng_wei_group_by_name",
+            url: GetBaseHost() +"/v2/get_feng_wei_group_by_name",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,
@@ -554,13 +591,14 @@
                         let g_y_size = element.size
                         let exp_str = ""
                         exp_str += "   <tr>\n" +
-                            "            <td colspan=\"6\" style=\"text-align: center ;background: #0e90d2;font-size: 50px\">" + SF_NAME + " 木工清单</td>\n" +
+                            "            <td colspan=\"7\" style=\"text-align: center ;background: #0e90d2;font-size: 50px\">" + SF_NAME + " 木工清单</td>\n" +
                             "        </tr>"
                         exp_str += "   <tr>\n" +
-                            "            <td colspan=\"6\" style=\"text-align: center ;background: #0e90d2;font-size: 50px\">" + g_y_name + "</td>\n" +
+                            "            <td colspan=\"7\" style=\"text-align: center ;background: #0e90d2;font-size: 50px\">" + g_y_name + "</td>\n" +
                             "        </tr>"
                         exp_str += "                <tr>\n" +
                             "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">分位名称</td>\n" +
+                            "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">使用部位</td>\n" +
                             "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">材料名称</td>\n" +
                             "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">材料编码</td>\n" +
                             "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">使用尺寸</td>\n" +
@@ -571,6 +609,7 @@
                         $.each(element.list, function (index, element2) {
                             exp_str += "        <tr >" +
                                 "            <td   >" + element2.fen_wei_name + "</td>\n" +
+                                "            <td   >" + element2.goods_point + "</td>\n" +
                                 "            <td   >" + element2.cl_name + "</td>\n" +
                                 "            <td   >" + element2.cp_code + "</td>\n" +
                                 "            <td   >" + element2.size + "</td>\n" +

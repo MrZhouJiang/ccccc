@@ -98,8 +98,8 @@
     function getShaFaFenWei(name) {
         lll = name.split("+")
         str = ""
-        str += " <option  value='总' ></option>\n"
         str += " <option  value='全套' ></option>\n"
+        str += " <option  value='子件' ></option>\n"
         for (let i = 0; i < lll.length; i++) {
             str += " <option  value='" + lll[i] + "' ></option>\n"
         }
@@ -113,7 +113,7 @@
 
         //开始请求数据
         $.ajax({
-            url: "http://localhost:8889/v2/get_all_goods_desc",
+            url: GetBaseHost() + "/v2/get_all_goods_desc",
             dataType: "json",
             data: {},
             type: "get",

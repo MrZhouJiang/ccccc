@@ -162,14 +162,12 @@
         //绑定 关系
         //change_id
         change_id = $("#radioDiv input[type='radio']:checked").val()
-        alert(change_id)
-        alert(changeCodeStr)
         if (change_id == null) {
             alert("配置id不存在")
             return
         }
         $.ajax({
-            url: "http://localhost:8889/v2/post_goods_change_desc",
+            url: GetBaseHost() +"/v2/post_goods_change_desc",
             dataType: "json",
             data: {
                 "id": change_id,
@@ -192,14 +190,12 @@
         //绑定 关系
         //change_id
         merge_id = $("#radioDiv_merge input[type='radio']:checked").val()
-        alert(merge_id)
-        alert(changeCodeStr)
         if (merge_id == null) {
             alert("配置id不存在")
             return
         }
         $.ajax({
-            url: "http://localhost:8889/v2/post_goods_merge_desc",
+            url: GetBaseHost() +"/v2/post_goods_merge_desc",
             dataType: "json",
             data: {
                 "id": merge_id,
@@ -251,7 +247,7 @@
     function loadChangeData() {
         $('tr.data_2222').remove()
         $.ajax({
-            url: "http://localhost:8889/v2/get_goods_changeList",
+            url: GetBaseHost() +"/v2/get_goods_changeList",
             dataType: "json",
             data: {
                 "page": 1,
@@ -280,7 +276,7 @@
     function loadMergeData() {
         $('tr.data_3333').remove()
         $.ajax({
-            url: "http://localhost:8889/v2/get_merge_list",
+            url: GetBaseHost() +"/v2/get_merge_list",
             dataType: "json",
             data: {
                 "page": 1,
@@ -395,7 +391,7 @@
         }
         //查询列表
         $.ajax({
-            url: "http://localhost:8889/v2/get_goods_list",
+            url: GetBaseHost() +"/v2/get_goods_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -441,7 +437,7 @@
         $('tr.data_1').remove()
 
         $.ajax({
-            url: "http://localhost:8889/v2/get_goods_list",
+            url: GetBaseHost() +"/v2/get_goods_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),

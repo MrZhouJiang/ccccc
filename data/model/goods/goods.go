@@ -26,9 +26,9 @@ type Goods struct {
 	//产品尺寸 3*5 （cm） 注意 都是里面单位 3 表示3 cm   （3*5*2）
 	MainSize string `json:"main_size"`
 	//主系数
-	MainXiShu int `json:"main_xi_shu"`
+	MainXiShu float64 `json:"main_xi_shu"`
 	//辅助系数
-	FuZhuXiShu int       `json:"fu_zhu_xi_shu"`
+	FuZhuXiShu float64   `json:"fu_zhu_xi_shu"`
 	Price      float64   `json:"price"`
 	ShunHao    string    `json:"shun_hao"`
 	ChangeP    float64   `json:"change_p"`
@@ -143,20 +143,20 @@ func (r *Goods) Update(d *gorm.DB) error {
 }
 
 type AllGoodsDesc struct {
-	CpCode       string `json:"cp_code"`
-	CpName       string `json:"cp_name"`
-	CpGuiGe      string `json:"cp_gui_ge"`
-	CpMainUnit   string `json:"cp_main_unit"`
-	FuZhuUnit    string `json:"fu_zhu_unit"`
-	CpMainUnitId int    `json:"cp_main_unit_id"`
-	FuZhuUnitId  int    `json:"fu_zhu_unit_id"`
-	MainXiShu    int    `json:"main_xi_shu"`
-	FuZhuXiShu   int    `json:"fu_zhu_xi_shu"`
+	CpCode       string  `json:"cp_code"`
+	CpName       string  `json:"cp_name"`
+	CpGuiGe      string  `json:"cp_gui_ge"`
+	CpMainUnit   string  `json:"cp_main_unit"`
+	FuZhuUnit    string  `json:"fu_zhu_unit"`
+	CpMainUnitId int     `json:"cp_main_unit_id"`
+	FuZhuUnitId  int     `json:"fu_zhu_unit_id"`
+	MainXiShu    float64 `json:"main_xi_shu"`
+	FuZhuXiShu   float64 `json:"fu_zhu_xi_shu"`
 	//产品尺寸 3*5 （cm） 注意 都是里面单位 3 表示3 cm   （3*5*2）
 	MainSize   string  `json:"main_size"`
 	Price      float64 `json:"price"`
 	ShunHao    string  `json:"shun_hao"`
-	ChangeP    int     `json:"change_p"`
+	ChangeP    float64 `json:"change_p"`
 	CpTypeCode string  `json:"cp_type_code"`
 	CpType     string  `json:"cp_type"`
 	CpDesc     string  `json:"cp_desc"`

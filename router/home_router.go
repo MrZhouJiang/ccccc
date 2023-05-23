@@ -14,6 +14,7 @@ func HomeRouter(engine *gin.Engine) {
 		eg_v2.POST("/user_login", controller.UserLogin)
 		eg_v2.POST("/create_user", controller.CreateUser)
 		eg_v2.GET("/get_user_list", controller.GeUserList)
+		eg_v2.GET("/delete_user", controller.DeleteUser)
 
 		//物料
 		eg_v2.GET("/get_goods_list", controller.GetGoodsList)

@@ -146,6 +146,14 @@
 
             "        </tr>"
         $("#rengong_dataTable").append(str)
+        //绘制导出表
+        str2 = "        <tr >" +
+            "            <td   >" + fenWeiName + "</td>\n" +
+            "            <td   >" + goods_name + "</td>\n" +
+            "            <td   >" + totalPrice + "</td>\n" +
+            "            <td   >" +desc + "</td>\n" +
+            "        </tr>"
+        $("#rengong_dataTable_export").append(str2)
         //
         Delete();
     }
@@ -183,7 +191,7 @@
 
         //开始请求数据
         $.ajax({
-            url: "http://localhost:8889/v2/post_feng_wei",
+            url: GetBaseHost() +"/v2/post_feng_wei",
             dataType: "json",
             data: {
                 "data": json,
@@ -207,7 +215,7 @@
     function rengong_loadData() {
         //开始请求数据
         $.ajax({
-            url: "http://localhost:8889/v2/get_feng_wei",
+            url: GetBaseHost() +"/v2/get_feng_wei",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,

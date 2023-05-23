@@ -78,7 +78,7 @@ func GetGoodsList(page, size int, name, goodsCode, typeName string) (gs []GoodsD
 			CpTypeCode: data[i].CpTypeCode,
 			CpGuiGe:    data[i].CpGuiGe,
 			CpMainUnit: unit.Name,
-			FuZhuUnit:  unit.Name,
+			FuZhuUnit:  unit2.Name,
 			MainSize:   data[i].MainSize,
 			MainXiShu:  data[i].MainXiShu,
 			FuZhuXiShu: data[i].FuZhuXiShu,
@@ -124,9 +124,9 @@ type GoodsDto struct {
 	//产品尺寸 3*5 （cm） 注意 都是里面单位 3 表示3 cm   （3*5*2）
 	MainSize string `json:"main_size"`
 	//主系数
-	MainXiShu int `json:"main_xi_shu"`
+	MainXiShu float64 `json:"main_xi_shu"`
 	//辅助系数
-	FuZhuXiShu int       `json:"fu_zhu_xi_shu"`
+	FuZhuXiShu float64   `json:"fu_zhu_xi_shu"`
 	Price      float64   `json:"price"`
 	ShunHao    string    `json:"shun_hao"`
 	ChangeP    float64   `json:"change_p"`
@@ -195,8 +195,9 @@ func GetShaFaImportList(page, size int, name, code string, issums string) (list 
 
 	for _, datum := range data {
 		iiinfo := ShaFaInfoDto{
-			Id:         datum.Id,
-			SfName:     datum.SfName,
+			Id:     datum.Id,
+			SfName: datum.SfName,
+
 			SfCode:     datum.SfCode,
 			SDesc:      datum.SDesc,
 			ImportUser: datum.ImportUser,
@@ -259,7 +260,9 @@ func GetFenWeiListGroupByName(shafaId, types string) (list []GetFenWeiListGroupB
 			Descs:      yi.Descs,
 			TotalPrice: yi.TotalPrice,
 			CpCode:     yi.CpCode,
+			GoodsPoint: yi.GoodsPoint,
 		}
+
 		ll, ok := typeMaps[yi.GongYiName]
 		if ok {
 			ll = append(ll, l3)
@@ -302,6 +305,7 @@ type GetFenWeiListGroupByNameInfo struct {
 	Price      float64 `json:"price"`
 	TotalPrice string  `json:"total_price"`
 	CpCode     string  `json:"cp_code"`
+	GoodsPoint string  `json:"goods_point"`
 }
 
 func GetUserListD(page, size int, username string) (gs []model2.UserInfo, total int, err error) {

@@ -23,8 +23,8 @@ function getCookie(cname) {
 }
 
 function SetUser(userName, roleId) {
-    setCookie("username", userName, 6)
-    setCookie("role", roleId, 6)
+    setCookie("username", userName, 12)
+    setCookie("role", roleId, 12)
 }
 
 function checkCookie() {

@@ -112,12 +112,8 @@
                 <button id='qita_select_bu2' class="btn btn-primary" type="button" onclick="qita_toExcel()">
                     导出成本表
                 </button>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="3" style="text-align: center">
                 <button
-                        type="button" class="btn btn-success" name="backid"  onclick="backIndex()">返回列表
+                        type="button" class="btn btn-warning" name="backid"  onclick="backIndex()">返回列表
                 </button>
             </td>
         </tr>
@@ -276,7 +272,7 @@
     $('#logout').on('click', function () {
         alert("logout")
         logout()
-        self.location = 'Public/login.html'
+        self.location = '../Public/login.html'
     })
 
 

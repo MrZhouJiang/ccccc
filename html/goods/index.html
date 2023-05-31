@@ -64,13 +64,14 @@
         <th>产品名称</th>
         <th>产品简介</th>
         <th>产品分类名称</th>
-        <th>产品分类编码</th>
+  <!--      <th>产品分类编码</th>-->
         <th>物料计算规格</th>
         <th>主计量单位</th>
         <th>辅计量单位</th>
         <th>成本单价</th>
         <th>损耗(%)</th>
         <th>换算系数</th>
+        <th>固定价格</th>
         <th>DOM转换</th>
         <th>材料合并配置</th>
         <th>创建时间</th>
@@ -392,7 +393,7 @@
 
         if (bb == false) {
             //document.location.url = '/Public/login.html'
-            self.location = 'Public/login.html'
+            self.location = '../Public/login.html'
             // top.location = '/Public/login.html'
         } else {
             $("#name").html(username)
@@ -420,13 +421,14 @@
                         '<td> ' + element.cp_name + '</td> ' +
                         '<td> ' + element.cp_desc + '</td> ' +
                         '<td> ' + element.cp_type + '</td> ' +
-                        '<td> ' + element.cp_type_code + '</td> ' +
+             /*           '<td> ' + element.cp_type_code + '</td> ' +*/
                         '<td> ' + element.main_size + '</td> ' +
                         '<td> ' + element.cp_main_unit + '</td> ' +
                         '<td> ' + element.fu_zhu_unit + '</td> ' +
                         '<td> ' + element.price + '</td> ' +
                         '<td> ' + element.shun_hao + '</td> ' +
                         '<td> ' + element.change_p + '</td> ' +
+                        '<td> ' + element.gu_ding_price + '</td> ' +
                         '<td> ' + element.dom_h + '</td> ' +
                         '<td> ' + element.merge_name + '</td> ' +
                         '<td> ' + element.create_time + '</td> ' +
@@ -474,13 +476,14 @@
                         '<td> ' + element.cp_name + '</td> ' +
                         '<td> ' + element.cp_desc + '</td> ' +
                         '<td> ' + element.cp_type + '</td> ' +
-                        '<td> ' + element.cp_type_code + '</td> ' +
+                        /*                     '<td> ' + element.cp_type_code + '</td> ' +*/
                         '<td> ' + element.main_size + '</td> ' +
                         '<td> ' + element.cp_main_unit + '</td> ' +
                         '<td> ' + element.fu_zhu_unit + '</td> ' +
                         '<td> ' + element.price + '</td> ' +
                         '<td> ' + element.shun_hao + '</td> ' +
                         '<td> ' + element.change_p + '</td> ' +
+                        '<td> ' + element.gu_ding_price + '</td> ' +
                         '<td> ' + element.dom_h + '</td> ' +
                         '<td> ' + element.merge_name + '</td> ' +
                         '<td> ' + element.create_time + '</td> ' +
@@ -538,7 +541,8 @@
     $('#logout').on('click', function () {
         alert("logout")
         logout()
-        self.location = 'Public/login.html'
+        // self.location = '../Public/login.html'
+        window.location.href = '../Public/login.html'
     })
 
 

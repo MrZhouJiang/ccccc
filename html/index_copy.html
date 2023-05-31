@@ -48,7 +48,7 @@
         const bb = checkCookie();
 
         if (bb == false) {
-            self.location = 'Public/login.html'
+            self.location = '../Public/login.html'
 
         } else {
             $("#name").html(username)
@@ -57,7 +57,7 @@
 
     $('#logout').on('click', function () {
         logout()
-        self.location = 'Public/login.html'
+        self.location = '../Public/login.html'
     })
 
 </script>

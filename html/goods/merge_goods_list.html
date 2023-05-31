@@ -81,11 +81,12 @@
 
         if (bb == false) {
             //document.location.url = '/Public/login.html'
-            self.location = 'Public/login.html'
+            self.location = '../Public/login.html'
             // top.location = '/Public/login.html'
         } else {
             $("#name").html(username)
         }
+
         //查询列表
         $.ajax({
             url: GetBaseHost() + "/v2/get_merge_list",
@@ -154,7 +155,7 @@
             data: {
                 "page": $("#page").val(),
                 "size": $("#size").val(),
-                "change_type": $("#change_types").val(),
+                "merge_name": $("#merge_name").val(),
             },
             type: "GET",
             async: false,
@@ -220,7 +221,7 @@
     $('#logout').on('click', function () {
         alert("logout")
         logout()
-        self.location = 'Public/login.html'
+        self.location = '../Public/login.html'
     })
 
 

@@ -2,6 +2,7 @@ package model
 
 import (
 	"ccccc/db"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -71,7 +72,8 @@ func (rList *GoodMergeDescList) GetListPage(name string, offset, limit int, d *g
 	query := d.Table(GoodMergeDescTableName)
 	if name != "" {
 		//说明查询条件不为空
-		query = query.Where("name = ? ", name)
+		query = query.Where("name like ? ", fmt.Sprintf("%%%s%%", name))
+
 	}
 
 	query.Count(&total)

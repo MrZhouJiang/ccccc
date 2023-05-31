@@ -23,6 +23,7 @@ type GongYi struct {
 	GongYiName string    `json:"gong_yi_name"`
 	CreateTime time.Time `json:"create_time"`
 	JiJiaNum   string    `json:"ji_jia_num"`
+	JiJiaUnit  string    `json:"ji_jia_unit"`
 	//使用部位
 	GoodsPoint   string  `json:"goods_point"`
 	ShunHaoPrice float64 `json:"shun_hao_price"`

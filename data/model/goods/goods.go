@@ -43,6 +43,8 @@ type Goods struct {
 	TyName string `json:"ty_name"`
 	//是否停用  1 停用
 	SFTY int `json:"sfty"`
+	//固定价格
+	GuDingPrice float64 `json:"gu_ding_price"`
 }
 
 const tabel_name = "goods"
@@ -160,22 +162,23 @@ type AllGoodsDesc struct {
 	MainXiShu    float64 `json:"main_xi_shu"`
 	FuZhuXiShu   float64 `json:"fu_zhu_xi_shu"`
 	//产品尺寸 3*5 （cm） 注意 都是里面单位 3 表示3 cm   （3*5*2）
-	MainSize   string  `json:"main_size"`
-	Price      float64 `json:"price"`
-	ShunHao    string  `json:"shun_hao"`
-	ChangeP    float64 `json:"change_p"`
-	CpTypeCode string  `json:"cp_type_code"`
-	CpType     string  `json:"cp_type"`
-	CpDesc     string  `json:"cp_desc"`
+	MainSize    string  `json:"main_size"`
+	Price       float64 `json:"price"`
+	ShunHao     string  `json:"shun_hao"`
+	ChangeP     float64 `json:"change_p"`
+	CpTypeCode  string  `json:"cp_type_code"`
+	CpType      string  `json:"cp_type"`
+	CpDesc      string  `json:"cp_desc"`
+	GuDingPrice float64 `json:"gu_ding_price"`
 }
 
-func (rList *GoodsList) GetAllGoodsList(d *gorm.DB) (list []AllGoodsDesc, err error) {
+func (rList *GoodsList) GetAllGoodsList(d *gorm.DB, typeIDs []int) (list []AllGoodsDesc, err error) {
 	if d == nil {
 		d = db.BaseDB
 	}
 	query := d.Table(tabel_name)
 	query = query.Select("cp_code , cp_name,cp_gui_ge,cp_main_unit,fu_zhu_unit,main_xi_shu,fu_zhu_xi_shu,main_size,price,shun_hao,change_p,cp_type_code,cp_desc")
-	err = query.Where(" sfty=0 ").Order("id desc").Find(&list).Error
+	err = query.Where(" sfty=0  and cp_type_code not in (?) ", typeIDs).Order("id desc").Find(&list).Error
 	return
 
 }
@@ -185,7 +188,7 @@ func (rList *Goods) GetGoodsById(cpCode string, d *gorm.DB) (info AllGoodsDesc, 
 		d = db.BaseDB
 	}
 	query := d.Table(tabel_name)
-	query = query.Select("cp_code , cp_name,cp_gui_ge,cp_main_unit,fu_zhu_unit,main_xi_shu,fu_zhu_xi_shu,main_size,price,shun_hao,change_p,cp_type_code,cp_desc")
+	query = query.Select("cp_code , cp_name,cp_gui_ge,cp_main_unit,fu_zhu_unit,main_xi_shu,fu_zhu_xi_shu,main_size,price,shun_hao,change_p,cp_type_code,cp_desc,gu_ding_price")
 	err = query.Where("cp_code = ?", cpCode).First(&info).Error
 	return
 

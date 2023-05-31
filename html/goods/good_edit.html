@@ -100,6 +100,11 @@
 
         </tr>
         <tr>
+            <td class="tableleft">恒定价格</td>
+            <td><input id="gu_ding_price" type="text" name="gu_ding_price"/></td>
+
+        </tr>
+        <tr>
             <td class="tableleft">DOM转换</td>
             <td>
                 <select id="goods_dom">
@@ -145,7 +150,7 @@
     const bb = checkCookie();
 
     if (bb == false) {
-        self.location = 'Public/login.html'
+        self.location = '../Public/login.html'
 
     }
     goods_size = GetQueryString("goods_size")
@@ -235,7 +240,7 @@
         GetMergeList()
         //填充数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_goods_by_id",
+            url: GetBaseHost() + "/v2/get_goods_by_id",
             dataType: "json",
             data: {
                 "cp_code": cp_code
@@ -256,6 +261,7 @@
                     $("#goods_shunhao").val(data.data.shun_hao)
                     $("#goods_xishu").val(goods_xishu)
                     $("#cp_type_code").val(data.data.cp_type_code)
+                    $("#gu_ding_price").val(data.data.gu_ding_price)
                     changeManiUnit(data.data.cp_main_unit)
                     changeFunUnit(data.data.fu_zhu_unit)
                     changeCpType(data.data.cp_type)
@@ -276,7 +282,7 @@
         str = ""
         //获取数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_goods_changeList",
+            url: GetBaseHost() + "/v2/get_goods_changeList",
             dataType: "json",
             data: {
                 "page": 1,
@@ -305,7 +311,7 @@
         str = ""
         //获取数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_merge_list",
+            url: GetBaseHost() + "/v2/get_merge_list",
             dataType: "json",
             data: {
                 "page": 1,
@@ -331,7 +337,7 @@
 
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/update_goods",
+            url: GetBaseHost() + "/v2/update_goods",
             dataType: "json",
             data: {
                 "goods_size": $('#goods_size').val(),
@@ -349,6 +355,8 @@
                 "cp_gui_ge": $("#cp_gui_ge").val(),
                 "cp_type_code": $("#cp_type_code").val(),
                 "cp_desc": $("#cp_desc").val(),
+                "gu_ding_price": $("#gu_ding_price").val()
+
             },
             type: "POST",
             async: false,

@@ -396,6 +396,8 @@ func PostFengWei(c *gin.Context) {
 		insertInfo.GongYiName = detail.GongYiName
 		insertInfo.JiJiaNum = detail.JiJiaNum
 		insertInfo.GoodsPoint = detail.GoodsPoint
+		insertInfo.JiJiaUnit = detail.Unit
+
 		//获取物料信息
 		goods := model.Goods{}
 		err1 := goods.Get("", detail.CpCode)
@@ -405,6 +407,11 @@ func PostFengWei(c *gin.Context) {
 			resp.Desc = err.Error()
 			return
 		}
+		if goods.FuZhuXiShu != 1 {
+			//用辅助计量单位
+			nn := GetUnitById(goods.FuZhuUnit)
+			insertInfo.JiJiaUnit = nn
+		}
 		//
 		if goods.ShunHao != "" {
 			price_f, _ := strconv.ParseFloat(detail.TotalPrice, 64)
@@ -413,6 +420,13 @@ func PostFengWei(c *gin.Context) {
 			xx := shunhao_f / 100
 			insertInfo.ShunHaoPrice = (xx / (xx + 1)) * price_f
 		}
+		//判断单位
+		mergeDesc := model.GoodsMergeDesInfoDtoList{}
+		errx1 := mergeDesc.GetListByCpCode(detail.CpCode, nil)
+		if errx1 == nil && len(mergeDesc) > 0 {
+			insertInfo.JiJiaUnit = mergeDesc[0].Unit
+		}
+
 		err = insertInfo.Create(nil)
 		if err != nil {
 			log.Printf("insertInfo.Create err :%v", err)
@@ -789,15 +803,19 @@ func Sums(c *gin.Context) {
 	if fuzhu_xishu_i == 0 {
 		fuzhu_xishu_i = 1
 	}
+	if main_xishu_i == 0 {
+		main_xishu_i = 1
+	}
+	main_xishu_i = 1
 	//	算了损耗的 数量
 	//jijiaNums = (((shunhao_i/100 + 1) * (a1 * a2 * a3 * a4) * num_i) / huansuan_i) * float64(main_xishu_i) / float64(fuzhu_xishu_i)
 	//没有算损耗的数量
-	jijiaNums = ((a1 * a2 * a3 * a4) * num_i / huansuan_i) * float64(main_xishu_i) / float64(fuzhu_xishu_i)
+	jijiaNums = ((a1 * a2 * a3 * a4) * num_i / huansuan_i) / float64(main_xishu_i) / float64(fuzhu_xishu_i)
 	//
 	//没有合并规则下的价格
-	totalPrice_t = (((shunhao_i/100 + 1) * (a1 * a2 * a3 * a4) * num_i) / huansuan_i) * float64(main_xishu_i) / float64(fuzhu_xishu_i)
+	totalPrice_t = (((shunhao_i/100 + 1) * (a1 * a2 * a3 * a4) * num_i) / huansuan_i) / float64(main_xishu_i) / float64(fuzhu_xishu_i)
 	//
-	//有合并规则下的价格
+	//有合并规则下的价格【【
 
 out:
 
@@ -805,10 +823,54 @@ out:
 	mergeDesc := model.GoodsMergeDesInfoDtoList{}
 	errx1 := mergeDesc.GetListByCpCode(cpCode, nil)
 	if errx1 == nil && len(mergeDesc) > 0 && mergeDesc[0].Price > 0 {
-		newPric := mergeDesc[0].Price
-		totalPrice = newPric * totalPrice_t
+		//要判断一下 合并的的单位是否和主计量单位一致
+		goodsMerge := model.Goods{}
+		err3 := goodsMerge.Get("", cpCode)
+		if err3 != nil {
+			log.Printf("GetGoodsChangeById err :%v", err3)
+
+			resp.Status = 201
+			resp.Desc = "未找到产品单位基本信息"
+		}
+		unit := model.UnitDesc{}
+		intv1, err1 := strconv.Atoi(goodsMerge.CpMainUnit)
+
+		if err1 != nil {
+			log.Printf("GetGoodsChangeById err :%v", err1)
+
+			resp.Status = 201
+			resp.Desc = "未找到产品单位信息"
+		}
+		unit.GetById(nil, intv1)
+		unit_str := strings.Replace(unit.Name, "\n", "", -1)
+		unit_str = strings.Replace(unit_str, " ", "", -1)
+		unit_str = strings.Replace(unit_str, "\r", "", -1)
+		unit_merge_str := strings.Replace(mergeDesc[0].Unit, "\n", "", -1)
+		unit_merge_str = strings.Replace(unit_merge_str, " ", "", -1)
+		unit_merge_str = strings.Replace(unit_merge_str, "\r", "", -1)
+
+		//单位一样 直接取值
+		if unit_str == unit_merge_str {
+			newPric := mergeDesc[0].Price
+			totalPrice = newPric * totalPrice_t
+		} else {
+			xishu := goodsMerge.MainXiShu
+			if xishu == 0 {
+				xishu = 1
+			}
+			newPric := mergeDesc[0].Price / xishu
+			jijiaNums = jijiaNums / xishu
+			//newPric := mergeDesc[0].Price
+			totalPrice = newPric * totalPrice_t
+		}
+
 	} else {
-		totalPrice = totalPrice_t * price_i
+		//查询是否有固定价格
+		if info.GuDingPrice != 0 {
+			totalPrice = info.GuDingPrice
+		} else {
+			totalPrice = totalPrice_t * price_i
+		}
 	}
 
 	// 查找下是否有换算比例
@@ -1100,6 +1162,7 @@ func UpdatGoods(c *gin.Context) {
 	cp_gui_ge := params["cp_gui_ge"]
 	cp_type_name := params["cp_type_code"]
 	cp_desc := params["cp_desc"]
+	gu_ding_price := params["gu_ding_price"]
 
 	typeInfo, ok := common.GoodsTypeMap[cp_type_name]
 	typeCode := ""
@@ -1173,6 +1236,8 @@ func UpdatGoods(c *gin.Context) {
 	f1, _ := strconv.ParseFloat(fu_zhu_xi_shu, 64)
 
 	p1, _ := strconv.ParseFloat(price, 64)
+
+	p2, _ := strconv.ParseFloat(gu_ding_price, 64)
 	updateData := map[string]interface{}{
 		"shun_hao":      goods_shunhao,
 		"main_size":     goods_size,
@@ -1186,6 +1251,7 @@ func UpdatGoods(c *gin.Context) {
 		"cp_gui_ge":     cp_gui_ge,
 		"cp_type_code":  typeCode,
 		"cp_desc":       cp_desc,
+		"gu_ding_price": p2,
 	}
 
 	err = goods.Save(updateData, nil)
@@ -1274,7 +1340,7 @@ func GetAllPrice(c *gin.Context) {
 				CpCode:      yi.CpCode,
 				Size:        yi.Size,
 				Nums:        yi.Nums,
-				Unit:        yi.Unit,
+				Unit:        yi.JiJiaUnit,
 				TotalPrice:  yi.TotalPrice,
 				Price:       GetCpPrice(yi.CpCode),
 				JiJiaNum:    yi.JiJiaNum,
@@ -1293,7 +1359,7 @@ func GetAllPrice(c *gin.Context) {
 				CLName:      yi.CLName,
 				Size:        yi.Size,
 				Nums:        yi.Nums,
-				Unit:        yi.Unit,
+				Unit:        yi.JiJiaUnit,
 				TotalPrice:  yi.TotalPrice,
 				Price:       GetCpPrice(yi.CpCode),
 				JiJiaNum:    yi.JiJiaNum,
@@ -1312,7 +1378,7 @@ func GetAllPrice(c *gin.Context) {
 				CLName:      yi.CLName,
 				Size:        yi.Size,
 				Nums:        yi.Nums,
-				Unit:        yi.Unit,
+				Unit:        yi.JiJiaUnit,
 				TotalPrice:  yi.TotalPrice,
 				Price:       GetCpPrice(yi.CpCode),
 				JiJiaNum:    yi.JiJiaNum,
@@ -1331,7 +1397,7 @@ func GetAllPrice(c *gin.Context) {
 				CpCode:      yi.CpCode,
 				Size:        yi.Size,
 				Nums:        yi.Nums,
-				Unit:        yi.Unit,
+				Unit:        yi.JiJiaUnit,
 				TotalPrice:  yi.TotalPrice,
 				Price:       GetCpPrice(yi.CpCode),
 				JiJiaNum:    yi.JiJiaNum,
@@ -1350,7 +1416,7 @@ func GetAllPrice(c *gin.Context) {
 				CpCode:      yi.CpCode,
 				Size:        yi.Size,
 				Nums:        yi.Nums,
-				Unit:        yi.Unit,
+				Unit:        yi.JiJiaUnit,
 				TotalPrice:  yi.TotalPrice,
 				Price:       GetCpPrice(yi.CpCode),
 				JiJiaNum:    yi.JiJiaNum,
@@ -1367,7 +1433,7 @@ func GetAllPrice(c *gin.Context) {
 				CpCode:     yi.CpCode,
 				Size:       yi.Size,
 				Nums:       yi.Nums,
-				Unit:       yi.Unit,
+				Unit:       yi.JiJiaUnit,
 				TotalPrice: yi.TotalPrice,
 				Price:      GetCpPrice(yi.CpCode),
 				JiJiaNum:   yi.JiJiaNum,
@@ -1382,7 +1448,7 @@ func GetAllPrice(c *gin.Context) {
 				CLName:     yi.CLName,
 				Size:       yi.Size,
 				Nums:       yi.Nums,
-				Unit:       yi.Unit,
+				Unit:       yi.JiJiaUnit,
 				TotalPrice: yi.TotalPrice,
 				Price:      GetCpPrice(yi.CpCode),
 				JiJiaNum:   yi.JiJiaNum,
@@ -1474,6 +1540,43 @@ func GetAllPrice(c *gin.Context) {
 		} // 结束数据处理
 		if len(tempMap) > 0 {
 			for _, iiiiInfo := range tempMap {
+				newi = append(newi, iiiiInfo)
+			}
+		}
+		outInfo.List[i].List = newi
+
+	}
+
+	//相同材料合并
+	for i, info := range outInfo.List {
+		cpCodeMap := make(map[string]IIIIInfo, 0)
+		newi := make([]IIIIInfo, 0)
+
+		for _, gongyiInfo := range info.List {
+			la, okkk := cpCodeMap[gongyiInfo.CpCode]
+			if okkk {
+				//如果存在 合并一下
+
+				ppp1, _ := strconv.ParseFloat(la.TotalPrice, 64)
+				ppp2, _ := strconv.ParseFloat(gongyiInfo.TotalPrice, 64)
+				la.TotalPrice = fmt.Sprintf("%f", ppp1+ppp2)
+
+				jjj1, _ := strconv.ParseFloat(la.JiJiaNum, 64)
+				jjj2, _ := strconv.ParseFloat(gongyiInfo.JiJiaNum, 64)
+				la.JiJiaNum = fmt.Sprintf("%f", jjj1+jjj2)
+
+				// 设置损耗值
+				xxx1, _ := strconv.ParseFloat(la.ShunHaoNums, 64)
+				xxx2, _ := strconv.ParseFloat(gongyiInfo.ShunHaoNums, 64)
+				la.ShunHaoNums = fmt.Sprintf("%f", xxx1+xxx2)
+				cpCodeMap[gongyiInfo.CpCode] = la
+			} else {
+				cpCodeMap[gongyiInfo.CpCode] = gongyiInfo
+			}
+
+		}
+		if len(cpCodeMap) > 0 {
+			for _, iiiiInfo := range cpCodeMap {
 				newi = append(newi, iiiiInfo)
 			}
 		}

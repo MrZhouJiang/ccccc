@@ -45,7 +45,7 @@ func GetGoodsList(page, size int, name, goodsCode, typeName, shunhao string) (gs
 							}*/
 				if info.ChangeType == "换算" {
 
-					data[i].DomH = fmt.Sprintf("%s%.3f", info.Types, info.ValuesL)
+					data[i].DomH = fmt.Sprintf("%s%.7f", info.Types, info.ValuesL)
 					data[i].DomId = info.Id
 				}
 			}
@@ -70,26 +70,27 @@ func GetGoodsList(page, size int, name, goodsCode, typeName, shunhao string) (gs
 		}
 
 		dto := GoodsDto{
-			Id:         data[i].Id,
-			CpCode:     data[i].CpCode,
-			CpName:     data[i].CpName,
-			CpDesc:     data[i].CpDesc,
-			CpType:     data[i].CpType,
-			CpTypeCode: data[i].CpTypeCode,
-			CpGuiGe:    data[i].CpGuiGe,
-			CpMainUnit: unit.Name,
-			FuZhuUnit:  unit2.Name,
-			MainSize:   data[i].MainSize,
-			MainXiShu:  data[i].MainXiShu,
-			FuZhuXiShu: data[i].FuZhuXiShu,
-			Price:      data[i].Price,
-			ChangeP:    data[i].ChangeP,
-			LoadTime:   data[i].LoadTime,
-			CreateTime: data[i].CreateTime,
-			DomH:       data[i].DomH,
-			DomId:      data[i].DomId,
-			TyName:     data[i].TyName,
-			ShunHao:    data[i].ShunHao,
+			Id:          data[i].Id,
+			CpCode:      data[i].CpCode,
+			CpName:      data[i].CpName,
+			CpDesc:      data[i].CpDesc,
+			CpType:      data[i].CpType,
+			CpTypeCode:  data[i].CpTypeCode,
+			CpGuiGe:     data[i].CpGuiGe,
+			CpMainUnit:  unit.Name,
+			FuZhuUnit:   unit2.Name,
+			MainSize:    data[i].MainSize,
+			MainXiShu:   data[i].MainXiShu,
+			FuZhuXiShu:  data[i].FuZhuXiShu,
+			Price:       data[i].Price,
+			ChangeP:     data[i].ChangeP,
+			LoadTime:    data[i].LoadTime,
+			CreateTime:  data[i].CreateTime,
+			DomH:        data[i].DomH,
+			DomId:       data[i].DomId,
+			TyName:      data[i].TyName,
+			ShunHao:     data[i].ShunHao,
+			GuDingPrice: data[i].GuDingPrice,
 		} /**/
 		// 查看是否有 合并价格配置
 		mergeDesc := model.GoodsMergeDesInfoDtoList{}
@@ -139,12 +140,29 @@ type GoodsDto struct {
 	TyName    string `json:"ty_name"`
 	MergeName string `json:"merge_name"`
 	MergeId   int    `json:"merge_id"`
+	//固定价格
+	GuDingPrice float64 `json:"gu_ding_price"`
 }
 
 func GeAllGoodsList() (gs []model.AllGoodsDesc, err error) {
 
+	//需要去除一点 goods_type ：
+
+	notInid := make([]int, 0)
+	notInid = append(notInid, 1015)
+	notInid = append(notInid, 1018)
+	notInid = append(notInid, 1019)
+	notInid = append(notInid, 1020)
+	notInid = append(notInid, 1021)
+	notInid = append(notInid, 1004)
+	notInid = append(notInid, 1026)
+	notInid = append(notInid, 1027)
+	notInid = append(notInid, 1012)
+	notInid = append(notInid, 1029)
+	notInid = append(notInid, 1030)
+
 	data := model.GoodsList{}
-	gs, err = data.GetAllGoodsList(nil)
+	gs, err = data.GetAllGoodsList(nil, notInid)
 	if err != nil {
 		log.Printf("GetShaFaImportList err :%v", err)
 		return
@@ -261,6 +279,40 @@ func GetFenWeiListGroupByName(shafaId, types string) (list []GetFenWeiListGroupB
 			TotalPrice: yi.TotalPrice,
 			CpCode:     yi.CpCode,
 			GoodsPoint: yi.GoodsPoint,
+		}
+		//获取单位
+		goods_info := model.Goods{}
+		errxxx := goods_info.Get("", yi.CpCode)
+		if errxxx == nil {
+
+			//
+			if goods_info.CpMainUnit == goods_info.FuZhuUnit {
+				//说明是一样的 可以都不做
+			} else if goods_info.MainXiShu > 0 {
+				intv1, _ := strconv.Atoi(goods_info.CpMainUnit)
+				intv2, _ := strconv.Atoi(goods_info.FuZhuUnit)
+
+				tmp := 0
+				if intv1 > intv2 {
+					tmp = intv1
+				} else {
+					tmp = intv2
+				}
+				unit := model.UnitDesc{}
+				err2 := unit.GetById(nil, tmp)
+				//获取
+				if err2 != nil {
+					log.Printf("unit.GetById(nil, intv1) err :%v", err)
+				} else {
+					l3.Unit = unit.Name
+				}
+
+			}
+
+		}
+
+		if len(l3.Size) > 0 {
+			l3.Unit = "件"
 		}
 
 		ll, ok := typeMaps[yi.GongYiName]
@@ -421,7 +473,9 @@ func GetGoodsListGroupByName(shafaId string) (list [][]string, err error) {
 		outInfo[ii] = append(outInfo[ii], shafa.GG)
 		outInfo[ii] = append(outInfo[ii], yis[0].CpCode)
 		outInfo[ii] = append(outInfo[ii], yis[0].CLName)
-		outInfo[ii] = append(outInfo[ii], yis[0].Unit)
+		//查询单位
+
+		outInfo[ii] = append(outInfo[ii], yis[0].JiJiaUnit)
 		tempMpa := make(map[string]float64, 0)
 		for _, yi := range yis {
 			_, okk := tempMpa[yi.FenWeiName]

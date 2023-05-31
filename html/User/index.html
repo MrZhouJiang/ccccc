@@ -108,7 +108,7 @@
 
         //查询列表
         $.ajax({
-            url: GetBaseHost() +"/v2/get_user_list",
+            url: GetBaseHost() + "/v2/get_user_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -143,7 +143,7 @@
             //  alert( $(this).parent().parent().parent().remove())
             user_id = $(this).parent().find(".delete_user").val()
             $.ajax({
-                url: GetBaseHost() +"/v2/delete_user",
+                url: GetBaseHost() + "/v2/delete_user",
                 dataType: "json",
                 data: {
                     "user_id": user_id
@@ -169,7 +169,7 @@
         $('tr.data_1').remove()
 
         $.ajax({
-            url: GetBaseHost() +"/v2/get_user_list",
+            url: GetBaseHost() + "/v2/get_user_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -238,7 +238,9 @@
     $('#logout').on('click', function () {
         alert("logout")
         logout()
-        self.location = 'Public/login.html'
+        // self.location = '../Public/login.html'
+        window.parent.location = '../Public/login.html'
+        // top.location = '../Public/login.html'
     })
 
 

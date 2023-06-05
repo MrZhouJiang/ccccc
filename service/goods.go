@@ -537,7 +537,7 @@ func GetGoodsListGroupByName(shafaId string) (list [][]string, err error) {
 				llll = 0
 			}
 			if llll != 0 {
-				outInfo[ii] = append(outInfo[ii], fmt.Sprintf("%f", llll))
+				outInfo[ii] = append(outInfo[ii], fmt.Sprintf("%.4f", llll))
 
 			} else {
 				outInfo[ii] = append(outInfo[ii], "")

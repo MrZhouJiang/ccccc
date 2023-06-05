@@ -1409,6 +1409,8 @@ func GetAllPrice(c *gin.Context) {
 			p1, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p1), 64)
 			yy1.TotalPrice = p1
 			yy1.TotalSunhao += yi.ShunHaoPrice
+			cccc1, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", yy1.TotalSunhao), 64)
+			yy1.TotalSunhao = cccc1
 			s1 = yy1.TotalSunhao
 			pp1 = append(pp1, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
@@ -1429,6 +1431,8 @@ func GetAllPrice(c *gin.Context) {
 			p2, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p2), 64)
 			yy2.TotalPrice = p2
 			yy2.TotalSunhao += yi.ShunHaoPrice
+			cccc, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", yy2.TotalSunhao), 64)
+			yy2.TotalSunhao = cccc
 			s2 = yy2.TotalSunhao
 			pp2 = append(pp2, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
@@ -1449,6 +1453,8 @@ func GetAllPrice(c *gin.Context) {
 			p3, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p3), 64)
 			yy3.TotalPrice = p3
 			yy3.TotalSunhao += yi.ShunHaoPrice
+			cccc, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", yy3.TotalSunhao), 64)
+			yy3.TotalSunhao = cccc
 			s3 = yy3.TotalSunhao
 			pp3 = append(pp3, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
@@ -1469,6 +1475,8 @@ func GetAllPrice(c *gin.Context) {
 			p4, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p4), 64)
 			yy4.TotalPrice = p4
 			yy4.TotalSunhao += yi.ShunHaoPrice
+			cccc, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", yy4.TotalSunhao), 64)
+			yy4.TotalSunhao = cccc
 			s4 = yy4.TotalSunhao
 			pp4 = append(pp4, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
@@ -1489,6 +1497,8 @@ func GetAllPrice(c *gin.Context) {
 			p5, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p5), 64)
 			yy5.TotalPrice = p5
 			yy5.TotalSunhao += yi.ShunHaoPrice
+			cccc, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", yy5.TotalSunhao), 64)
+			yy5.TotalSunhao = cccc
 			s5 = yy5.TotalSunhao
 			pp5 = append(pp5, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
@@ -1570,7 +1580,8 @@ func GetAllPrice(c *gin.Context) {
 		outInfo.List = append(outInfo.List, yy7)
 	}
 	outInfo.TotalPrice = AllTotalPrice
-	outInfo.TotalShunHao = s1 + s2 + s3 + s4 + s5 + s6 + s7
+	ppppppp1, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", s1+s2+s3+s4+s5+s6+s7), 64)
+	outInfo.TotalShunHao = ppppppp1
 	//处理下合并材料规则 todo
 
 	for i, info := range outInfo.List {

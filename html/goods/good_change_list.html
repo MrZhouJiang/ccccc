@@ -41,6 +41,9 @@
     类型：
     <input type="text" name="types" id='change_types' list="change_types_list" autocomplete="off" placeholder="配置的类型">
     <datalist id="change_types_list"></datalist>
+    配置名称：
+    <input type="text" name="change_name" id='change_name' placeholder="名称">
+
     <button id="search" type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <a class="btn btn-success " href="good_change_add.html">新增</a>
     <!--<button type="button" class="btn btn-success" id="addnew">新增用户</button>-->
@@ -99,6 +102,7 @@
                 "page": $("#page").val(),
                 "size": $("#size").val(),
                 "change_type": $("#change_types").val(),
+                "name": $("#change_name").val(),
             },
             type: "GET",
             async: false,

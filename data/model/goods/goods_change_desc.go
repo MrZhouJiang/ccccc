@@ -2,6 +2,7 @@ package model
 
 import (
 	"ccccc/db"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -70,7 +71,7 @@ func (r *GoodsChangeDesc) GetByName(d *gorm.DB, name string) error {
 	err := d.Table(GoodsChangeDescTableName).Where("c_name=?", name).Find(&r).Error
 	return err
 }
-func (rList *GoodsChangeDescList) GetListPage(changeType string, offset, limit int, d *gorm.DB) (total int, err error) {
+func (rList *GoodsChangeDescList) GetListPage(changeType, name string, offset, limit int, d *gorm.DB) (total int, err error) {
 	if d == nil {
 		d = db.BaseDB
 	}
@@ -78,6 +79,10 @@ func (rList *GoodsChangeDescList) GetListPage(changeType string, offset, limit i
 	if changeType != "" {
 		//说明查询条件不为空
 		query = query.Where("change_type = ? ", changeType)
+	}
+	if name != "" {
+		//说明查询条件不为空
+		query = query.Where("c_name like ? ", fmt.Sprintf("%%%s%%", name))
 	}
 
 	query.Count(&total)

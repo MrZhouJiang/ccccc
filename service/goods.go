@@ -382,12 +382,12 @@ func GetUserListD(page, size int, username string) (gs []model2.UserInfo, total 
 	return
 }
 
-func GetGoodsChangeList(page, size int, changeType string) (gs []model.GoodsChangeDesc, total int, err error) {
+func GetGoodsChangeList(page, size int, changeType, name string) (gs []model.GoodsChangeDesc, total int, err error) {
 	offset := (page - 1) * size
 
 	data := model.GoodsChangeDescList{}
 
-	total, err = data.GetListPage(changeType, offset, size, nil)
+	total, err = data.GetListPage(changeType, name, offset, size, nil)
 	if err != nil {
 		log.Printf("GetGoodsChangeList err :%v", err)
 		return

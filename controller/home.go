@@ -940,9 +940,10 @@ func GetGoodsChangeList(c *gin.Context) {
 		size = 20
 	}
 	change_type := params["change_type"]
+	name := params["name"]
 	log.Printf("change_type:%s", change_type)
 
-	d, total, err := service.GetGoodsChangeList(page, size, change_type)
+	d, total, err := service.GetGoodsChangeList(page, size, change_type, name)
 	if err != nil {
 		log.Printf("GetGoodsList err :%v", err)
 

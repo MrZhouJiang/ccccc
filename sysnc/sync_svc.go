@@ -144,11 +144,8 @@ func StartSyncCp() {
 							shafaimport.SfName = base.CPMC
 							shafaimport.SDesc = base.CPJC
 							shafaimport.GG = base.GG
+							shafaimport.Update(nil)
 						}
-						if strings.Contains(base.CJSJ, "T") {
-							timeLayout = "2006-01-02T15:04:05Z"
-						}
-						shafaimport.Update(nil)
 						//更新基础物料表
 						goods.CpName = base.CPMC
 						goods.CpGuiGe = base.GG

@@ -93,7 +93,7 @@
                 <input type="text" name="caigong_select" id='caigong_select' list="caigong_select_list"
                        autocomplete="off"
                        placeholder="分位">
-                <datalist  d id="caigong_select_list"></datalist>
+                <datalist d id="caigong_select_list"></datalist>
             </td>
             <td>
 
@@ -211,7 +211,7 @@
                     导出物料表
                 </button>
                 <button
-                        type="button" class="btn btn-warning" name="backid"  onclick="backIndex()">返回列表
+                        type="button" class="btn btn-warning" name="backid" onclick="backIndex()">返回列表
                 </button>
             </td>
         </tr>
@@ -246,6 +246,7 @@
         let huansuan = $("#caigong_hy_p").val()
         let main_xishu = $("#caigong_main_xishu").val()
         let fuzhu_xishu = $("#caigong_fuzhu_xishu").val()
+        let main_size = $("#caigong_size").val()
 
         if (num == null || num == "") {
             return
@@ -268,7 +269,8 @@
                 "huan_suan": huansuan,
                 "size": size,
                 "main_xishu": main_xishu,
-                "fuzhu_xishu": fuzhu_xishu
+                "fuzhu_xishu": fuzhu_xishu,
+                "main_size": main_size
             },
             type: "get",
             async: false,
@@ -422,8 +424,6 @@
             "        </tr>"
         $("#caigong_dataTable_export").append(str2)
     }
-
-
 
 
     function caigong_PostData() {

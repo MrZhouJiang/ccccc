@@ -379,6 +379,8 @@ func PostFengWei(c *gin.Context) {
 		resp.Desc = err.Error()
 		return
 	}
+	// 要将 全套用量 替换掉其他掉
+
 	//循环插入
 	for _, detail := range dto.Details {
 		insertInfo := model.GongYi{}
@@ -710,6 +712,8 @@ func Sums(c *gin.Context) {
 
 	}
 
+	main_size := params["main_size"]
+
 	fuzhu_xishu := params["fuzhu_xishu"]
 	fuzhu_xishu_i, e1 := strconv.ParseFloat(fuzhu_xishu, 64)
 	if e1 != nil {
@@ -737,7 +741,13 @@ func Sums(c *gin.Context) {
 		return
 	}
 	//判断长宽高
-	l1 := info.MainSize
+	l1 := ""
+	if main_size == "" {
+		l1 = info.MainSize
+	} else {
+		l1 = main_size
+	}
+
 	a1 := 1.0
 	a2 := 1.0
 	a3 := 1.0
@@ -1268,8 +1278,28 @@ func UpdatGoods(c *gin.Context) {
 		resp.Desc = err.Error()
 	}
 
+	//如果是沙发 还需要改沙发名称
+
+	if typeCode == "1019" || typeCode == "1020" || typeCode == "1018" || typeCode == "1029" {
+		shafaLogs := model.ShaFaImportLog{}
+		shafaLogs.GetByType(nil, goods.CpCode)
+		shafaLogs.SfName = cp_name
+		shafaLogs.Update(nil)
+
+	}
+
 	util.ReturnCompFunc(c, resp)
 	return
+}
+
+func covertPrice(string2 string) string {
+	if string2 != "" {
+		ppp1, _ := strconv.ParseFloat(string2, 64)
+		return fmt.Sprintf("%.4f", ppp1)
+	} else {
+		return "0"
+	}
+
 }
 
 func GetAllPrice(c *gin.Context) {
@@ -1292,6 +1322,38 @@ func GetAllPrice(c *gin.Context) {
 		resp.Desc = "未找到该记录"
 		return
 	}
+
+	// 要根据全套 剔除掉其他的成本
+	//生成一个key
+	tttMp := make(map[string]bool, 0)
+
+	tempList := make([]model.GongYi, 0)
+
+	for _, yi := range allGongyi {
+		key := fmt.Sprintf("%s_%s_%s", yi.Types, yi.GongYiName, yi.CpCode)
+		n1 := yi.FenWeiName
+		n1 = strings.Replace(n1, " ", "", -1)
+		n1 = strings.Replace(n1, "/r", "", -1)
+		n1 = strings.Replace(n1, "\r", "", -1)
+		n1 = strings.Replace(n1, "\n", "", -1)
+		if n1 == "全套" {
+			//说明有全套了
+			tttMp[key] = true
+			tempList = append(tempList, yi)
+		} else {
+			//不是全套
+			//判断有没有
+			_, ok := tttMp[key]
+			if ok {
+				//如果有全套 就不添加了
+			} else {
+				tempList = append(tempList, yi)
+			}
+		}
+
+	}
+	//重新赋值
+	allGongyi = tempList
 
 	shafa := model.ShaFaImportLog{}
 	err = shafa.Get("", sofa_code)
@@ -1336,15 +1398,15 @@ func GetAllPrice(c *gin.Context) {
 			s1 = yy1.TotalSunhao
 			pp1 = append(pp1, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
-				CLName:      yi.CLName,
+				CLName:      GetCpName(yi.CpCode),
 				CpCode:      yi.CpCode,
 				Size:        yi.Size,
-				Nums:        yi.Nums,
+				Nums:        covertPrice(yi.Nums),
 				Unit:        yi.JiJiaUnit,
-				TotalPrice:  yi.TotalPrice,
+				TotalPrice:  covertPrice(yi.TotalPrice),
 				Price:       GetCpPrice(yi.CpCode),
-				JiJiaNum:    yi.JiJiaNum,
-				ShunHaoNums: fmt.Sprintf("%f", yi.ShunHaoPrice),
+				JiJiaNum:    covertPrice(yi.JiJiaNum),
+				ShunHaoNums: fmt.Sprintf("%.4f", yi.ShunHaoPrice),
 			})
 		}
 		if yi.Types == "车工" {
@@ -1356,14 +1418,14 @@ func GetAllPrice(c *gin.Context) {
 			pp2 = append(pp2, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
 				CpCode:      yi.CpCode,
-				CLName:      yi.CLName,
+				CLName:      GetCpName(yi.CpCode),
 				Size:        yi.Size,
-				Nums:        yi.Nums,
+				Nums:        covertPrice(yi.Nums),
 				Unit:        yi.JiJiaUnit,
-				TotalPrice:  yi.TotalPrice,
+				TotalPrice:  covertPrice(yi.TotalPrice),
 				Price:       GetCpPrice(yi.CpCode),
-				JiJiaNum:    yi.JiJiaNum,
-				ShunHaoNums: fmt.Sprintf("%f", yi.ShunHaoPrice),
+				JiJiaNum:    covertPrice(yi.JiJiaNum),
+				ShunHaoNums: fmt.Sprintf("%.4f", yi.ShunHaoPrice),
 			})
 		}
 		if yi.Types == "海绵" {
@@ -1375,14 +1437,14 @@ func GetAllPrice(c *gin.Context) {
 			pp3 = append(pp3, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
 				CpCode:      yi.CpCode,
-				CLName:      yi.CLName,
+				CLName:      GetCpName(yi.CpCode),
 				Size:        yi.Size,
-				Nums:        yi.Nums,
+				Nums:        covertPrice(yi.Nums),
 				Unit:        yi.JiJiaUnit,
-				TotalPrice:  yi.TotalPrice,
+				TotalPrice:  covertPrice(yi.TotalPrice),
 				Price:       GetCpPrice(yi.CpCode),
-				JiJiaNum:    yi.JiJiaNum,
-				ShunHaoNums: fmt.Sprintf("%f", yi.ShunHaoPrice),
+				JiJiaNum:    covertPrice(yi.JiJiaNum),
+				ShunHaoNums: fmt.Sprintf("%.4f", yi.ShunHaoPrice),
 			})
 		}
 		if yi.Types == "扪工" {
@@ -1393,15 +1455,15 @@ func GetAllPrice(c *gin.Context) {
 			s4 = yy4.TotalSunhao
 			pp4 = append(pp4, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
-				CLName:      yi.CLName,
+				CLName:      GetCpName(yi.CpCode),
 				CpCode:      yi.CpCode,
 				Size:        yi.Size,
-				Nums:        yi.Nums,
+				Nums:        covertPrice(yi.Nums),
 				Unit:        yi.JiJiaUnit,
-				TotalPrice:  yi.TotalPrice,
+				TotalPrice:  covertPrice(yi.TotalPrice),
 				Price:       GetCpPrice(yi.CpCode),
-				JiJiaNum:    yi.JiJiaNum,
-				ShunHaoNums: fmt.Sprintf("%f", yi.ShunHaoPrice),
+				JiJiaNum:    covertPrice(yi.JiJiaNum),
+				ShunHaoNums: fmt.Sprintf("%.4f", yi.ShunHaoPrice),
 			})
 		}
 		if yi.Types == "木工" {
@@ -1412,15 +1474,15 @@ func GetAllPrice(c *gin.Context) {
 			s5 = yy5.TotalSunhao
 			pp5 = append(pp5, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
-				CLName:      yi.CLName,
+				CLName:      GetCpName(yi.CpCode),
 				CpCode:      yi.CpCode,
 				Size:        yi.Size,
-				Nums:        yi.Nums,
+				Nums:        covertPrice(yi.Nums),
 				Unit:        yi.JiJiaUnit,
-				TotalPrice:  yi.TotalPrice,
+				TotalPrice:  covertPrice(yi.TotalPrice),
 				Price:       GetCpPrice(yi.CpCode),
-				JiJiaNum:    yi.JiJiaNum,
-				ShunHaoNums: fmt.Sprintf("%f", yi.ShunHaoPrice),
+				JiJiaNum:    covertPrice(yi.JiJiaNum),
+				ShunHaoNums: fmt.Sprintf("%.4f", yi.ShunHaoPrice),
 			})
 		}
 		if yi.Types == "人工" {
@@ -1432,11 +1494,11 @@ func GetAllPrice(c *gin.Context) {
 				CLName:     yi.CLName,
 				CpCode:     yi.CpCode,
 				Size:       yi.Size,
-				Nums:       yi.Nums,
+				Nums:       covertPrice(yi.Nums),
 				Unit:       yi.JiJiaUnit,
-				TotalPrice: yi.TotalPrice,
+				TotalPrice: covertPrice(yi.TotalPrice),
 				Price:      GetCpPrice(yi.CpCode),
-				JiJiaNum:   yi.JiJiaNum,
+				JiJiaNum:   covertPrice(yi.JiJiaNum),
 			})
 		}
 		if yi.Types == "其他" {
@@ -1447,11 +1509,11 @@ func GetAllPrice(c *gin.Context) {
 				FenWeiName: yi.FenWeiName,
 				CLName:     yi.CLName,
 				Size:       yi.Size,
-				Nums:       yi.Nums,
+				Nums:       covertPrice(yi.Nums),
 				Unit:       yi.JiJiaUnit,
-				TotalPrice: yi.TotalPrice,
+				TotalPrice: covertPrice(yi.TotalPrice),
 				Price:      GetCpPrice(yi.CpCode),
-				JiJiaNum:   yi.JiJiaNum,
+				JiJiaNum:   covertPrice(yi.JiJiaNum),
 			})
 		}
 
@@ -1503,22 +1565,23 @@ func GetAllPrice(c *gin.Context) {
 					if ok {
 						ppp1, _ := strconv.ParseFloat(lll.TotalPrice, 64)
 						ppp2, _ := strconv.ParseFloat(gongyiInfo.TotalPrice, 64)
-						lll.TotalPrice = fmt.Sprintf("%f", ppp1+ppp2)
+						lll.TotalPrice = fmt.Sprintf("%.4f", ppp1+ppp2)
 
 						jjj1, _ := strconv.ParseFloat(lll.JiJiaNum, 64)
 						jjj2, _ := strconv.ParseFloat(gongyiInfo.JiJiaNum, 64)
-						lll.JiJiaNum = fmt.Sprintf("%f", jjj1+jjj2)
+						lll.JiJiaNum = fmt.Sprintf("%.4f", jjj1+jjj2)
 
 						// 设置损耗值
 						xxx1, _ := strconv.ParseFloat(lll.ShunHaoNums, 64)
 						xxx2, _ := strconv.ParseFloat(gongyiInfo.ShunHaoNums, 64)
-						lll.ShunHaoNums = fmt.Sprintf("%f", xxx1+xxx2)
+						lll.ShunHaoNums = fmt.Sprintf("%.4f", xxx1+xxx2)
 
 						tempMap[mergeDesc[0].MergeId] = lll
 
 					} else {
 						tempMap[mergeDesc[0].MergeId] = IIIIInfo{
 							FenWeiName:  "",
+							CpCode:      gongyiInfo.CpCode,
 							CLName:      mergeDesc[0].CLName,
 							Size:        "",
 							Nums:        "",
@@ -1559,16 +1622,16 @@ func GetAllPrice(c *gin.Context) {
 
 				ppp1, _ := strconv.ParseFloat(la.TotalPrice, 64)
 				ppp2, _ := strconv.ParseFloat(gongyiInfo.TotalPrice, 64)
-				la.TotalPrice = fmt.Sprintf("%f", ppp1+ppp2)
+				la.TotalPrice = fmt.Sprintf("%.4f", ppp1+ppp2)
 
 				jjj1, _ := strconv.ParseFloat(la.JiJiaNum, 64)
 				jjj2, _ := strconv.ParseFloat(gongyiInfo.JiJiaNum, 64)
-				la.JiJiaNum = fmt.Sprintf("%f", jjj1+jjj2)
+				la.JiJiaNum = fmt.Sprintf("%.4f", jjj1+jjj2)
 
 				// 设置损耗值
 				xxx1, _ := strconv.ParseFloat(la.ShunHaoNums, 64)
 				xxx2, _ := strconv.ParseFloat(gongyiInfo.ShunHaoNums, 64)
-				la.ShunHaoNums = fmt.Sprintf("%f", xxx1+xxx2)
+				la.ShunHaoNums = fmt.Sprintf("%.4f", xxx1+xxx2)
 				cpCodeMap[gongyiInfo.CpCode] = la
 			} else {
 				cpCodeMap[gongyiInfo.CpCode] = gongyiInfo
@@ -1594,6 +1657,13 @@ func GetCpPrice(cp_code string) float64 {
 	goods := model.Goods{}
 	d, _ := goods.GetGoodsById(cp_code, nil)
 	return d.Price
+
+}
+func GetCpName(cp_code string) string {
+
+	goods := model.Goods{}
+	d, _ := goods.GetGoodsById(cp_code, nil)
+	return d.CpName
 
 }
 

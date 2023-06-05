@@ -245,6 +245,8 @@
         let huansuan = $("#mugong_hy_p").val()
         let main_xishu = $("#mugong_main_xishu").val()
         let fuzhu_xishu = $("#mugong_fuzhu_xishu").val()
+        let main_size = $("#mugong_size").val()
+
 
         if (num == null || num == "") {
             return
@@ -267,7 +269,8 @@
                 "huan_suan": huansuan,
                 "size": size,
                 "main_xishu": main_xishu,
-                "fuzhu_xishu": fuzhu_xishu
+                "fuzhu_xishu": fuzhu_xishu,
+                "main_size": main_size
             },
             type: "get",
             async: false,

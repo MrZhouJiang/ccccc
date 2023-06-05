@@ -284,7 +284,7 @@ func GetFenWeiListGroupByName(shafaId, types string) (list []GetFenWeiListGroupB
 		goods_info := model.Goods{}
 		errxxx := goods_info.Get("", yi.CpCode)
 		if errxxx == nil {
-
+			l3.CLName = goods_info.CpName
 			//
 			if goods_info.CpMainUnit == goods_info.FuZhuUnit {
 				//说明是一样的 可以都不做
@@ -412,6 +412,27 @@ func GetGoodsMergeList(page, size int, name string) (gs []model.GoodMergeDesc, t
 
 }
 
+func getGoodsNuit(goods model.Goods) (string, int) {
+	if goods.MainXiShu != 1 {
+		unit := model.UnitDesc{}
+		intv1, _ := strconv.Atoi(goods.CpMainUnit)
+		unit.GetById(nil, intv1)
+		return unit.Name, 1
+	} else if goods.FuZhuXiShu != 1 {
+		unit := model.UnitDesc{}
+		intv1, _ := strconv.Atoi(goods.FuZhuUnit)
+		unit.GetById(nil, intv1)
+		return unit.Name, 2
+	} else {
+		unit := model.UnitDesc{}
+		intv1, _ := strconv.Atoi(goods.CpMainUnit)
+		unit.GetById(nil, intv1)
+		return unit.Name, 1
+	}
+	return "", 1
+
+}
+
 func GetGoodsListGroupByName(shafaId string) (list [][]string, err error) {
 	//查询 沙发信息
 
@@ -472,14 +493,37 @@ func GetGoodsListGroupByName(shafaId string) (list [][]string, err error) {
 		outInfo[ii] = append(outInfo[ii], shafa.SfName)
 		outInfo[ii] = append(outInfo[ii], shafa.GG)
 		outInfo[ii] = append(outInfo[ii], yis[0].CpCode)
-		outInfo[ii] = append(outInfo[ii], yis[0].CLName)
-		//查询单位
 
-		outInfo[ii] = append(outInfo[ii], yis[0].JiJiaUnit)
+		//查询最新名称
+		goods_info := model.Goods{}
+		errxxx := goods_info.Get("", yis[0].CpCode)
+		if errxxx == nil {
+			outInfo[ii] = append(outInfo[ii], goods_info.CpName)
+		} else {
+			outInfo[ii] = append(outInfo[ii], yis[0].CLName)
+		}
+
+		//查询单位
+		//这里去要区分单位和数量
+		unit := ""
+
+		if goods_info.MainSize != "" {
+			unit = yis[0].JiJiaUnit
+		} else {
+			unit, _ = getGoodsNuit(goods_info)
+		}
+
+		outInfo[ii] = append(outInfo[ii], unit)
 		tempMpa := make(map[string]float64, 0)
 		for _, yi := range yis {
 			_, okk := tempMpa[yi.FenWeiName]
-			fll, _ := strconv.ParseFloat(yi.JiJiaNum, 64)
+			nums := ""
+			if yi.Size != "" || goods_info.MainSize != "" {
+				nums = yi.JiJiaNum
+			} else {
+				nums = yi.Nums
+			}
+			fll, _ := strconv.ParseFloat(nums, 64)
 			if okk {
 				tempMpa[yi.FenWeiName] = tempMpa[yi.FenWeiName] + fll
 			} else {

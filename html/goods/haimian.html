@@ -211,7 +211,7 @@
                     导出物料表
                 </button>
                 <button
-                        type="button" class="btn btn-warning" name="backid"  onclick="backIndex()">返回列表
+                        type="button" class="btn btn-warning" name="backid" onclick="backIndex()">返回列表
                 </button>
             </td>
 
@@ -247,6 +247,7 @@
         let huansuan = $("#haimian_hy_p").val()
         let main_xishu = $("#haimian_main_xishu").val()
         let fuzhu_xishu = $("#haimian_fuzhu_xishu").val()
+        let main_size = $("#haimian_size").val()
 
         if (num == null || num == "") {
             return
@@ -259,7 +260,7 @@
 
         //开始计算数据
         $.ajax({
-            url: GetBaseHost() +"/v2/sums",
+            url: GetBaseHost() + "/v2/sums",
             dataType: "json",
             data: {
                 "num": num,
@@ -269,7 +270,8 @@
                 "huan_suan": huansuan,
                 "size": size,
                 "main_xishu": main_xishu,
-                "fuzhu_xishu": fuzhu_xishu
+                "fuzhu_xishu": fuzhu_xishu,
+                "main_size": main_size
             },
             type: "get",
             async: false,
@@ -351,7 +353,7 @@
         //获取物料信息
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_goods_by_id",
+            url: GetBaseHost() + "/v2/get_goods_by_id",
             dataType: "json",
             data: {
                 "cp_code": goods_cpcode,
@@ -469,7 +471,7 @@
 
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/post_feng_wei",
+            url: GetBaseHost() + "/v2/post_feng_wei",
             dataType: "json",
             data: {
                 "data": json,
@@ -493,7 +495,7 @@
     function haimian_loadData() {
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_feng_wei",
+            url: GetBaseHost() + "/v2/get_feng_wei",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,
@@ -581,7 +583,7 @@
         alert("数据导出中 请稍后")
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_feng_wei_group_by_name",
+            url: GetBaseHost() + "/v2/get_feng_wei_group_by_name",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,

@@ -207,11 +207,12 @@
             <td colspan="3" style="text-align: center">
                 <button id='menggong_select_bu' class="btn btn-primary" type="button">增加材料</button>
                 <button id='menggong_select_bu1' class="btn btn-success" type="button">保存数据</button>
-                <button id='menggong_select_bu2' class="btn btn-primary" type="button" onclick="menggonggetExportInfo()">
+                <button id='menggong_select_bu2' class="btn btn-primary" type="button"
+                        onclick="menggonggetExportInfo()">
                     导出物料表
                 </button>
                 <button
-                        type="button" class="btn btn-warning" name="backid"  onclick="backIndex()">返回列表
+                        type="button" class="btn btn-warning" name="backid" onclick="backIndex()">返回列表
                 </button>
             </td>
         </tr>
@@ -245,6 +246,8 @@
         let huansuan = $("#menggong_hy_p").val()
         let main_xishu = $("#menggong_main_xishu").val()
         let fuzhu_xishu = $("#menggong_fuzhu_xishu").val()
+        let main_size = $("#menggong_size").val()
+
 
         if (num == null || num == "") {
             return
@@ -257,7 +260,7 @@
 
         //开始计算数据
         $.ajax({
-            url: GetBaseHost() +"/v2/sums",
+            url: GetBaseHost() + "/v2/sums",
             dataType: "json",
             data: {
                 "num": num,
@@ -267,7 +270,8 @@
                 "huan_suan": huansuan,
                 "size": size,
                 "main_xishu": main_xishu,
-                "fuzhu_xishu": fuzhu_xishu
+                "fuzhu_xishu": fuzhu_xishu,
+                "main_size": main_size
             },
             type: "get",
             async: false,
@@ -349,7 +353,7 @@
         //获取物料信息
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_goods_by_id",
+            url: GetBaseHost() + "/v2/get_goods_by_id",
             dataType: "json",
             data: {
                 "cp_code": goods_cpcode,
@@ -467,7 +471,7 @@
 
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/post_feng_wei",
+            url: GetBaseHost() + "/v2/post_feng_wei",
             dataType: "json",
             data: {
                 "data": json,
@@ -491,7 +495,7 @@
     function menggong_loadData() {
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_feng_wei",
+            url: GetBaseHost() + "/v2/get_feng_wei",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,
@@ -579,7 +583,7 @@
         alert("数据导出中 请稍后")
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/get_feng_wei_group_by_name",
+            url: GetBaseHost() + "/v2/get_feng_wei_group_by_name",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,

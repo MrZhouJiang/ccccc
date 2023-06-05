@@ -1340,6 +1340,17 @@ func GetAllPrice(c *gin.Context) {
 		if n1 == "全套" {
 			//说明有全套了
 			tttMp[key] = true
+		}
+	}
+
+	for _, yi := range allGongyi {
+		key := fmt.Sprintf("%s_%s_%s", yi.Types, yi.GongYiName, yi.CpCode)
+		n1 := yi.FenWeiName
+		n1 = strings.Replace(n1, " ", "", -1)
+		n1 = strings.Replace(n1, "/r", "", -1)
+		n1 = strings.Replace(n1, "\r", "", -1)
+		n1 = strings.Replace(n1, "\n", "", -1)
+		if n1 == "全套" {
 			tempList = append(tempList, yi)
 		} else {
 			//不是全套
@@ -1353,6 +1364,7 @@ func GetAllPrice(c *gin.Context) {
 		}
 
 	}
+
 	//重新赋值
 	allGongyi = tempList
 
@@ -1394,6 +1406,7 @@ func GetAllPrice(c *gin.Context) {
 		if yi.Types == "裁工" {
 			yy1.TypeName = "裁工"
 			p1 += price
+			p1, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p1), 64)
 			yy1.TotalPrice = p1
 			yy1.TotalSunhao += yi.ShunHaoPrice
 			s1 = yy1.TotalSunhao
@@ -1413,6 +1426,7 @@ func GetAllPrice(c *gin.Context) {
 		if yi.Types == "车工" {
 			yy2.TypeName = "车工"
 			p2 += price
+			p2, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p2), 64)
 			yy2.TotalPrice = p2
 			yy2.TotalSunhao += yi.ShunHaoPrice
 			s2 = yy2.TotalSunhao
@@ -1432,6 +1446,7 @@ func GetAllPrice(c *gin.Context) {
 		if yi.Types == "海绵" {
 			yy3.TypeName = "海绵"
 			p3 += price
+			p3, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p3), 64)
 			yy3.TotalPrice = p3
 			yy3.TotalSunhao += yi.ShunHaoPrice
 			s3 = yy3.TotalSunhao
@@ -1451,6 +1466,7 @@ func GetAllPrice(c *gin.Context) {
 		if yi.Types == "扪工" {
 			yy4.TypeName = "扪工"
 			p4 += price
+			p4, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p4), 64)
 			yy4.TotalPrice = p4
 			yy4.TotalSunhao += yi.ShunHaoPrice
 			s4 = yy4.TotalSunhao
@@ -1470,6 +1486,7 @@ func GetAllPrice(c *gin.Context) {
 		if yi.Types == "木工" {
 			yy5.TypeName = "木工"
 			p5 += price
+			p5, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p5), 64)
 			yy5.TotalPrice = p5
 			yy5.TotalSunhao += yi.ShunHaoPrice
 			s5 = yy5.TotalSunhao
@@ -1489,6 +1506,7 @@ func GetAllPrice(c *gin.Context) {
 		if yi.Types == "人工" {
 			yy6.TypeName = "人工"
 			p6 += price
+			p6, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p6), 64)
 			yy6.TotalPrice = p6
 			pp6 = append(pp6, IIIIInfo{
 				FenWeiName: yi.FenWeiName,
@@ -1505,6 +1523,7 @@ func GetAllPrice(c *gin.Context) {
 		if yi.Types == "其他" {
 			yy7.TypeName = "其他"
 			p7 += price
+			p7, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", p7), 64)
 			yy7.TotalPrice = p7
 			pp7 = append(pp7, IIIIInfo{
 				FenWeiName: yi.FenWeiName,
@@ -1520,6 +1539,7 @@ func GetAllPrice(c *gin.Context) {
 
 	}
 	AllTotalPrice = p1 + p2 + p3 + p4 + p5 + p6 + p7
+	AllTotalPrice, _ = strconv.ParseFloat(fmt.Sprintf("%.4f", AllTotalPrice), 64)
 
 	if yy1.TypeName != "" {
 		yy1.List = pp1

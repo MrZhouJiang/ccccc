@@ -9,9 +9,9 @@ import (
 
 var mysql_db *gorm.DB
 
-//const DSN = "root:codoon20140312@tcp(120.26.10.118:3306)/tt_test?charset=utf8mb4&parseTime=true&loc=Local"
+const DSN = "root:codoon20140312@tcp(120.26.10.118:3306)/tt_test?charset=utf8mb4&parseTime=true&loc=Local"
 
-const DSN = "root:admin123@tcp(127.0.0.1:3306)/cp?charset=utf8mb4&parseTime=true&loc=Local"
+//const DSN = "root:admin123@tcp(127.0.0.1:3306)/cp?charset=utf8mb4&parseTime=true&loc=Local"
 
 //指定驱动
 const DRIVER = "mysql"

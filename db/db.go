@@ -11,9 +11,9 @@ func InitDB() {
 	db := InitMySqlDb()
 	BaseDB = db
 
-	SDB := InitSqlServerDb()
+	/*	SDB := InitSqlServerDb()
 
-	SqlDB = SDB
+		SqlDB = SDB*/
 
 	/*	dddd := Test{}
 		e1 := dddd.GetByType(nil, "")

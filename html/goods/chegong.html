@@ -54,12 +54,12 @@
             <td>分位</td>
             <td>使用部位</td>
             <td>材料名称</td>
-            <td>使用尺寸</td>
-            <td>数量</td>
-            <td>单位</td>
+            <td width="100px">使用尺寸</td>
+            <td width="100px">数量</td>
+            <td width="50px">单位</td>
             <td>备注</td>
-            <td>成本</td>
-            <td>操作</td>
+            <td width="100px">成本</td>
+            <td width="100px">操作</td>
         </tr>
 
 
@@ -194,7 +194,7 @@
         <tr>
             <td>
                 <span>规格:</span>
-                <input type="text" id='chegong_size' autocomplete="off" placeholder="规格" >
+                <input type="text" id='chegong_size' autocomplete="off" placeholder="规格">
             </td>
             <td>
                 <span>辅计量系数:</span>
@@ -399,11 +399,11 @@
             "            <td  name=\"fw_name\" >" + fenWeiName + "</td>\n" +
             "            <td  name=\"goods_point\" >" + goodsPoint + "</td>\n" +
             "            <td ><input  readonly='readonly' class='name' name=\"input_name\" value='" + goods_name + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + chegonggetCpCode() + "'/></td>\n" +
-            "            <td ><input  readonly='readonly' class='name' name=\"input_size\"value='" + size + "'/></td>\n" +
-            "            <td><input  readonly='readonly' class='name' name=\"input_num\" value='" + num + "'/></td>\n" +
-            "            <td ><input  readonly='readonly' class='name' name=\"input_unit\" value='" + unit + "'/></td>\n" +
+            "            <td ><input style='width: 100px' readonly='readonly' class='name' name=\"input_size\"value='" + size + "'/></td>\n" +
+            "            <td><input  style='width: 100px'  readonly='readonly' class='name' name=\"input_num\" value='" + num + "'/></td>\n" +
+            "            <td ><input  style='width: 50px' readonly='readonly' class='name' name=\"input_unit\" value='" + unit + "'/></td>\n" +
             "            <td><textarea  readonly='readonly' class='name' > " + desc + "</textarea></td>\n" +
-            "            <td ><input  readonly='readonly' class='name' name=\"input_total_price\" value='" + totalPrice + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + jijiaNum + "'/></td>\n" +
+            "            <td ><input  style='width: 100px' readonly='readonly' class='name' name=\"input_total_price\" value='" + totalPrice + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + jijiaNum + "'/></td>\n" +
             "            <td ><a id='delte'style='color: red' >删除</a></td>\n" +
 
             "        </tr>"
@@ -511,11 +511,11 @@
                         "            <td  name=\"goods_point\" >" + element.goods_point + "</td>\n" +
 
                         "            <td ><input readonly='readonly' class='name' name=\"input_name\" value=\"" + element.cl_name + "\"/ ><input  type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value=\"" + element.cp_code + "\"/ ></td>\n" +
-                        "            <td ><input readonly='readonly' class='name' name=\"input_size\" value=\"" + element.size + "\"/ ></td>\n" +
-                        "            <td><input readonly='readonly' class='name' name=\"input_num\" value=\"" + element.nums + "\"/ ></td>\n" +
-                        "            <td ><input  readonly='readonly' class='name' name=\"input_unit\" value=\"" + element.unit + "\"/ ></td>\n" +
+                        "            <td ><input  style='width: 100px'readonly='readonly' class='name' name=\"input_size\" value=\"" + element.size + "\"/ ></td>\n" +
+                        "            <td><input  style='width: 100px' readonly='readonly' class='name' name=\"input_num\" value=\"" + element.nums + "\"/ ></td>\n" +
+                        "            <td ><input  style='width: 50px'readonly='readonly' class='name' name=\"input_unit\" value=\"" + element.unit + "\"/ ></td>\n" +
                         "            <td><textarea  readonly='readonly' class='name' >\n" + element.descs + " </textarea></td>\n" +
-                        "            <td ><input  readonly='readonly' class='name' name=\"input_total_price\" value='" + element.total_price + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + element.ji_jia_num + "'/></td>\n" +
+                        "            <td ><input  style='width: 100px' readonly='readonly' class='name' name=\"input_total_price\" value='" + element.total_price + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + element.ji_jia_num + "'/></td>\n" +
 
                         "            <td ><a id='delte' style='color: red' >删除</a></td>\n" +
                         "        </tr>"

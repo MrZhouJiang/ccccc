@@ -289,14 +289,15 @@ func GetFenWeiListGroupByName(shafaId, types string) (list []GetFenWeiListGroupB
 			if goods_info.CpMainUnit == goods_info.FuZhuUnit {
 				//说明是一样的 可以都不做
 			} else if goods_info.MainXiShu > 0 {
-				intv1, _ := strconv.Atoi(goods_info.CpMainUnit)
-				intv2, _ := strconv.Atoi(goods_info.FuZhuUnit)
+				intv1 := goods_info.MainXiShu
+				intv2 := goods_info.FuZhuXiShu
 
 				tmp := 0
 				if intv1 > intv2 {
-					tmp = intv1
+					tmp, _ = strconv.Atoi(goods_info.CpMainUnit)
+
 				} else {
-					tmp = intv2
+					tmp, _ = strconv.Atoi(goods_info.FuZhuUnit)
 				}
 				unit := model.UnitDesc{}
 				err2 := unit.GetById(nil, tmp)

@@ -336,6 +336,21 @@ func GetFenWeiListGroupByName(shafaId, types string) (list []GetFenWeiListGroupB
 			Size:       len(infos),
 			List:       infos,
 		}
+		fenWeiString := make(map[string]bool, 0)
+		for _, nameInfo := range infos {
+			if nameInfo.FenWeiName != "全套" && nameInfo.FenWeiName != "子件" && nameInfo.FenWeiName != "外框架" {
+				fenWeiString[nameInfo.FenWeiName] = true
+			}
+		}
+		sssl := ""
+		for s, _ := range fenWeiString {
+			sssl += s
+			sssl += "+"
+		}
+		if len(sssl) > 0 {
+			sssl = sssl[0 : len(sssl)-1]
+		}
+		outList.FenWeiList = sssl
 		list = append(list, outList)
 	}
 	return
@@ -344,6 +359,7 @@ func GetFenWeiListGroupByName(shafaId, types string) (list []GetFenWeiListGroupB
 
 type GetFenWeiListGroupByNameDto struct {
 	GongYiName  string                         `json:"gong_yi_name"`
+	FenWeiList  string                         `json:"fen_wei_list"`
 	Size        int                            `json:"size"`
 	List        []GetFenWeiListGroupByNameInfo `json:"list"`
 	ShunhaoList []ShunHaoInfo                  `json:"shunhao_list"`

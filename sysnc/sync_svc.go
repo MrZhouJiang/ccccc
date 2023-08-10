@@ -15,8 +15,8 @@ var TotalLimit = 0
 var fenweiLimit = 0
 
 func Task_base() {
-	cron := cronexpr.MustParse("* * */23 * * * *") //用cron库生成一个cronexpr.Expression对象
-	next := cron.Next(time.Now())                  //计算下次触发时间的时间对象
+	cron := cronexpr.MustParse("* * */1 * * * *") //用cron库生成一个cronexpr.Expression对象
+	next := cron.Next(time.Now())                 //计算下次触发时间的时间对象
 	for {
 		now := time.Now()                        //每次循环计算获取当前时间
 		if next.Before(now) || next.Equal(now) { //下次触发时间与当前时间进行对比，等于或者时间已到 则进行任务触发
@@ -24,7 +24,7 @@ func Task_base() {
 			next = cron.Next(now) //重新计算下次任务时间的时间对象
 		}
 		select {
-		case <-time.NewTicker(1 * time.Hour).C: //每秒扫描一遍 循环频率设定
+		case <-time.NewTicker(30 * time.Minute).C: //每秒扫描一遍 循环频率设定
 		}
 	}
 }

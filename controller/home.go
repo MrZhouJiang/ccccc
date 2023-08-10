@@ -2084,3 +2084,71 @@ func DeleteUser(c *gin.Context) {
 	util.ReturnCompFunc(c, resp)
 	return
 }
+
+func CopyShaFa(c *gin.Context) {
+	params := common.GetUrlParams(c.Request)
+
+	resp := Response{
+		Status: 200,
+	}
+
+	copy_shafa_code := params["copy_shafa_code"]
+	sf_code := params["cp_code"]
+
+	allGongyi := model.GongYiList{}
+
+	//获取所有的配置
+	err := allGongyi.GetBySoFaCode(nil, sf_code)
+	if err != nil || len(allGongyi) == 0 {
+		log.Printf(" sf_code :%s, err:%v", sf_code, err)
+		resp.Status = 201
+		resp.Desc = "沙发成本为空"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	shafa := model.ShaFaImportLog{}
+	errme := shafa.GetByType(nil, copy_shafa_code)
+	if shafa.Id == 0 {
+		log.Printf(" 找不到沙发ID ：%s", copy_shafa_code)
+		resp.Status = 201
+		resp.Desc = "找不到该沙发"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	//先清空
+	deleteInfo := model.GongYi{}
+	deleteInfo.ShafaId = copy_shafa_code
+	err = deleteInfo.Delete(nil)
+	if err != nil {
+		log.Printf("deleteInfo.Delete err :%v", err)
+		resp.Status = 201
+		resp.Desc = err.Error()
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	for _, yi := range allGongyi {
+		yi.Id = 0
+		yi.ShafaId = copy_shafa_code
+		yi.Create(nil)
+		if err != nil {
+			log.Printf("insertInfo.Create err :%v", err)
+			resp.Status = 201
+			resp.Desc = err.Error()
+			util.ReturnCompFunc(c, resp)
+			return
+		}
+	}
+
+	//修改 沙发表
+
+	if errme == nil {
+		shafa.IsSums = "是"
+		shafa.Update(nil)
+	}
+	resp.Data = ""
+	util.ReturnCompFunc(c, resp)
+	return
+}

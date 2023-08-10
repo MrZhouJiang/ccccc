@@ -98,7 +98,7 @@
         }
         //查询列表
         $.ajax({
-            url: GetBaseHost() +"/v2/get_shafa_import_list",
+            url: GetBaseHost() + "/v2/get_shafa_import_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),
@@ -126,7 +126,10 @@
                     } else {
                         sssq += '<td> ' + element.is_sums + '</td> '
                     }
-                    sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a></td> '
+                    sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
+                        '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
+                        ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +
+                        '</td> '
                     sssq += '    </tr>'
                     $("#ClassTable").append(sssq)
 
@@ -143,7 +146,7 @@
         $('tr.data_1').remove()
 
         $.ajax({
-            url: GetBaseHost() +"/v2/get_shafa_import_list",
+            url: GetBaseHost() + "/v2/get_shafa_import_list",
             dataType: "json",
             data: {
                 "page": $("#page").val(),

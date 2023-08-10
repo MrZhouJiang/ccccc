@@ -25,6 +25,9 @@ func HomeRouter(engine *gin.Engine) {
 		// 沙发
 		eg_v2.GET("/get_shafa_import_list", controller.GetShaFaImportList)
 		eg_v2.POST("/post_feng_wei", controller.PostFengWei)
+		//拷贝一个沙发配置
+		eg_v2.POST("/cpoy_shafa", controller.CopyShaFa)
+
 		eg_v2.GET("/get_feng_wei", controller.GetFinWei)
 		eg_v2.GET("/get_all_fen_wei_list", controller.GetAllFenWeiDesc)
 		//根据工艺名称分组获取 工艺成本项目 用户导出成本清单给财务

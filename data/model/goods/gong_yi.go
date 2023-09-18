@@ -48,12 +48,27 @@ func (r *GongYi) Delete(d *gorm.DB) error {
 	err := d.Table(gongyiTableName).Where("shafa_id=?", r.ShafaId).Delete(r).Error
 	return err
 }
+func (r *GongYi) Update(d *gorm.DB) error {
+	if d == nil {
+		d = db.BaseDB
+	}
+	err := d.Table(gongyiTableName).Save(r).Error
+	return err
+}
 
 func (r *GongYi) DeleteByTypes(d *gorm.DB) error {
 	if d == nil {
 		d = db.BaseDB
 	}
 	err := d.Table(gongyiTableName).Where("shafa_id=? and types = ?", r.ShafaId, r.Types).Delete(r).Error
+	return err
+}
+
+func (r *GongYi) DeleteByFenweiName(d *gorm.DB) error {
+	if d == nil {
+		d = db.BaseDB
+	}
+	err := d.Table(gongyiTableName).Where("shafa_id=? and fen_wei_name = ?", r.ShafaId, r.FenWeiName).Delete(r).Error
 	return err
 }
 

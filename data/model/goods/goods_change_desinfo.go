@@ -94,7 +94,7 @@ func (rList *GoodsChangeDesInfoDtoList) GetListByCpCode(cpCode string, d *gorm.D
 	sql := fmt.Sprintf("select b.id,a.change_id,a.change_type,a.cp_code,a.create_time,b.types,b.values_l"+
 		" from goods_change_des_info a"+
 		" inner join goods_change_desc b "+
-		"on a.change_id = b.id where cp_code = %s", cpCode)
+		"on a.change_id = b.id where cp_code = '%s'", cpCode)
 
 	err = d.Raw(sql).Find(&rList).Error
 	return

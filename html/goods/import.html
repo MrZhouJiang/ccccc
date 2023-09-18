@@ -129,6 +129,8 @@
                     sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
                         '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
                         ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +
+                        ' <a onclick="chongsuan(' +"'"+ element.sf_code + "'"+')">重算成本</>' +
+
                         '</td> '
                     sssq += '    </tr>'
                     $("#ClassTable").append(sssq)
@@ -139,6 +141,28 @@
             },
         })
     })
+
+    function chongsuan(shafaId) {
+
+
+        //开始请求数据
+        $.ajax({
+            url: GetBaseHost() +"/v2/reload_shafa",
+            dataType: "json",
+            data: {
+                "cp_code": shafaId,
+            },
+            type: "POST",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("重算成功")
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+    }
 
 
     function ReloadData() {
@@ -175,12 +199,13 @@
                     } else {
                         sssq += '<td> ' + element.is_sums + '</td> '
                     }
-          /*          sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a></td> '
-                    sssq += '    </tr>'*/
+                    /*          sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a></td> '
+                              sssq += '    </tr>'*/
 
                     sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
                         '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
                         ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +
+                        ' <a onclick="chongsuan(' +"'"+ element.sf_code + "'"+')">重算成本</>' +
                         '</td> '
                     sssq += '    </tr>'
                     $("#ClassTable").append(sssq)

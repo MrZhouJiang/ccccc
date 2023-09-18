@@ -387,7 +387,7 @@ func PostFengWei(c *gin.Context) {
 		insertInfo.CreateTime = time.Now()
 		insertInfo.Types = dto.Types
 		insertInfo.ShafaId = dto.ShafaId
-		insertInfo.FenWeiName = detail.FenWeiName
+		insertInfo.FenWeiName = strings.TrimSpace(detail.FenWeiName)
 		insertInfo.CLName = detail.CLName
 		insertInfo.Size = detail.Size
 		insertInfo.Nums = detail.Nums
@@ -395,7 +395,7 @@ func PostFengWei(c *gin.Context) {
 		insertInfo.Descs = detail.Descs
 		insertInfo.TotalPrice = detail.TotalPrice
 		insertInfo.CpCode = detail.CpCode
-		insertInfo.GongYiName = detail.GongYiName
+		insertInfo.GongYiName = strings.TrimSpace(detail.GongYiName)
 		insertInfo.JiJiaNum = detail.JiJiaNum
 		insertInfo.GoodsPoint = detail.GoodsPoint
 		insertInfo.JiJiaUnit = detail.Unit
@@ -752,24 +752,40 @@ func Sums(c *gin.Context) {
 	a2 := 1.0
 	a3 := 1.0
 	a4 := 1.0
+	a5 := 1.0
+	a6 := 1.0
 
 	if l1 != "" {
 		if strings.Contains(l1, "*") {
 			s_list := strings.Split(l1, "*")
-			a1_s := s_list[0]
-			a1, err = strconv.ParseFloat(a1_s, 64)
-			if err != nil {
-				resp.Status = 201
-				resp.Desc = "尺寸格式不合法"
-				goto out
+			if len(s_list) >= 1 {
+				a1_s := s_list[0]
+				a1, err = strconv.ParseFloat(a1_s, 64)
+				if err != nil {
+					resp.Status = 201
+					resp.Desc = "尺寸格式不合法"
+					goto out
+				}
 			}
-			a2_s := s_list[1]
-			a2, err = strconv.ParseFloat(a2_s, 64)
-			if err != nil {
-				resp.Status = 201
-				resp.Desc = "尺寸格式不合法"
-				goto out
+			if len(s_list) >= 2 {
+				a2_s := s_list[1]
+				a2, err = strconv.ParseFloat(a2_s, 64)
+				if err != nil {
+					resp.Status = 201
+					resp.Desc = "尺寸格式不合法"
+					goto out
+				}
 			}
+			if len(s_list) >= 3 {
+				a3_s := s_list[2]
+				a3, err = strconv.ParseFloat(a3_s, 64)
+				if err != nil {
+					resp.Status = 201
+					resp.Desc = "尺寸格式不合法"
+					goto out
+				}
+			}
+
 		} else {
 			a1, err = strconv.ParseFloat(l1, 64)
 			if err != nil {
@@ -779,26 +795,30 @@ func Sums(c *gin.Context) {
 			}
 		}
 	}
-
 	if size != "" {
 		if strings.Contains(size, "*") {
 			s_list := strings.Split(size, "*")
-			a3_s := s_list[0]
-			a3, err = strconv.ParseFloat(a3_s, 64)
-			if err != nil {
-				resp.Status = 201
-				resp.Desc = "尺寸格式不合法"
-				goto out
+			if len(s_list) >= 1 {
+				a4_s := s_list[0]
+				a4, err = strconv.ParseFloat(a4_s, 64)
+				if err != nil {
+					resp.Status = 201
+					resp.Desc = "尺寸格式不合法"
+					goto out
+				}
 			}
-			a4_s := s_list[1]
-			a4, err = strconv.ParseFloat(a4_s, 64)
-			if err != nil {
-				resp.Status = 201
-				resp.Desc = "尺寸格式不合法"
-				goto out
+			if len(s_list) >= 2 {
+				a5_s := s_list[1]
+				a5, err = strconv.ParseFloat(a5_s, 64)
+				if err != nil {
+					resp.Status = 201
+					resp.Desc = "尺寸格式不合法"
+					goto out
+				}
 			}
+
 		} else {
-			a3, err = strconv.ParseFloat(size, 64)
+			a4, err = strconv.ParseFloat(size, 64)
 			if err != nil {
 				resp.Status = 201
 				resp.Desc = "尺寸格式不合法"
@@ -820,10 +840,10 @@ func Sums(c *gin.Context) {
 	//	算了损耗的 数量
 	//jijiaNums = (((shunhao_i/100 + 1) * (a1 * a2 * a3 * a4) * num_i) / huansuan_i) * float64(main_xishu_i) / float64(fuzhu_xishu_i)
 	//没有算损耗的数量
-	jijiaNums = ((a1 * a2 * a3 * a4) * num_i / huansuan_i) / float64(main_xishu_i) / float64(fuzhu_xishu_i)
+	jijiaNums = ((a1 * a2 * a3 * a4 * a5 * a6) * num_i / huansuan_i) / float64(main_xishu_i) / float64(fuzhu_xishu_i)
 	//
 	//没有合并规则下的价格
-	totalPrice_t = (((shunhao_i/100 + 1) * (a1 * a2 * a3 * a4) * num_i) / huansuan_i) / float64(main_xishu_i) / float64(fuzhu_xishu_i)
+	totalPrice_t = (((shunhao_i/100 + 1) * (a1 * a2 * a3 * a4 * a5 * a6) * num_i) / huansuan_i) / float64(main_xishu_i) / float64(fuzhu_xishu_i)
 	//
 	//有合并规则下的价格【【
 
@@ -914,6 +934,234 @@ out:
 	util.ReturnCompFunc(c, resp)
 	return
 
+}
+
+func ChongSuan(shafaCode string) {
+	//根据沙发 找出所有成本
+	allGongyi := model.GongYiList{}
+
+	err := allGongyi.GetBySoFaCode(nil, shafaCode)
+
+	if err != nil {
+		log.Printf("ChongSuan err :%v", err)
+		return
+	}
+
+	for _, yi := range allGongyi {
+		goods := model.Goods{}
+		goods.CpCode = yi.CpCode
+		err2 := goods.GetByCpCode(nil)
+		if err2 != nil || goods.Id == 0 {
+			continue
+		}
+		nums, _ := strconv.ParseFloat(yi.Nums, 64)
+		ShunHao, _ := strconv.ParseFloat(goods.ShunHao, 64)
+		newPeice := GetPrice(nums, ShunHao, goods.Price, goods.ChangeP, goods.FuZhuXiShu, goods.MainXiShu, yi.CpCode, goods.MainSize, yi.Size)
+
+		yi.TotalPrice = fmt.Sprintf("%f", newPeice.TotalPrice)
+		yi.JiJiaNum = fmt.Sprintf("%f", newPeice.JiJiaNums)
+		errx := yi.Update(nil)
+		if errx != nil {
+			log.Printf("yi.Update err :%v", errx)
+
+		}
+
+	}
+
+}
+
+func GetPrice(num_i, shunhao_i, price_i, huansuan_i, fuzhu_xishu_i, main_xishu_i float64, cpCode, main_size, size string) PriceInfo {
+
+	totalPrice := 0.0
+	totalPrice_t := 0.0
+	//计价数量
+	jijiaNums := 0.0
+
+	//根据产品ID 获取产品
+
+	goods := model.Goods{}
+	info, err := goods.GetGoodsById(cpCode, nil)
+	if err != nil {
+		log.Printf("GetGoodsById: err :%v", err)
+		return PriceInfo{
+			0, 0,
+		}
+	}
+	//判断长宽高
+	l1 := ""
+	if main_size == "" {
+		l1 = info.MainSize
+	} else {
+		l1 = main_size
+	}
+
+	a1 := 1.0
+	a2 := 1.0
+	a3 := 1.0
+	a4 := 1.0
+	a5 := 1.0
+	a6 := 1.0
+
+	if l1 != "" {
+		if strings.Contains(l1, "*") {
+			s_list := strings.Split(l1, "*")
+			if len(s_list) >= 1 {
+				a1_s := s_list[0]
+				a1, err = strconv.ParseFloat(a1_s, 64)
+				if err != nil {
+					goto out
+				}
+			}
+			if len(s_list) >= 2 {
+				a2_s := s_list[1]
+				a2, err = strconv.ParseFloat(a2_s, 64)
+				if err != nil {
+
+					goto out
+				}
+			}
+			if len(s_list) >= 3 {
+				a3_s := s_list[2]
+				a3, err = strconv.ParseFloat(a3_s, 64)
+				if err != nil {
+
+					goto out
+				}
+			}
+
+		} else {
+			a1, err = strconv.ParseFloat(l1, 64)
+			if err != nil {
+
+				goto out
+			}
+		}
+	}
+	if size != "" {
+		if strings.Contains(size, "*") {
+			s_list := strings.Split(size, "*")
+			if len(s_list) >= 1 {
+				a4_s := s_list[0]
+				a4, err = strconv.ParseFloat(a4_s, 64)
+				if err != nil {
+
+					goto out
+				}
+			}
+			if len(s_list) >= 2 {
+				a5_s := s_list[1]
+				a5, err = strconv.ParseFloat(a5_s, 64)
+				if err != nil {
+
+					goto out
+				}
+			}
+
+		} else {
+			a4, err = strconv.ParseFloat(size, 64)
+			if err != nil {
+
+				goto out
+			}
+		}
+	}
+	if huansuan_i == 0 {
+		huansuan_i = 1
+	}
+	if fuzhu_xishu_i == 0 {
+		fuzhu_xishu_i = 1
+	}
+	if main_xishu_i == 0 {
+		main_xishu_i = 1
+	}
+	main_xishu_i = 1
+	//	算了损耗的 数量
+	//jijiaNums = (((shunhao_i/100 + 1) * (a1 * a2 * a3 * a4) * num_i) / huansuan_i) * float64(main_xishu_i) / float64(fuzhu_xishu_i)
+	//没有算损耗的数量
+	jijiaNums = ((a1 * a2 * a3 * a4 * a5 * a6) * num_i / huansuan_i) / float64(main_xishu_i) / float64(fuzhu_xishu_i)
+	//
+	//没有合并规则下的价格
+	totalPrice_t = (((shunhao_i/100 + 1) * (a1 * a2 * a3 * a4 * a5 * a6) * num_i) / huansuan_i) / float64(main_xishu_i) / float64(fuzhu_xishu_i)
+	//
+	//有合并规则下的价格【【
+
+out:
+
+	////////是否有材料合并规则
+	mergeDesc := model.GoodsMergeDesInfoDtoList{}
+	errx1 := mergeDesc.GetListByCpCode(cpCode, nil)
+	if errx1 == nil && len(mergeDesc) > 0 && mergeDesc[0].Price > 0 {
+		//要判断一下 合并的的单位是否和主计量单位一致
+		goodsMerge := model.Goods{}
+		err3 := goodsMerge.Get("", cpCode)
+		if err3 != nil {
+			log.Printf("%s GetGoodsChangeById err :%v", "未找到产品单位基本信息", err3)
+		}
+		unit := model.UnitDesc{}
+		intv1, err1 := strconv.Atoi(goodsMerge.CpMainUnit)
+
+		if err1 != nil {
+			log.Printf("%s GetGoodsChangeById err :%v", "未找到产品单位基本信息", err1)
+		}
+		unit.GetById(nil, intv1)
+		unit_str := strings.Replace(unit.Name, "\n", "", -1)
+		unit_str = strings.Replace(unit_str, " ", "", -1)
+		unit_str = strings.Replace(unit_str, "\r", "", -1)
+		unit_merge_str := strings.Replace(mergeDesc[0].Unit, "\n", "", -1)
+		unit_merge_str = strings.Replace(unit_merge_str, " ", "", -1)
+		unit_merge_str = strings.Replace(unit_merge_str, "\r", "", -1)
+
+		//单位一样 直接取值
+		if unit_str == unit_merge_str {
+			newPric := mergeDesc[0].Price
+			totalPrice = newPric * totalPrice_t
+		} else {
+			xishu := goodsMerge.MainXiShu
+			if xishu == 0 {
+				xishu = 1
+			}
+			newPric := mergeDesc[0].Price / xishu
+			jijiaNums = jijiaNums / xishu
+			//newPric := mergeDesc[0].Price
+			totalPrice = newPric * totalPrice_t
+		}
+
+	} else {
+		//查询是否有固定价格
+		if info.GuDingPrice != 0 {
+			totalPrice = info.GuDingPrice
+		} else {
+			totalPrice = totalPrice_t * price_i
+		}
+	}
+
+	// 查找下是否有换算比例
+	change := model.GoodsChangeDesInfoDtoList{}
+	err24 := change.GetListByCpCode(cpCode, nil)
+
+	if err24 == nil && len(change) > 0 {
+
+		for _, dto := range change {
+			if dto.ChangeType == "换算" {
+				if dto.Types == "/" {
+					totalPrice = totalPrice / dto.ValuesL
+					jijiaNums = jijiaNums / dto.ValuesL
+				} else {
+					totalPrice = totalPrice * dto.ValuesL
+					jijiaNums = jijiaNums * dto.ValuesL
+				}
+				break
+			}
+
+		}
+
+	}
+	riceInfo := PriceInfo{
+		TotalPrice: totalPrice,
+		JiJiaNums:  jijiaNums,
+	}
+
+	return riceInfo
 }
 
 type PriceInfo struct {
@@ -1170,7 +1418,7 @@ func UpdatGoods(c *gin.Context) {
 	main_unit := params["main_unit"]
 	fu_unit := params["fu_unit"]
 	price := params["price"]
-	cp_gui_ge := params["cp_gui_ge"]
+	cp_gui_ge := strings.TrimSpace(params["cp_gui_ge"])
 	cp_type_name := params["cp_type_code"]
 	cp_desc := params["cp_desc"]
 	gu_ding_price := params["gu_ding_price"]
@@ -1285,12 +1533,49 @@ func UpdatGoods(c *gin.Context) {
 		shafaLogs := model.ShaFaImportLog{}
 		shafaLogs.GetByType(nil, goods.CpCode)
 		shafaLogs.SfName = cp_name
+		shafaLogs.GG = cp_gui_ge
 		shafaLogs.Update(nil)
 
+		// 看一下规格是不是和原来一样
+		if goods.CpGuiGe != cp_gui_ge {
+			//修改了 规格 先把原来的 放到map中
+
+			guigeMap := make(map[string]bool, 0)
+
+			for _, s := range getshafaGuiGe(goods.CpGuiGe) {
+				guigeMap[s] = false
+			}
+			for _, s := range getshafaGuiGe(cp_gui_ge) {
+				_, Okk := guigeMap[s]
+				if Okk {
+					//如果存在 就弄成 true
+					guigeMap[s] = true
+				}
+			}
+			for s, b := range guigeMap {
+				if !b {
+					//说明这次没有这个了 要把成本表 对应分位的成本删除。
+					deleteInfo := model.GongYi{}
+					deleteInfo.FenWeiName = s
+					deleteInfo.ShafaId = goods.CpCode
+					err = deleteInfo.DeleteByFenweiName(nil)
+					if err != nil {
+						log.Printf("deleteInfo.Delete err :%v", err)
+					}
+				}
+			}
+		}
 	}
 
 	util.ReturnCompFunc(c, resp)
 	return
+}
+
+func getshafaGuiGe(guige string) []string {
+
+	asc := strings.Split(guige, "+")
+	return asc
+
 }
 
 func covertPrice(string2 string) string {
@@ -2148,6 +2433,21 @@ func CopyShaFa(c *gin.Context) {
 		shafa.IsSums = "是"
 		shafa.Update(nil)
 	}
+	resp.Data = ""
+	util.ReturnCompFunc(c, resp)
+	return
+}
+
+func ReloadShaFa(c *gin.Context) {
+	params := common.GetUrlParams(c.Request)
+
+	resp := Response{
+		Status: 200,
+	}
+
+	sf_code := params["cp_code"]
+
+	ChongSuan(sf_code)
 	resp.Data = ""
 	util.ReturnCompFunc(c, resp)
 	return

@@ -27,6 +27,8 @@ func HomeRouter(engine *gin.Engine) {
 		eg_v2.POST("/post_feng_wei", controller.PostFengWei)
 		//拷贝一个沙发配置
 		eg_v2.POST("/cpoy_shafa", controller.CopyShaFa)
+		//拷贝一个沙发配置
+		eg_v2.POST("/reload_shafa", controller.ReloadShaFa)
 
 		eg_v2.GET("/get_feng_wei", controller.GetFinWei)
 		eg_v2.GET("/get_all_fen_wei_list", controller.GetAllFenWeiDesc)

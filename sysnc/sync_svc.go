@@ -122,20 +122,23 @@ func StartSyncCp() {
 
 					}
 				} else {
+					log.Printf("sync update  cp_info :%v \n", base)
 					if base.SFTY == 1 && goods.SFTY == 0 {
 						goods.SFTY = 1
+						goods.CpName = base.CPMC
 						goods.Update(nil)
 						log.Printf("sync update cp_info :%v \n", base)
 					} else if base.SFTY == 0 && goods.SFTY == 1 {
 						goods.SFTY = 0
+						goods.CpName = base.CPMC
 						log.Printf("sync update cp_info :%v \n", base)
 						goods.Update(nil)
 					}
 
 					//需要更新 沙发表
 					if goods.CpTypeCode == "1019" || goods.CpTypeCode == "1020" || goods.CpTypeCode == "1018" || goods.CpTypeCode == "1029" {
+						log.Printf("sync shafa  code :%s", goods.CpCode)
 						//更新沙发表
-						//
 						shafaimport := model.ShaFaImportLog{}
 						eeee := shafaimport.GetByType(nil, goods.CpCode)
 						if eeee != nil {

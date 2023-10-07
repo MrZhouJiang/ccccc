@@ -146,11 +146,11 @@ func StartSyncCp() {
 							shafaimport.GG = base.GG
 							shafaimport.Update(nil)
 						}
-						//更新基础物料表
-						goods.CpName = base.CPMC
-						goods.CpGuiGe = base.GG
-						goods.Update(nil)
 					}
+					//更新基础物料表
+					goods.CpName = base.CPMC
+					goods.CpGuiGe = base.GG
+					goods.Update(nil)
 				}
 
 			}

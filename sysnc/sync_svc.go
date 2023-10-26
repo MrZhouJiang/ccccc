@@ -78,7 +78,7 @@ func StartSyncCp() {
 				}
 				//不存在或者要更新
 				if goods.Id == 0 {
-					log.Printf("sync GetListPage cp_info :%v \n", base)
+					//	log.Printf("sync GetListPage cp_info :%v \n", base)
 					//不存在 直接插入
 					//基础物料表
 					goods.CpCode = base.CPBM
@@ -122,23 +122,23 @@ func StartSyncCp() {
 
 					}
 				} else {
-					log.Printf("sync update  cp_info :%v \n", base)
+					//	log.Printf("sync update  cp_info :%v \n", base)
 					if base.SFTY == 1 && goods.SFTY == 0 {
 						goods.SFTY = 1
 						goods.CpName = base.CPMC
 						goods.CpGuiGe = base.GG
 						goods.Update(nil)
-						log.Printf("sync update cp_info :%v \n", base)
+						//	log.Printf("sync update cp_info :%v \n", base)
 					} else if base.SFTY == 0 && goods.SFTY == 1 {
 						goods.SFTY = 0
 						goods.CpName = base.CPMC
 						goods.CpGuiGe = base.GG
-						log.Printf("sync update cp_info :%v \n", base)
+						//		log.Printf("sync update cp_info :%v \n", base)
 						goods.Update(nil)
 					} else {
 						goods.CpName = base.CPMC
 						goods.CpGuiGe = base.GG
-						log.Printf("sync update cp_info :%v \n", base)
+						//	log.Printf("sync update cp_info :%v \n", base)
 						goods.Update(nil)
 					}
 

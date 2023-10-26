@@ -46,8 +46,8 @@ func StartSyncCp_base() {
 func StartSyncCp() {
 	log.Printf("sync start time:%v", time.Now())
 
-	start := TotalLimit
-	size := 100
+	start := 0
+	size := 500
 
 	//
 
@@ -157,9 +157,6 @@ func StartSyncCp() {
 							shafaimport.Update(nil)
 						}
 						//更新基础物料表
-						goods.CpName = base.CPMC
-						goods.CpGuiGe = base.GG
-						goods.Update(nil)
 						DelSHafa(&goods, base.GG)
 					}
 				}

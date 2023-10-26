@@ -47,7 +47,7 @@ func StartSyncCp() {
 	log.Printf("sync start time:%v", time.Now())
 
 	start := 0
-	size := 500
+	size := 100
 
 	//
 

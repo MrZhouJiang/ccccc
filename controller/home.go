@@ -1588,6 +1588,17 @@ func covertPrice(string2 string) string {
 
 }
 
+func covertPriceSix(string2 string, sex int) string {
+	if string2 != "" {
+		ppp1, _ := strconv.ParseFloat(string2, 64)
+
+		return fmt.Sprintf("%.4f", ppp1*float64(sex))
+	} else {
+		return "0"
+	}
+
+}
+
 func GetAllPrice(c *gin.Context) {
 	log.Printf("GetAllPrice")
 	params := common.GetUrlParams(c.Request)
@@ -1667,6 +1678,22 @@ func GetAllPrice(c *gin.Context) {
 		SofaCode: sofa_code,
 		SofaName: shafa.SfName,
 	}
+
+	//看是不是有重复的分位置
+	FenWeiMap := make(map[string]int)
+	ls := getshafaGuiGe(shafa.GG)
+
+	for _, l := range ls {
+		ll := strings.ReplaceAll(l, " ", "")
+		nums, ok := FenWeiMap[ll]
+		if ok {
+			FenWeiMap[ll] = nums + 1
+		} else {
+			FenWeiMap[ll] = 1
+		}
+
+	}
+
 	AllTotalPrice := 0.0
 	var p1, p2, p3, p4, p5, p6, p7 float64
 	var s1, s2, s3, s4, s5, s6, s7 float64
@@ -1685,7 +1712,27 @@ func GetAllPrice(c *gin.Context) {
 	pp5 := make([]IIIIInfo, 0)
 	pp6 := make([]IIIIInfo, 0)
 	pp7 := make([]IIIIInfo, 0)
+
+	// 要计算同名
+
 	for _, yi := range allGongyi {
+
+		//处理一下价格
+		six, okkkk := FenWeiMap[yi.FenWeiName]
+
+		six_fw := 1
+		if okkkk {
+			six_fw = six
+		}
+
+		if six_fw > 1 {
+			yi.ShunHaoPrice = yi.ShunHaoPrice * float64(six_fw)
+			yi.TotalPrice = covertPriceSix(yi.TotalPrice, six)
+			yi.JiJiaNum = covertPriceSix(yi.JiJiaNum, six)
+			yi.Nums = covertPriceSix(yi.Nums, six)
+
+		}
+
 		price, _ := strconv.ParseFloat(yi.TotalPrice, 64)
 
 		if yi.Types == "裁工" {
@@ -1697,6 +1744,7 @@ func GetAllPrice(c *gin.Context) {
 			cccc1, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", yy1.TotalSunhao), 64)
 			yy1.TotalSunhao = cccc1
 			s1 = yy1.TotalSunhao
+
 			pp1 = append(pp1, IIIIInfo{
 				FenWeiName:  yi.FenWeiName,
 				CLName:      GetCpName(yi.CpCode),

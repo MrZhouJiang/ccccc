@@ -126,11 +126,18 @@ func StartSyncCp() {
 					if base.SFTY == 1 && goods.SFTY == 0 {
 						goods.SFTY = 1
 						goods.CpName = base.CPMC
+						goods.CpGuiGe = base.GG
 						goods.Update(nil)
 						log.Printf("sync update cp_info :%v \n", base)
 					} else if base.SFTY == 0 && goods.SFTY == 1 {
 						goods.SFTY = 0
 						goods.CpName = base.CPMC
+						goods.CpGuiGe = base.GG
+						log.Printf("sync update cp_info :%v \n", base)
+						goods.Update(nil)
+					} else {
+						goods.CpName = base.CPMC
+						goods.CpGuiGe = base.GG
 						log.Printf("sync update cp_info :%v \n", base)
 						goods.Update(nil)
 					}
@@ -153,6 +160,7 @@ func StartSyncCp() {
 						goods.CpName = base.CPMC
 						goods.CpGuiGe = base.GG
 						goods.Update(nil)
+						DelSHafa(&goods, base.GG)
 					}
 				}
 
@@ -164,12 +172,54 @@ func StartSyncCp() {
 			break
 		} else {
 			start += size
-			TotalLimit = start
 		}
 
 	}
 	log.Printf("sync end time:%v", time.Now())
 
+}
+
+func getshafaGuiGe(guige string) []string {
+
+	asc := strings.Split(guige, "+")
+	return asc
+
+}
+
+func DelSHafa(goods *model.Goods, new_guige string) {
+
+	new_guige = strings.ReplaceAll(new_guige, " ", "")
+	if goods.CpTypeCode == "1019" || goods.CpTypeCode == "1020" || goods.CpTypeCode == "1018" || goods.CpTypeCode == "1029" {
+		// 看一下规格是不是和原来一样
+		if goods.CpGuiGe != new_guige {
+			//修改了 规格 先把原来的 放到map中
+
+			guigeMap := make(map[string]bool, 0)
+
+			for _, s := range getshafaGuiGe(goods.CpGuiGe) {
+				guigeMap[s] = false
+			}
+			for _, s := range getshafaGuiGe(new_guige) {
+				_, Okk := guigeMap[s]
+				if Okk {
+					//如果存在 就弄成 true
+					guigeMap[s] = true
+				}
+			}
+			for s, b := range guigeMap {
+				if !b {
+					//说明这次没有这个了 要把成本表 对应分位的成本删除。
+					deleteInfo := model.GongYi{}
+					deleteInfo.FenWeiName = s
+					deleteInfo.ShafaId = goods.CpCode
+					err := deleteInfo.DeleteByFenweiName(nil)
+					if err != nil {
+						log.Printf("deleteInfo.Delete err :%v", err)
+					}
+				}
+			}
+		}
+	}
 }
 
 func StartSyncFenWei() {

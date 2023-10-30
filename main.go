@@ -27,7 +27,7 @@ func main() {
 
 	common.InitBaseData()
 	//sysnc.Task()
-	//sysnc.StartSyncCp()
+	sysnc.StartSyncCp()
 
 	//sysnc.Task()
 	//默认地址

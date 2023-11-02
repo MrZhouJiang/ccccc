@@ -46,7 +46,7 @@ func StartSyncCp_base() {
 func StartSyncCp() {
 	log.Printf("sync start time:%v", time.Now())
 
-	start := TotalLimit
+	start := 0
 	size := 100
 
 	//
@@ -78,7 +78,7 @@ func StartSyncCp() {
 				}
 				//不存在或者要更新
 				if goods.Id == 0 {
-					log.Printf("sync GetListPage cp_info :%v \n", base)
+					//	log.Printf("sync GetListPage cp_info :%v \n", base)
 					//不存在 直接插入
 					//基础物料表
 					goods.CpCode = base.CPBM
@@ -122,20 +122,30 @@ func StartSyncCp() {
 
 					}
 				} else {
+					//	log.Printf("sync update  cp_info :%v \n", base)
 					if base.SFTY == 1 && goods.SFTY == 0 {
 						goods.SFTY = 1
+						goods.CpName = base.CPMC
+						goods.CpGuiGe = base.GG
 						goods.Update(nil)
-						log.Printf("sync update cp_info :%v \n", base)
+						//	log.Printf("sync update cp_info :%v \n", base)
 					} else if base.SFTY == 0 && goods.SFTY == 1 {
 						goods.SFTY = 0
-						log.Printf("sync update cp_info :%v \n", base)
+						goods.CpName = base.CPMC
+						goods.CpGuiGe = base.GG
+						//		log.Printf("sync update cp_info :%v \n", base)
+						goods.Update(nil)
+					} else {
+						goods.CpName = base.CPMC
+						goods.CpGuiGe = base.GG
+						//	log.Printf("sync update cp_info :%v \n", base)
 						goods.Update(nil)
 					}
 
 					//需要更新 沙发表
 					if goods.CpTypeCode == "1019" || goods.CpTypeCode == "1020" || goods.CpTypeCode == "1018" || goods.CpTypeCode == "1029" {
+						log.Printf("sync shafa  code :%s", goods.CpCode)
 						//更新沙发表
-						//
 						shafaimport := model.ShaFaImportLog{}
 						eeee := shafaimport.GetByType(nil, goods.CpCode)
 						if eeee != nil {
@@ -146,11 +156,9 @@ func StartSyncCp() {
 							shafaimport.GG = base.GG
 							shafaimport.Update(nil)
 						}
+						//更新基础物料表
+						DelSHafa(&goods, base.GG)
 					}
-					//更新基础物料表
-					goods.CpName = base.CPMC
-					goods.CpGuiGe = base.GG
-					goods.Update(nil)
 				}
 
 			}
@@ -161,12 +169,63 @@ func StartSyncCp() {
 			break
 		} else {
 			start += size
-			TotalLimit = start
 		}
 
 	}
 	log.Printf("sync end time:%v", time.Now())
 
+}
+
+func getshafaGuiGe(guige string) []string {
+
+	asc := strings.Split(guige, "+")
+	return asc
+
+}
+
+func DelSHafa(goods *model.Goods, new_guige string) {
+
+	new_guige = strings.ReplaceAll(new_guige, " ", "")
+	if goods.CpTypeCode == "1019" || goods.CpTypeCode == "1020" || goods.CpTypeCode == "1018" || goods.CpTypeCode == "1029" {
+		// 看一下规格是不是和原来一样
+		if goods.CpGuiGe != new_guige {
+			//修改了 规格 先把原来的 放到map中
+
+			guigeMap := make(map[string]bool, 0)
+
+			for _, s := range getshafaGuiGe(goods.CpGuiGe) {
+				guigeMap[s] = false
+			}
+			for _, s := range getshafaGuiGe(new_guige) {
+				_, Okk := guigeMap[s]
+				if Okk {
+					//如果存在 就弄成 true
+					guigeMap[s] = true
+				}
+			}
+			for s, b := range guigeMap {
+				if !b {
+					//说明这次没有这个了 要把成本表 对应分位的成本删除。
+					deleteInfo := model.GongYi{}
+					deleteInfo.FenWeiName = s
+					deleteInfo.ShafaId = goods.CpCode
+					err := deleteInfo.DeleteByFenweiName(nil)
+					if err != nil {
+						log.Printf("deleteInfo.Delete err :%v", err)
+					}
+
+					//说明这次没有这个了 要把成本表 对应分位的成本删除。
+					deleteInfoDraf := model.GongYiDraf{}
+					deleteInfoDraf.FenWeiName = s
+					deleteInfoDraf.ShafaId = goods.CpCode
+					err2 := deleteInfoDraf.DeleteByFenweiName(nil)
+					if err2 != nil {
+						log.Printf("deleteInfo.Delete err :%v", err2)
+					}
+				}
+			}
+		}
+	}
 }
 
 func StartSyncFenWei() {

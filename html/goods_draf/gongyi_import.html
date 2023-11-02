@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/style.css"/>
+    <script type="text/javascript" src="../Js/jquery.js"></script>
+    <!--    <script type="text/javascript" src="../Js/jquery.sorted.js"></script>-->
+    <script type="text/javascript" src="../Js/bootstrap.js"></script>
+    <script type="text/javascript" src="../Js/ckform.js"></script>
+    <script type="text/javascript" src="../Js/common.js"></script>
+    <script type="text/javascript" src="../Js/cookieHelp.js"></script>
+    <script type="text/javascript" src="../Js/page.js"></script>
+
+    <style type="text/css">
+        body {
+            padding-bottom: 40px;
+        }
+
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<table id="t1" class="table table-bordered table-hover definewidth m10">
+
+    <tr>
+        <td id="td1" style="text-align: center">
+            <a id="b1" class="btn btn-primary" onclick="b1()">裁工</a>
+        </td>
+        <td id="td2" style="text-align: center">
+            <a id="b2" class="btn btn-primary" onclick="b2()">车工</a>
+        </td>
+        <td id="td3" style="text-align: center">
+            <a id="b3" class="btn btn-primary" onclick="b3()">海绵</a>
+        </td>
+        <td id="td4" style="text-align: center">
+            <a id="b4" class="btn btn-primary" onclick="b4()">扪工</a>
+        </td>
+        <td id="td5" style="text-align: center">
+            <a id="b5" class="btn btn-primary" onclick="b5()">木工</a>
+        </td>
+        <td id="td6" style="text-align: center">
+            <a id="b6" class="btn btn-primary" onclick="b6()">人工</a>
+        </td>
+        <td id="td7" style="text-align: center">
+            <a id="b7" class="btn btn-primary" onclick="b7()">其他</a>
+        </td>
+    </tr>
+    <tr>
+        <td><span id="x111"></span></td>
+        <td><span id="x2"></span></td>
+    </tr>
+</table>
+
+<div id="caigong1" style="display:none "></div>
+<div id="chegong1" style="display:none "></div>
+<div id="haimian1" style="display: none"></div>
+<div id="menggong1" style="display:none"></div>
+<div id="mugong1" style="display: none"></div>
+<div id="rengong1" style="display: none"></div>
+<div id="qita1" style="display: none"></div>
+</body>
+</html>
+
+<script>
+    // 获取用户权限
+    roleId = getUserRole()
+    if (roleId == 2) {
+        $("#td6").remove();
+        $("#b1").attr("style", "background: #7cb61b");
+        $("#caigong1").show()
+        $("#caigong1").load("caigong.html")
+        $("#chegong1").load("chegong.html")
+        $("#haimian1").load("haimian.html")
+        $("#menggong1").load("menggong.html")
+        $("#mugong1").load("mugong.html")
+        $("#qita1").load("qita.html")
+    } else if (roleId == 3) {
+        $("#td1").remove();
+        $("#td2").remove();
+        $("#td3").remove();
+        $("#td4").remove();
+        $("#td5").remove();
+        $("#td6").remove();
+
+        $("#b7").attr("style", "background: #7cb61b");
+        $("#qita1").show()
+        $("#qita1").load("qita.html")
+
+    } else if (roleId == 4) {
+        $("#td1").remove();
+        $("#td2").remove();
+        $("#td3").remove();
+        $("#td4").remove();
+        $("#td5").remove();
+        $("#b6").attr("style", "background: #7cb61b");
+        $("#rengong1").show()
+        $("#rengong1").load("rengong.html")
+        $("#qita1").load("qita.html")
+    } else if (roleId == 5) {
+        $("#td1").remove();
+        $("#td2").remove();
+        $("#td3").remove();
+        $("#td4").remove();
+        $("#td5").remove();
+        $("#b6").attr("style", "background: #7cb61b");
+        $("#rengong1").show()
+        $("#rengong1").load("rengong.html")
+        $("#qita1").load("qita.html")
+    } else {
+        $("#b1").attr("style", "background: #7cb61b");
+        $("#caigong1").show()
+        $("#caigong1").load("caigong.html")
+        $("#chegong1").load("chegong.html")
+        $("#haimian1").load("haimian.html")
+        $("#menggong1").load("menggong.html")
+        $("#mugong1").load("mugong.html")
+        $("#rengong1").load("rengong.html")
+        $("#qita1").load("qita.html")
+    }
+
+
+    var UnitOP = "";
+    var GoodsTypeOp = "";
+    var FenWeiOp = "";
+    var SF_NAME = "";
+    var SF_CODE = "";
+    var SF_GG = "";
+    var str = ""
+
+    var GoodObjs_str = ""
+
+
+    function getShaFaFenWei(name) {
+        lll = name.split("+")
+        str = ""
+        str += " <option  value='全套' ></option>\n"
+        str += " <option  value='子件' ></option>\n"
+        str += " <option  value='外框架' ></option>\n"
+        for (let i = 0; i < lll.length; i++) {
+            str += " <option  value='" + lll[i] + "' ></option>\n"
+        }
+        return str
+
+
+    }
+
+    function GetAllChangPingList() {
+        //
+
+        //开始请求数据
+        $.ajax({
+            url: GetBaseHost() + "/v2/get_all_goods_desc",
+            dataType: "json",
+            data: {},
+            type: "get",
+            async: false,
+            success: function (data) {
+                $.each(data.data, function (index, element) {
+                    cdl = element.cp_name
+                    GoodObjs_str += '<option  l value="' + element.cp_code + '">' + element.cp_name + '</option> '
+                })
+
+            },
+        })
+
+
+    }
+
+    $(document).ready(function () {
+        SF_NAME = GetQueryString("sf_name")
+        SF_CODE = GetQueryString("sf_code")
+        SF_GG = GetQueryString("sf_gg")
+
+        UnitOP = GetUnitNoId()
+        //alert(UnitOP)
+        GoodsTypeOp = GetGoodsType()
+        FenWeiOp = GetFenWei()
+        GetAllChangPingList()
+        Roledesc()
+
+
+    })
+
+    function backIndex() {
+        window.location.href = "import.html";
+    }
+
+    function Roledesc() {
+
+    }
+
+
+    function Delete() {
+        $("a#delte").on('click', function () {
+            //  alert( $(this).parent().parent().parent().remove())
+            $(this).parent().parent().remove()
+        })
+    }
+
+    function b1() {
+        $("div").hide()
+        $("#t1").find("a").attr("style", "background: #0044cc");
+        $("#b1").attr("style", "background: #7cb61b");
+        $("#caigong1").show()
+    }
+
+    function b2() {
+        $("div").hide()
+        $("#t1").find("a").attr("style", "background: #0044cc");
+        $("#b2").attr("style", "background: #7cb61b");
+        $("#chegong1").show()
+    }
+
+    function b3() {
+
+        $("div").hide()
+        $("#t1").find("a").attr("style", "background: #0044cc");
+        $("#b3").attr("style", "background: #7cb61b");
+        $("#haimian1").show()
+    }
+
+    function b4() {
+        $("div").hide()
+        $("#t1").find("a").attr("style", "background: #0044cc");
+        $("#b4").attr("style", "background: #7cb61b");
+        $("#menggong1").show()
+    }
+
+    function b5() {
+        $("div").hide()
+        $("#t1").find("a").attr("style", "background: #0044cc");
+        $("#b5").attr("style", "background: #7cb61b");
+        $("#mugong1").show()
+    }
+
+    function b6() {
+        $("div").hide()
+        $("#t1").find("a").attr("style", "background: #0044cc");
+        $("#b6").attr("style", "background: #7cb61b");
+        $("#rengong1").show()
+    }
+
+    function b7() {
+        $("div").hide()
+        $("#t1").find("a").attr("style", "background: #0044cc");
+        $("#b7").attr("style", "background: #7cb61b");
+        $("#qita1").show()
+    }
+
+
+    //退出登陆
+    $('#logout').on('click', function () {
+        alert("logout")
+        logout()
+        self.location = '../Public/login.html'
+    })
+
+
+</script>

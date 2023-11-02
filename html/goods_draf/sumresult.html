@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/style.css"/>
+    <script type="text/javascript" src="../Js/jquery.js"></script>
+    <script type="text/javascript" src="../Js/jquery.sorted.js"></script>
+    <script type="text/javascript" src="../Js/bootstrap.js"></script>
+    <script type="text/javascript" src="../Js/ckform.js"></script>
+    <script type="text/javascript" src="../Js/common.js"></script>
+    <script type="text/javascript" src="../Js/cookieHelp.js"></script>
+    <script type="text/javascript" src="../Js/page.js"></script>
+
+    <style type="text/css">
+        body {
+            padding-bottom: 40px;
+        }
+
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<table id='ClassTable_sums' class="table table-bordered table-hover definewidth m10">
+    <thead>
+    <tr>
+        <th colspan="6" style="text-align: center ;font-size: 20px"><span id="SOFA_name"
+                                                                          style="text-align: center ;font-size: 20px"></span>
+        </th>
+
+    </tr>
+    </thead>
+</table>
+
+<table id='ClassTable_goods' class="table table-bordered table-hover definewidth m10">
+    <thead>
+    <tr>
+        <th colspan="13" style="text-align: center ;font-size: 20px"><span id="SOFA_name_goods"
+                                                                           style="text-align: center ;font-size: 20px"></span>
+        </th>
+
+    </tr>
+    </thead>
+</table>
+
+
+<table class="table table-bordered table-hover definewidth m10">
+    <tr>
+        <td style="text-align: center">
+            <button id='export_all' class="btn btn-success" type="button" onclick="all_toExcel()">
+                导出成本表
+            </button>
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+
+            <button id='export_all_goods' class="btn btn-success" type="button" onclick="exportAllGoods()">
+                导出物料表
+            </button>
+        </td>
+        <td colspan="2" style="text-align: center">
+            <button
+                    type="button" class="btn btn-primary" name="backid" onclick="backIndex()">返回列表
+            </button>
+        </td>
+    </tr>
+    <tr>
+
+    </tr>
+
+</table>
+
+<input id="page" type="hidden">
+<input id="size" type="hidden">
+</body>
+</html>
+
+<script>
+
+    function backIndex() {
+        window.location.href = "import.html";
+    }
+
+    ssf_code = GetQueryString("sf_code")
+    sofa_name = ""
+
+    function getExportGoodsData() {
+        $.ajax({
+            url: GetBaseHost() + "/v2/get_export_goods_group_by_fen_wei",
+            dataType: "json",
+            data: {
+                "shafa_id": ssf_code
+            },
+            type: "get",
+            async: false,
+            success: function (data) {
+                //在这里 要填充 数据了
+                if (data.status == 200) {
+                    let sss = ""
+                    $.each(data.data, function (index, element1) {
+                        sss += '<tr class="data_2"  >      '
+                        $.each(element1, function (index, element2) {
+                            sss += '<td >' + element2 + ' </td>'
+                        })
+                        sss += '    </tr>'
+                    })
+
+                    $("#ClassTable_goods").append(sss)
+                }
+
+            },
+        })
+    }
+
+
+    $(document).ready(function () {
+        const username = getUserName();
+        const bb = checkCookie();
+        const roleId = getUserRole()
+
+        if (roleId == 2) {
+            //如果是工艺部的 不能看到钱
+            $("#ClassTable_sums").remove()
+            $("#export_all").remove()
+
+        }
+        if (roleId == 3) {
+            //如果是财务的
+            $("#ClassTable_goods").remove()
+            $("#export_all_goods").remove()
+
+        }
+        if (bb == false) {
+            //document.location.url = '/Public/login.html'
+            self.location = '../Public/login.html'
+            // top.location = '/Public/login.html'
+        } else {
+            $("#name").html(username)
+        }
+        getExportGoodsData()
+        //查询列表
+        $.ajax({
+            url: GetBaseHost() + "/v2/get_all_price",
+            dataType: "json",
+            data: {
+
+                "sf_code": ssf_code
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $('#SOFA_name').text("《" + data.data.sofa_name + "》" + "成本汇算")
+                $('#SOFA_name_goods').text("《" + data.data.sofa_name + "》" + "物料清单")
+                sofa_name = data.data.sofa_name
+                let str1 = ""
+                let str1_sub = ""
+                let str2 = ""
+                let str2_sub = ""
+                let str3 = ""
+                let str3_sub = ""
+                let str4 = ""
+                let str4_sub = ""
+                let str5 = ""
+                let str5_sub = ""
+                let str6 = ""
+                let str6_sub = ""
+                let str7 = ""
+                let str7_sub = ""
+                $.each(data.data.list, function (index, element) {
+                    if (element.type_name == "裁工") {
+                        ll = element.list.length
+                        str1 = '<tr class="data_1"  >      ' +
+                            '<td colspan="6" style="text-align: center"> 裁工成本 </td>' +
+                            '    </tr>'
+                        str1 += '<tr class="data_1"  >      ' +
+                   /*         '<td > 分位名称 </td>' +*/
+                            '<td > 产品名称 </td>' +
+                            '<td > 数量(不包含损耗) </td>' +
+                            '<td > 单位</td>' +
+                            '<td > 单价</td>' +
+                            '<td > 总价</td>' +
+                            '<td > 损耗</td>' +
+                            '    </tr>'
+                        $.each(element.list, function (index, element1) {
+                            str1 += '<tr class="data_1"  >      ' +
+                    /*            '<td >' + element1.fen_wei_name + ' </td>' +*/
+                                '<td >' + element1.cl_name + ' </td>' +
+                                '<td >' + element1.ji_jia_num + ' </td>' +
+                                '<td >' + element1.unit + ' </td>' +
+                                '<td >' + element1.price + ' </td>' +
+                                '<td >' + element1.total_price + ' </td>' +
+                                '<td >' + element1.shun_hao_nums + ' </td>' +
+                                '    </tr>'
+                        })
+                        str1 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 裁工成本合计 </td>' +
+                            '<td >' + element.total_price + ' </td>' +
+                            '<td > </td>' +
+                            '    </tr>'
+                        str1 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 损耗合计 </td>' +
+                            '<td > </td>' +
+                            '<td >' + element.total_sunhao + ' </td>' +
+                            '    </tr>'
+                        $('#ClassTable_sums').append(str1)
+                    }// 结束一个了
+                    //开始一个看
+                    if (element.type_name == "车工") {
+                        ll = element.list.length
+                        str2 = '<tr class="data_1"  >      ' +
+                            '<td colspan="6" style="text-align: center"> 车工成本 </td>' +
+                            '    </tr>'
+                        str2 += '<tr class="data_1"  >      ' +
+              /*              '<td > 分位名称 </td>' +*/
+                            '<td > 产品名称 </td>' +
+                            '<td > 数量(不包含损耗) </td>' +
+                            '<td > 单位</td>' +
+                            '<td > 单价</td>' +
+                            '<td > 总价</td>' +
+                            '<td > 损耗</td>' +
+                            '    </tr>'
+                        $.each(element.list, function (index, element1) {
+                            str2 += '<tr class="data_1"  >      ' +
+                    /*            '<td >' + element1.fen_wei_name + ' </td>' +*/
+                                '<td >' + element1.cl_name + ' </td>' +
+                                '<td >' + element1.ji_jia_num + ' </td>' +
+                                '<td >' + element1.unit + ' </td>' +
+                                '<td >' + element1.price + ' </td>' +
+                                '<td >' + element1.total_price + ' </td>' +
+                                '<td >' + element1.shun_hao_nums + ' </td>' +
+                                '    </tr>'
+                        })
+                        str2 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 车工成本合计 </td>' +
+                            '<td >' + element.total_price + ' </td>' +
+                            '<td > </td>' +
+                            '    </tr>'
+                        str2 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 损耗合计 </td>' +
+                            '<td > </td>' +
+                            '<td >' + element.total_sunhao + ' </td>' +
+                            '    </tr>'
+                        $('#ClassTable_sums').append(str2)
+                    }// 结束一个了
+                    //开始一个看
+                    if (element.type_name == "海绵") {
+                        ll = element.list.length
+                        str3 = '<tr class="data_1"  >      ' +
+                            '<td colspan="6" style="text-align: center"> 海绵成本 </td>' +
+                            '    </tr>'
+                        str3 += '<tr class="data_1"  >      ' +
+           /*                 '<td > 分位名称 </td>' +*/
+                            '<td > 产品名称 </td>' +
+                            '<td > 数量(不包含损耗) </td>' +
+                            '<td > 单位</td>' +
+                            '<td > 单价</td>' +
+                            '<td > 总价</td>' +
+                            '<td > 损耗</td>' +
+                            '    </tr>'
+                        $.each(element.list, function (index, element1) {
+                            str3 += '<tr class="data_1"  >      ' +
+                  /*              '<td >' + element1.fen_wei_name + ' </td>' +*/
+                                '<td >' + element1.cl_name + ' </td>' +
+                                '<td >' + element1.ji_jia_num + ' </td>' +
+                                '<td >' + element1.unit + ' </td>' +
+                                '<td >' + element1.price + ' </td>' +
+                                '<td >' + element1.total_price + ' </td>' +
+                                '<td >' + element1.shun_hao_nums + ' </td>' +
+                                '    </tr>'
+                        })
+                        str3 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 海绵成本合计 </td>' +
+                            '<td >' + element.total_price + ' </td>' +
+                            '<td > </td>' +
+                            '    </tr>'
+                        str3 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 损耗合计 </td>' +
+                            '<td > </td>' +
+                            '<td >' + element.total_sunhao + ' </td>' +
+                            '    </tr>'
+                        $('#ClassTable_sums').append(str3)
+                    }// 结束一个了
+
+
+                    //开始一个看
+                    if (element.type_name == "扪工") {
+                        ll = element.list.length
+                        str4 = '<tr class="data_1"  >      ' +
+                            '<td colspan="6" style="text-align: center"> 扪工成本 </td>' +
+                            '    </tr>'
+                        str4 += '<tr class="data_1"  >      ' +
+              /*              '<td > 分位名称 </td>' +*/
+                            '<td > 产品名称 </td>' +
+                            '<td > 数量(不包含损耗) </td>' +
+                            '<td > 单位</td>' +
+                            '<td > 单价</td>' +
+                            '<td > 总价</td>' +
+                            '<td > 损耗</td>' +
+                            '    </tr>'
+                        $.each(element.list, function (index, element1) {
+                            str4 += '<tr class="data_1"  >      ' +
+       /*                         '<td >' + element1.fen_wei_name + ' </td>' +*/
+                                '<td >' + element1.cl_name + ' </td>' +
+                                '<td >' + element1.ji_jia_num + ' </td>' +
+                                '<td >' + element1.unit + ' </td>' +
+                                '<td >' + element1.price + ' </td>' +
+                                '<td >' + element1.total_price + ' </td>' +
+                                '<td >' + element1.shun_hao_nums + ' </td>' +
+                                '    </tr>'
+                        })
+                        str4 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 扪工成本合计 </td>' +
+
+                            '<td >' + element.total_price + ' </td>' +
+                            '<td > </td>' +
+                            '    </tr>'
+                        str4 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 损耗合计 </td>' +
+                            '<td > </td>' +
+                            '<td >' + element.total_sunhao + ' </td>' +
+
+                            '    </tr>'
+                        $('#ClassTable_sums').append(str4)
+                    }// 结束一个了
+
+                    //开始一个看
+                    if (element.type_name == "木工") {
+                        ll = element.list.length
+                        str5 = '<tr class="data_1"  >      ' +
+                            '<td colspan="6" style="text-align: center"> 木工成本 </td>' +
+                            '    </tr>'
+                        str5 += '<tr class="data_1"  >      ' +
+             /*               '<td > 分位名称 </td>' +*/
+                            '<td > 产品名称 </td>' +
+                            '<td > 数量(不包含损耗) </td>' +
+                            '<td > 单位</td>' +
+                            '<td > 单价</td>' +
+                            '<td > 总价</td>' +
+                            '<td > 损耗</td>' +
+                            '    </tr>'
+                        $.each(element.list, function (index, element1) {
+                            str5 += '<tr class="data_1"  >      ' +
+         /*                       '<td >' + element1.fen_wei_name + ' </td>' +*/
+                                '<td >' + element1.cl_name + ' </td>' +
+                                '<td >' + element1.ji_jia_num + ' </td>' +
+                                '<td >' + element1.unit + ' </td>' +
+                                '<td >' + element1.price + ' </td>' +
+                                '<td >' + element1.total_price + ' </td>' +
+                                '<td >' + element1.shun_hao_nums + ' </td>' +
+                                '    </tr>'
+                        })
+                        str5 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 木工成本合计 </td>' +
+                            '<td >' + element.total_price + ' </td>' +
+                            '<td > </td>' +
+                            '    </tr>'
+                        str5 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 损耗合计 </td>' +
+                            '<td > </td>' +
+                            '<td >' + element.total_sunhao + ' </td>' +
+                            '    </tr>'
+                        $('#ClassTable_sums').append(str5)
+                    }// 结束一个了
+                    //开始一个看
+                    if (element.type_name == "人工") {
+                        ll = element.list.length
+                        str6 = '<tr class="data_1"  >      ' +
+                            '<td colspan="6" style="text-align: center"> 人工成本 </td>' +
+                            '    </tr>'
+                        str6 += '<tr class="data_1"  >      ' +
+                            '<td > 分位名称 </td>' +
+                            '<td > 描述</td>' +
+                            '<td > 总价</td>' +
+                            '<td colspan="3"> 备注</td>' +
+                            '    </tr>'
+                        $.each(element.list, function (index, element1) {
+                            str6 += '<tr class="data_1"  >      ' +
+                                '<td >' + element1.fen_wei_name + ' </td>' +
+                                '<td >' + element1.cl_name + ' </td>' +
+                                '<td >' + element1.total_price + ' </td>' +
+                                '<td colspan="3">' + element1.descs + ' </td>' +
+                                '    </tr>'
+                        })
+                        str6 += '<tr class="data_1"  >      ' +
+                            '<td colspan="4"> 人工成本合计 </td>' +
+                            '<td colspan="2">' + element.total_price + ' </td>' +
+                            '    </tr>'
+                        $('#ClassTable_sums').append(str6)
+                    }// 结束一个了
+                    //开始一个看
+                    if (element.type_name == "其他") {
+                        ll = element.list.length
+                        str7 = '<tr class="data_1"  >      ' +
+                            '<td colspan="6" style="text-align: center"> 其他成本 </td>' +
+                            '    </tr>'
+                        str7 += '<tr class="data_1"  >      ' +
+                            '<td > 分位名称 </td>' +
+                            '<td > 描述</td>' +
+                            '<td > 总价</td>' +
+                            '<td colspan="3"> 描述</td>' +
+                            '    </tr>'
+                        $.each(element.list, function (index, element1) {
+                            str7 += '<tr class="data_1"  >      ' +
+                                '<td >' + element1.fen_wei_name + ' </td>' +
+                                '<td >' + element1.cl_name + ' </td>' +
+                                '<td >' + element1.total_price + ' </td>' +
+                                '<td colspan="3">' + element1.descs + ' </td>' +
+                                '    </tr>'
+                        })
+                        str7 += '<tr class="data_1"  >      ' +
+                            '<td  colspan="4"> 其他成本合计 </td>' +
+                            '<td colspan="2">' + element.total_price + ' </td>' +
+                            '    </tr>'
+                        $('#ClassTable_sums').append(str7)
+                    }// 结束一个了
+                })
+
+                //结束了分位计算价格
+                //开始汇总
+                $('#ClassTable_sums').append('<tr> <td colspan="7" style="text-align: center" >总计</td>  </tr>')
+                str_str = '<tr class="data_1"  >      ' +
+
+                    '<td colspan="4" style="text-align: center;color: red" >' + "沙发总计成本" + ' </td>' +
+                    '<td colspan="3"  style="text-align: center;color: red">' + data.data.total_price + ' </td>' +
+                    '    </tr>'
+                str_str += '<tr class="data_1"  >      ' +
+
+                    '<td colspan="4" style="text-align: center;color: red" >' + "损耗合计" + ' </td>' +
+                    '<td colspan="3"  style="text-align: center;color: red">' + data.data.total_shun_hao + ' </td>' +
+                    '    </tr>'
+                $('#ClassTable_sums').append(str_str)
+            },
+        })
+
+
+        if (roleId == 2) {
+            //如果是工艺部的 不能看到钱
+            $("#ClassTable_sums").remove()
+            $("#export_all").remove()
+
+        }
+    })
+
+
+    //退出登陆
+    $('#logout').on('click', function () {
+        alert("logout")
+        logout()
+        self.location = '../Public/login.html'
+    })
+
+    //导出
+
+
+</script>
+
+<script>
+
+
+    function base64(content) {
+        return window.btoa(unescape(encodeURIComponent(content)));
+    }
+
+    var format = function (s, c) {
+        return s.replace(/{(\w+)}/g,
+            function (m, p) {
+                return c[p];
+            });
+    }
+
+    //导出html表格为 excel 文件
+    function all_toExcel() {
+
+        var head = "   <tr>\n" +
+            "            <td colspan=\"6\" style=\"text-align: center ;background: #0e90d2;font-size: 50px\">" + sofa_name + " 成本清单</td>\n" +
+            "        </tr>"
+        var excelContent = head + $("#ClassTable_sums").html();
+
+        // alert(excelContent)
+        var excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
+        excelFile += "<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>";
+        excelFile += "<body><table width='50%'  border='1'>";
+        excelFile += excelContent;
+        excelFile += "</table></body>";
+        excelFile += "</html>";
+        //定义excel 的sheet名称
+        var ctx = {worksheet: "成本清单"};
+        var link = "data:application/vnd.ms-excel;base64," + base64(format(excelFile, ctx));
+        var a = document.createElement("a");
+        //定义excel 的文件名称
+        var fileName = "成本清单_";
+        a.download = fileName + sofa_name + ".xls";
+        a.href = link;
+        a.click();
+    }
+
+
+    function exportAllGoods() {
+
+        var head = ""
+        var excelContent = head + $("#ClassTable_goods").html();
+
+        // alert(excelContent)
+        var excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
+        excelFile += "<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>";
+        excelFile += "<body><table width='50%'  border='1'>";
+        excelFile += excelContent;
+        excelFile += "</table></body>";
+        excelFile += "</html>";
+        //定义excel 的sheet名称
+        var ctx = {worksheet: "物料清单"};
+        var link = "data:application/vnd.ms-excel;base64," + base64(format(excelFile, ctx));
+        var a = document.createElement("a");
+        //定义excel 的文件名称
+        var fileName = "物料清单_";
+        a.download = fileName + sofa_name + ".xls";
+        a.href = link;
+        a.click();
+    }
+
+</script>

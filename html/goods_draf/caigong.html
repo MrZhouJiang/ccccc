@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" type="text/css" href="../Css/style.css"/>
+    <script type="text/javascript" src="../Js/jquery.js"></script>
+    <!--   <script type="text/javascript" src="../Js/jquery.sorted.js"></script>-->
+    <script type="text/javascript" src="../Js/bootstrap.js"></script>
+    <script type="text/javascript" src="../Js/ckform.js"></script>
+    <script type="text/javascript" src="../Js/common.js"></script>
+    <script type="text/javascript" src="../Js/cookieHelp.js"></script>
+    <script type="text/javascript" src="../Js/page.js"></script>
+
+    <style type="text/css">
+        body {
+            padding-bottom: 40px;
+        }
+
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<form id="post_form" method="post" class="definewidth m20">
+    <input type="hidden" name="id" value="{$user.id}"/>
+    <input id="sofa" type="hidden" name="id" value="xxxxxx"/>
+
+    <table id='caigong_ClassTable' class="table table-bordered table-hover definewidth m10">
+        <tr>
+            <td rowspan="" id="caigongName" style="text-align: center;background: #0e90d2;font-size: 30px"></td>
+
+        </tr>
+
+    </table>
+
+    <table id='caigong_dataTable' class="table table-bordered table-hover definewidth m10">
+        <tr>
+            <td>工艺名称</td>
+            <td>分位</td>
+            <td>使用部位</td>
+            <td>材料名称</td>
+            <td width="100px">使用尺寸</td>
+            <td width="100px">数量</td>
+            <td width="50px">单位</td>
+            <td>备注</td>
+            <td width="50px">规格</td>
+            <td width="100px">成本</td>
+            <td width="100px">操作</td>
+        </tr>
+
+
+    </table>
+
+
+    <table id='caigong_dataTable_export' style="display: none">
+
+        <tr>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">分位名称</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">使用部位</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">材料名称</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">材料编码</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">使用尺寸</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">数量</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">单位</td>
+            <td style="text-align: center ;background: #3c5412;font-size: 30px">备注</td>
+        </tr>
+
+    </table>
+
+    <table id='caigong_buttonClassTable' class="table table-bordered table-hover definewidth m10">
+        <tr>
+            <td>
+                <span>工艺名称:</span>
+                <input type="text" name="caigong_select" id='caigong_name'
+                       autocomplete="off"
+                       placeholder="车间工艺标题">
+                <br>
+                <span>分&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位:</span>
+                <input type="text" name="caigong_select" id='caigong_select' list="caigong_select_list"
+                       autocomplete="off"
+                       placeholder="分位">
+                <datalist d id="caigong_select_list"></datalist>
+            </td>
+            <td>
+
+                <span>物料:</span>
+                <input type="text" name="caigong_goodObjs_str" id='caigong_goodObjs_str' list="caigong_batch_list"
+                       autocomplete="off"
+                       placeholder="物料" onchange="caigong_goodsChange()">
+                <datalist id="caigong_batch_list"></datalist>
+
+                <input type="hidden" name="caigong_goodsName_str" id='caigong_goodsName_str'>
+                <br>
+                <span>尺寸:</span>
+                <input type="text" name="caigong_goodSize_str" id='caigong_goodSize_str'
+                       autocomplete="off"
+                       placeholder="长宽高用*链接且不能改变顺序" onchange="caigong_Sums()">
+
+            </td>
+
+            <td rowspan="">
+                <span>备注:</span>
+                <textarea placeholder="备注" id='caigong_good_desc'></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>使用部位:</span>
+                <input type="text" name="caigong_goods_point" id='caigong_goods_point'
+                       autocomplete="off"
+                       placeholder="物料使用位置">
+                <br>
+            </td>
+            <td>
+                <span>使用数量:</span>
+                <input type="text" id='caigong_goodNum_str'
+                       autocomplete="off"
+                       placeholder="数量" onchange="caigong_Sums()">
+            </td>
+
+            <td>
+                <!--         <span >单位:</span>
+                         <select name="caigong_insert_unit" id='caigong_insert_unit'>
+                         </select>
+         -->
+            </td>
+        </tr>
+
+    </table>
+    <table class="table table-bordered table-hover definewidth m10">
+
+        <tr>
+            <td>
+                <span>换算系数:</span>
+                <input type="text" id='caigong_hy_p' autocomplete="off" placeholder="换算系数" readonly="readonly">
+
+            </td>
+            <td>
+                <span>主计量单位:</span>
+                <input type="text" id='caigong_main_uint' autocomplete="off" placeholder="主计量单位" readonly="readonly">
+
+            </td>
+            <td rowspan="4">
+                <span>物料实际成本:</span>
+                <input type="hidden" value="0" hidden="hidden" id='caigong_ji_jia_nums' readonly="readonly">
+                <input type="text" value="0" id='caigong_shiji_price' readonly="readonly">元
+                <br>
+                <span style="color: red">
+                    注意 :
+                    <br>&nbsp;&nbsp;1、填写物料尺寸时  统一单位为CM；长宽用 * 连接
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;例如 3*5 、表示长3CM 宽5CM；
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;只有长度的 直接输入长度值 例如 2、3表示 2CM 、3CM
+                    <br>&nbsp;&nbsp; 2、 物料实际成本为计算后的最终成本
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>价格(元):</span>
+                <input type="text" id='caigong_price_p' autocomplete="off" placeholder="价格" readonly="readonly">
+            </td>
+            <td>
+                <span>辅计量单位:</span>
+                <input type="text" id='caigong_fuzhu_uint' autocomplete="off" placeholder="辅计量单位" readonly="readonly">
+            </td>
+
+
+        </tr>
+        <tr>
+            <td>
+                <span>损耗(%):</span>
+                <input type="text" id='caigong_shunhao_p' autocomplete="off" placeholder="损耗" readonly="readonly">
+            </td>
+            <td>
+                <span>主计量系数:</span>
+                <input type="text" id='caigong_main_xishu' autocomplete="off" placeholder="主系数" readonly="readonly">
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                <span>规格:</span>
+                <input type="text" id='caigong_size' autocomplete="off" placeholder="规格">
+            </td>
+            <td>
+                <span>辅计量系数:</span>
+                <input type="text" id='caigong_fuzhu_xishu' autocomplete="off" placeholder="辅系数" readonly="readonly">
+            </td>
+        </tr>
+
+        </td>
+        <tr>
+            <td colspan="3" style="text-align: center">
+                <button id='caigong_select_bu' class="btn btn-primary" type="button">增加材料</button>
+                <button id='caigong_select_bu1' class="btn btn-success" type="button">保存数据</button>
+                <button id='caigong_select_bu2' class="btn btn-primary" type="button" onclick="caigonggetExportInfo()">
+                    导出物料表
+                </button>
+                <button
+                        type="button" class="btn btn-warning" name="backid" onclick="backIndex()">返回列表
+                </button>
+            </td>
+        </tr>
+
+    </table>
+</form>
+</body>
+</html>
+
+<script>
+    //初始化的时候加载
+    var iscommit = false
+    $(document).ready(function () {
+        caigong_loadData()
+        Delete();
+        $("datalist#caigong_select_list").append(getShaFaFenWei(SF_GG))
+        $("datalist#caigong_batch_list").append(GoodObjs_str)
+        // $("datalist#caigong_goodSize_str_list").append(GoodObjs_str)
+        $("#caigong_insert_unit").append(UnitOP)
+        $("#caigongName").html(SF_NAME + "  裁工")
+    })
+
+    function caigong_Sums() {
+        $("#caigong_shiji_price").val("")
+        $("#caigong_ji_jia_nums").val("")
+        //计算价格  必须 所有单位都已经赋值
+        // 体积的这种 需要用到size
+        let size = $('#caigong_goodSize_str').val()
+        let num = $('#caigong_goodNum_str').val()
+        let shunhao = $("#caigong_shunhao_p").val()
+        let price = $("#caigong_price_p").val()
+        let huansuan = $("#caigong_hy_p").val()
+        let main_xishu = $("#caigong_main_xishu").val()
+        let fuzhu_xishu = $("#caigong_fuzhu_xishu").val()
+        let main_size = $("#caigong_size").val()
+
+        if (num == null || num == "") {
+            return
+        }
+
+
+        //goods_cpcode = ((goods_name.split('&'))[1].replace("《", "")).replace("》", "")
+        // （数量+损耗） * 换算比例 * 单价  = 总价
+
+
+        //开始计算数据
+        $.ajax({
+            url: GetBaseHost() + "/v2/sums",
+            dataType: "json",
+            data: {
+                "num": num,
+                "cp_code": caigonggetCpCode(),
+                "shun_hao": shunhao,
+                "price": price,
+                "huan_suan": huansuan,
+                "size": size,
+                "main_xishu": main_xishu,
+                "fuzhu_xishu": fuzhu_xishu,
+                "main_size": main_size
+            },
+            type: "get",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    $("#caigong_ji_jia_nums").val(data.data.ji_jia_nums)
+                    $("#caigong_shiji_price").val(data.data.total_price)
+                    iscommit = true
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+
+
+    }
+
+    function caigonggetCpCode() {
+        /*    let goods_name = $('#caigong_goodObjs_str').val()
+            //要解析 物料Code
+            goods_cpcode = ((goods_name.split('&'))[1].replace("《", "")).replace("》", "")
+            return goods_cpcode*/
+        return $('#caigong_goodObjs_str').val()
+    }
+
+
+    function clearcaigongData() {
+        $("#caigong_hy_p").val("")
+        $("#caigong_price_p").val("")
+        $("#caigong_shunhao_p").val("")
+        $("#caigong_main_uint").val("")
+        $("#caigong_fuzhu_uint").val("")
+
+        $("#caigong_main_xishu").val("")
+        $("#caigong_fuzhu_xishu").val("")
+        $("#caigong_size").val("")
+        $('#caigong_shiji_price').val("0")
+        $("#caigong_ji_jia_nums").val("0")
+
+
+        $('#caigong_goodSize_str').val("")
+        $('#caigong_goodNum_str').val("")
+        $('#caigong_insert_unit').val("")
+        $('#caigong_goodsName_strs').val("")
+
+        var numsss = $("#caigong_insert_unit").find('option')
+        for (let i = 0; i < numsss.length; i++) {
+            $(numsss[i]).removeAttr("selected")
+        }
+
+    }
+
+    function caigong_changeUnit(name) {
+        var numsss = $("#caigong_insert_unit").find('option')
+        name = name.replace(/\s+/g, '');
+        name = name.replace(/[ ]/g, "");
+        name = name.replace(/[\r\n]/g, "");
+        for (let i = 0; i < numsss.length; i++) {
+            n1 = $(numsss[i]).text()
+            n1 = n1.replace(/\s+/g, '');
+            n1 = n1.replace(/[ ]/g, "");
+            n1 = n1.replace(/[\r\n]/g, "");
+            n1 = n1.replace(/[\r\n]/g, "");
+            if (n1 == name) {
+                $(numsss[i]).attr('selected', "selected")
+                break
+            }
+        }
+
+    }
+
+    function caigong_goodsChange() {
+
+        clearcaigongData()
+
+        //要解析 物料Code
+        goods_cpcode = caigonggetCpCode()
+
+        //获取物料信息
+        //开始请求数据
+        $.ajax({
+            url: GetBaseHost() + "/v2/get_goods_by_id",
+            dataType: "json",
+            data: {
+                "cp_code": goods_cpcode,
+            },
+            type: "get",
+            async: false,
+            success: function (data) {
+                //在这里 要填充 数据了
+                caigong_changeUnit(data.data.cp_main_unit)
+                $("#caigong_hy_p").val(data.data.change_p)
+                $("#caigong_price_p").val(data.data.price)
+                $("#caigong_shunhao_p").val(data.data.shun_hao)
+                $("#caigong_main_uint").val(data.data.cp_main_unit)
+                $("#caigong_fuzhu_uint").val(data.data.fu_zhu_unit)
+
+                $("#caigong_main_xishu").val(data.data.main_xi_shu)
+                $("#caigong_fuzhu_xishu").val(data.data.fu_zhu_xi_shu)
+                $("#caigong_size").val(data.data.main_size)
+
+
+                // $("#caigong_insert_unit").val(data.data.cp_main_unit)
+                //$("#caigong_insert_unit").attr("value", data.data.cp_main_unit);
+                $("#caigong_goodsName_str").val(data.data.cp_name)
+
+            },
+        })
+    }
+
+
+    function caigong_AddTr() {
+        let caigong_name = $('#caigong_name').val()
+        let fenWeiName = $('#caigong_select').val()
+        let goods_name = $('#caigong_goodsName_str').val()
+        let size = $('#caigong_goodSize_str').val()
+        let num = $('#caigong_goodNum_str').val()
+        //  let unit = $('#caigong_insert_unit').val()
+        let unit = $('#caigong_main_uint').val()
+        let main_size = $('#caigong_size').val()
+
+        let desc = $('#caigong_good_desc').val()
+        let totalPrice = $('#caigong_shiji_price').val()
+        let jijiaNum = $('#caigong_ji_jia_nums').val()
+        let goodsPoint = $('#caigong_goods_point').val()
+        str = "        <tr class='caigong_dd'>" +
+            "            <td  name=\"gongyi_name\" >" + caigong_name + "</td>\n" +
+            "            <td  name=\"fw_name\" >" + fenWeiName + "</td>\n" +
+            "            <td  name=\"goods_point\" >" + goodsPoint + "</td>\n" +
+            "            <td ><input  readonly='readonly' class='name' name=\"input_name\" value='" + goods_name + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + caigonggetCpCode() + "'/></td>\n" +
+            "            <td ><input  style='width: 100px' readonly='readonly' class='name' name=\"input_size\"value='" + size + "'/></td>\n" +
+            "            <td><input  style='width: 100px' readonly='readonly' class='name' name=\"input_num\" value='" + num + "'/></td>\n" +
+            "            <td ><input   style='width: 50px'readonly='readonly' class='name' name=\"input_unit\" value='" + unit + "'/></td>\n" +
+            "            <td><textarea  readonly='readonly' class='name' > " + desc + "</textarea></td>\n" +
+            "            <td ><input   style='width: 50px'readonly='readonly' class='name' name=\"input_main_size\" value='" + main_size + "'/></td>\n" +
+            "            <td ><input  style='width: 100px'  readonly='readonly' class='name' name=\"input_total_price\" value='" + totalPrice + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + jijiaNum + "'/></td>\n" +
+            "            <td ><a id='delte'style='color: red' >删除</a></td>\n" +
+
+            "        </tr>"
+        $("#caigong_dataTable").append(str)
+        //
+        Delete();
+
+        str2 = "        <tr >" +
+            "            <td   >" + fenWeiName + "</td>\n" +
+            "            <td   >" + goodsPoint + "</td>\n" +
+            "            <td   >" + goods_name + "</td>\n" +
+            "            <td   >" + caigonggetCpCode() + "</td>\n" +
+            "            <td   >" + size + "</td>\n" +
+            "            <td   >" + num + "</td>\n" +
+            "            <td   >" + unit + "</td>\n" +
+            "            <td   >" + desc + "</td>\n" +
+            "        </tr>"
+        $("#caigong_dataTable_export").append(str2)
+    }
+
+
+    function caigong_PostData() {
+        var list = []
+        var dto = {}
+
+        //拼接数据
+        $(".caigong_dd").each(function () {
+            //这是一行数据
+            var importObj = {}
+            //
+            $(this).find("td").each(function (i, item) {
+                if (i == 0) {
+                    importObj["gong_yi_name"] = $(this).text()
+                } else if (i == 1) {
+                    importObj["fen_wei_name"] = $(this).text()
+                } else if (i == 2) {
+                    importObj["goods_point"] = $(this).text()
+                } else if (i == 7) {
+                    importObj["descs"] = $(this).text()
+                } else if (i == 3) {
+                    importObj['cl_name'] = $(this).find(".name").val()
+                    importObj['cp_code'] = $(this).find(".name_id").val()
+                } else if (i == 4) {
+                    importObj['size'] = $(this).find(".name").val()
+                } else if (i == 5) {
+                    importObj['nums'] = $(this).find(".name").val()
+                } else if (i == 6) {
+                    importObj['unit'] = $(this).find(".name").val()
+                } else if (i == 8) {
+                    importObj['owner_size'] = $(this).find(".name").val()
+                } else if (i == 9) {
+                    importObj['total_price'] = $(this).find(".name").val()
+                    importObj['ji_jia_num'] = $(this).find(".name_id").val()
+                }
+
+            });
+            //将这行数据 放入 list中
+            list.push(importObj)
+
+        });
+        dto['details'] = list
+        dto['types'] = "裁工"
+        dto['shafa_id'] = SF_CODE
+        var json = JSON.stringify(dto)
+
+
+        //开始请求数据
+        $.ajax({
+            url: GetBaseHost() + "/v2/post_feng_wei",
+            dataType: "json",
+            data: {
+                "data": json,
+            },
+            type: "POST",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("保存成功")
+                } else {
+                    alert("保存失败")
+
+                }
+            },
+        })
+
+
+    }
+
+    // 初始化的时候加载
+    function caigong_loadData() {
+        //开始请求数据
+        $.ajax({
+            url: GetBaseHost() + "/v2/get_feng_wei",
+            dataType: "json",
+            data: {
+                "shafa_id": SF_CODE,
+                "types": "裁工"
+            },
+            type: "get",
+            async: false,
+            success: function (data) {
+                $.each(data.data, function (index, element) {
+
+                    //绘制数据 element.size
+                    str = "        <tr class='caigong_dd'>" +
+                        "            <td  name=\"gongyi_name\" >" + element.gong_yi_name + "</td>\n" +
+                        "            <td  name=\"fw_name\" >" + element.fen_wei_name + "</td>\n" +
+                        "            <td  name=\"goods_point\" >" + element.goods_point + "</td>\n" +
+
+                        "            <td ><input readonly='readonly' class='name' name=\"input_name\" value=\"" + element.cl_name + "\"/ ><input  type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value=\"" + element.cp_code + "\"/ ></td>\n" +
+                        "            <td ><input  style='width: 100px' readonly='readonly' class='name' name=\"input_size\" value=\"" + element.size + "\"/ ></td>\n" +
+                        "            <td><input  style='width: 100px' readonly='readonly' class='name' name=\"input_num\" value=\"" + element.nums + "\"/ ></td>\n" +
+                        "            <td ><input  style='width: 50px' readonly='readonly' class='name' name=\"input_unit\" value=\"" + element.unit + "\"/ ></td>\n" +
+                        "            <td><textarea  readonly='readonly' class='name' >\n" + element.descs + " </textarea></td>\n" +
+                        "            <td ><input  style='width: 50px' readonly='readonly' class='name' name=\"input_main_size\" value=\"" + element.owner_size + "\"/ ></td>\n" +
+
+                        "            <td ><input  style='width: 100px' readonly='readonly' class='name' name=\"input_total_price\" value='" + element.total_price + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + element.ji_jia_num + "'/></td>\n" +
+
+                        "            <td ><a id='delte' style='color: red' >删除</a></td>\n" +
+                        "        </tr>"
+                    $("#caigong_dataTable").append(str)
+
+
+                    //绘制导出表
+                    str2 = "        <tr >" +
+                        "            <td   >" + element.fen_wei_name + "</td>\n" +
+                        "            <td   >" + element.goods_point + "</td>\n" +
+                        "            <td   >" + element.cl_name + "</td>\n" +
+                        "            <td   >" + element.cp_code + "</td>\n" +
+                        "            <td   >" + element.size + "</td>\n" +
+                        "            <td   >" + element.nums + "</td>\n" +
+                        "            <td   >" + element.unit + "</td>\n" +
+                        "            <td   >" + element.descs + "</td>\n" +
+                        "        </tr>"
+                    $("#caigong_dataTable_export").append(str2)
+                })
+
+            },
+        })
+
+    }
+
+    //删除方法
+
+
+    $('#caigong_select_bu').on('click', function () {
+        caigong_AddTr();
+    })
+
+    $('#caigong_select_bu1').on('click', function () {
+        caigong_PostData();
+    })
+
+    //退出登陆
+    $('#logout').on('click', function () {
+        alert("logout")
+        logout()
+        self.location = '../Public/login.html'
+    })
+
+
+</script>
+
+<script>
+
+
+    function base64(content) {
+        return window.btoa(unescape(encodeURIComponent(content)));
+    }
+
+    var format = function (s, c) {
+        return s.replace(/{(\w+)}/g,
+            function (m, p) {
+                return c[p];
+            });
+    }
+
+
+    function caigonggetExportInfo() {
+        alert("数据导出中 请稍后")
+        utll =
+            //开始请求数据
+            $.ajax({
+                url: GetBaseHost() + "/v2/get_feng_wei_group_by_name",
+                dataType: "json",
+                data: {
+                    "shafa_id": SF_CODE,
+                    "types": "裁工"
+                },
+                type: "GET",
+                async: false,
+                success: function (data) {
+                    if (data.status == 200) {
+                        $.each(data.data, function (index, element) {
+                            let g_y_name = element.gong_yi_name
+                            let g_y_size = element.size
+                            let exp_str = ""
+                            exp_str += "   <tr>\n" +
+                                "            <td colspan=\"7\" style=\"text-align: center ;background: #0e90d2;font-size: 50px\">" + SF_NAME + " （分位组合：" + element.fen_wei_list + "）</td>\n" +
+                                "        </tr>"
+                            exp_str += "   <tr>\n" +
+                                "            <td colspan=\"7\" style=\"text-align: center ;background: #0e90d2;font-size: 30px\"> " + g_y_name + " （裁工清单） </td>\n" +
+                                "        </tr>"
+                            exp_str += "                <tr>\n" +
+                                "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">分位名称</td>\n" +
+                                "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">使用部位</td>\n" +
+                                "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">材料名称</td>\n" +
+                                "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">材料编码</td>\n" +
+                                "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">使用尺寸(CM)</td>\n" +
+                                "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">数量</td>\n" +
+                                "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">单位</td>\n" +
+                                "                    <td style=\"text-align: center ;background: #3c5412;font-size: 30px\">备注</td>\n" +
+                                "                </tr>"
+                            $.each(element.list, function (index, element2) {
+                                exp_str += "        <tr >" +
+                                    "            <td   >" + element2.fen_wei_name + "</td>\n" +
+                                    "            <td   >" + element2.goods_point + "</td>\n" +
+                                    "            <td   >" + element2.cl_name + "</td>\n" +
+                                    "            <td   >" + element2.cp_code + "</td>\n" +
+                                    "            <td   >" + element2.size + "</td>\n" +
+                                    "            <td   >" + element2.nums + "</td>\n" +
+                                    "            <td   >" + element2.unit + "</td>\n" +
+                                    "            <td   >" + element2.descs + "</td>\n" +
+                                    "        </tr>"
+                            })
+                            //处理了一个了
+                            caigong_toExcel(exp_str, g_y_name)
+
+                        })
+                    } else {
+                        alert("导出失败")
+                    }
+                },
+            })
+    }
+
+
+    //导出html表格为 excel 文件
+    function caigong_toExcel(content, gongyi_name) {
+
+        var excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
+        excelFile += "<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>";
+        excelFile += "<body><table width='50%'  border='1'>";
+        excelFile += content;
+        excelFile += "</table></body>";
+        excelFile += "</html>";
+        //定义excel 的sheet名称
+        var ctx = {worksheet: "裁工清单"};
+        var link = "data:application/vnd.ms-excel;base64," + base64(format(excelFile, ctx));
+        var a = document.createElement("a");
+        //定义excel 的文件名称
+        var fileName = "裁工清单_";
+        a.download = fileName + SF_NAME + "_" + gongyi_name + "_" + ".xls";
+        a.href = link;
+        a.click();
+    }
+
+</script>

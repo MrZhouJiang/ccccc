@@ -9,5 +9,6 @@ require (
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/jinzhu/gorm v1.9.16
 	github.com/spf13/viper v1.11.0
+	github.com/tealeg/xlsx v1.0.5 // indirect
 
 )

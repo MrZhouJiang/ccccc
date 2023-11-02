@@ -27,6 +27,8 @@ type GongYi struct {
 	//使用部位
 	GoodsPoint   string  `json:"goods_point"`
 	ShunHaoPrice float64 `json:"shun_hao_price"`
+	//固定的规格 默认是 基础表的 手动填写的话 就是手动填写的。
+	OwnerSize string `json:"owner_size"`
 }
 
 const gongyiTableName = "sofa_gong_yi"

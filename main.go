@@ -4,7 +4,6 @@ import (
 	"ccccc/common"
 	"ccccc/first_init"
 	"ccccc/router"
-	"ccccc/sysnc"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -27,11 +26,11 @@ func main() {
 
 	common.InitBaseData()
 	//sysnc.Task()
-	sysnc.StartSyncCp()
+	/*	sysnc.StartSyncCp()
 
-	//sysnc.Task()
-	//默认地址
-	go sysnc.Task_base()
+		//sysnc.Task()
+		//默认地址
+		go sysnc.Task_base()*/
 	//engine.Run("192.168.202.5:8889")
 	engine.Run("127.0.0.1:8889")
 

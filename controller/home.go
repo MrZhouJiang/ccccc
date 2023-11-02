@@ -8,6 +8,7 @@ import (
 	"ccccc/service"
 	"ccccc/util"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -399,6 +400,7 @@ func PostFengWei(c *gin.Context) {
 		insertInfo.JiJiaNum = detail.JiJiaNum
 		insertInfo.GoodsPoint = detail.GoodsPoint
 		insertInfo.JiJiaUnit = detail.Unit
+		insertInfo.OwnerSize = detail.OwnerSize
 
 		//获取物料信息
 		goods := model.Goods{}
@@ -668,7 +670,7 @@ func GetGoodsById(c *gin.Context) {
 }
 
 func Sums(c *gin.Context) {
-	log.Printf("GetFenWei")
+	log.Printf("Sums")
 	params := common.GetUrlParams(c.Request)
 
 	resp := Response{
@@ -956,7 +958,7 @@ func ChongSuan(shafaCode string) {
 		}
 		nums, _ := strconv.ParseFloat(yi.Nums, 64)
 		ShunHao, _ := strconv.ParseFloat(goods.ShunHao, 64)
-		newPeice := GetPrice(nums, ShunHao, goods.Price, goods.ChangeP, goods.FuZhuXiShu, goods.MainXiShu, yi.CpCode, goods.MainSize, yi.Size)
+		newPeice := GetPrice(nums, ShunHao, goods.Price, goods.ChangeP, goods.FuZhuXiShu, goods.MainXiShu, yi.CpCode, goods.MainSize, yi.Size, yi.OwnerSize)
 
 		yi.TotalPrice = fmt.Sprintf("%f", newPeice.TotalPrice)
 		yi.JiJiaNum = fmt.Sprintf("%f", newPeice.JiJiaNums)
@@ -970,7 +972,7 @@ func ChongSuan(shafaCode string) {
 
 }
 
-func GetPrice(num_i, shunhao_i, price_i, huansuan_i, fuzhu_xishu_i, main_xishu_i float64, cpCode, main_size, size string) PriceInfo {
+func GetPrice(num_i, shunhao_i, price_i, huansuan_i, fuzhu_xishu_i, main_xishu_i float64, cpCode, main_size, size, owner_size string) PriceInfo {
 
 	totalPrice := 0.0
 	totalPrice_t := 0.0
@@ -993,6 +995,9 @@ func GetPrice(num_i, shunhao_i, price_i, huansuan_i, fuzhu_xishu_i, main_xishu_i
 		l1 = info.MainSize
 	} else {
 		l1 = main_size
+	}
+	if owner_size != "" {
+		l1 = owner_size
 	}
 
 	a1 := 1.0
@@ -1536,6 +1541,14 @@ func UpdatGoods(c *gin.Context) {
 		shafaLogs.GG = cp_gui_ge
 		shafaLogs.Update(nil)
 
+		// 改draf表
+
+		shafaLogsDraf := model.ShaFaDrafImportLog{}
+		shafaLogsDraf.GetByType(nil, goods.CpCode)
+		shafaLogsDraf.SfName = cp_name
+		shafaLogsDraf.GG = cp_gui_ge
+		shafaLogsDraf.Update(nil)
+
 		// 看一下规格是不是和原来一样
 		if goods.CpGuiGe != cp_gui_ge {
 			//修改了 规格 先把原来的 放到map中
@@ -1562,6 +1575,15 @@ func UpdatGoods(c *gin.Context) {
 					if err != nil {
 						log.Printf("deleteInfo.Delete err :%v", err)
 					}
+					//删除草稿的
+					deleteInfoDraf := model.GongYiDraf{}
+					deleteInfoDraf.FenWeiName = s
+					deleteInfoDraf.ShafaId = goods.CpCode
+					err = deleteInfoDraf.DeleteByFenweiName(nil)
+					if err != nil {
+						log.Printf("deleteInfo.Delete err :%v", err)
+					}
+
 				}
 			}
 		}
@@ -2499,4 +2521,383 @@ func ReloadShaFa(c *gin.Context) {
 	resp.Data = ""
 	util.ReturnCompFunc(c, resp)
 	return
+}
+
+type AllSheetData struct {
+	List []SheetData `json:"sheet_name" form:"sheet_name"`
+}
+
+type SheetData struct {
+	SheetName string     `json:"sheet_name" form:"sheet_name"`
+	Data      [][]string `json:"data" form:"data"`
+}
+
+func ImportFenweiInfo(c *gin.Context) {
+	log.Printf("DeleteMergeById")
+	params := common.GetUrlParams(c.Request)
+	resp := Response{
+		Status: 200,
+	}
+
+	name := params["sheet_name"]
+	britData := params["data"]
+	user := params["user"]
+
+	sheetNames := strings.Split(name, "@")
+
+	sheetDatas := strings.Split(britData, "@")
+
+	if len(sheetNames) != len(sheetDatas) {
+		log.Printf("文件格式错误，sheet数量和内容不匹配 sheetNames ： %s", sheetNames)
+		resp.Status = 201
+		resp.Desc = "文件格式错误，sheet数量和内容不匹配"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	allSheetData := AllSheetData{}
+	allSheetData.List = make([]SheetData, 0)
+
+	for i, sheetName := range sheetNames {
+		sheetData := SheetData{}
+		if strings.TrimSpace(sheetName) == "" {
+			continue
+		}
+		sheetData.SheetName = sheetName
+		ll_data := sheetDatas[i]
+		//拆分每行的数据
+		allrow := strings.Split(ll_data, "$")
+		//小于两行不处理
+		if len(allrow) <= 3 {
+			continue
+		}
+		//拆分列
+		for _, s := range allrow {
+			d1 := strings.Split(s, ",")
+			sheetData.Data = append(sheetData.Data, d1)
+		}
+		allSheetData.List = append(allSheetData.List, sheetData)
+	}
+
+	if len(allSheetData.List) == 0 {
+		log.Printf("文件格式错误， 没有识别到有效的数据 sheetNames ： %s", sheetNames)
+		resp.Status = 201
+		resp.Desc = "文件格式错误，没有识别到有效的sheet数据 "
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	//校验沙发名称
+
+	for _, data := range allSheetData.List {
+		if len(data.Data[0]) == 0 {
+			log.Printf("文件格式错误， sheet : %s  没有配置沙发名称", data.SheetName)
+			resp.Status = 201
+			resp.Desc = fmt.Sprintf("文件格式错误， sheet : %s  没有配置沙发名称 ", data.SheetName)
+			util.ReturnCompFunc(c, resp)
+			return
+		}
+	}
+	//获取 沙发名称
+
+	shafaName := strings.TrimSpace(allSheetData.List[0].Data[3][1])
+	if shafaName == "" {
+		log.Printf(" 找不到沙发 : %s", shafaName)
+		resp.Status = 201
+		resp.Desc = fmt.Sprintf("找不到沙发 : %s ", shafaName)
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+	shafaId := strings.TrimSpace(allSheetData.List[0].Data[3][0])
+	if shafaId == "" {
+		log.Printf(" 找不到沙发 : %s", shafaId)
+		resp.Status = 201
+		resp.Desc = fmt.Sprintf("找不到沙发 : %s ", shafaId)
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+	// 获取沙发 信息
+	shafa := model.ShaFaImportLog{}
+	errme := shafa.Get("", shafaId)
+	if shafa.Id == 0 || errme != nil {
+		log.Printf(" 找不到沙发 : %s", shafaId)
+		resp.Status = 201
+		resp.Desc = fmt.Sprintf("找不到沙发 : %s ", shafaId)
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	//找到沙发了 开始校验
+
+	outInfo := ""
+
+	goodsMap := make(map[string]model.Goods, 0)
+
+	for _, data := range allSheetData.List {
+		//每个sheet
+		maxCell := 0
+		if len(data.Data) <= 2 {
+			//只有两行
+			outInfo = fmt.Sprintf("%s \n 表格: %s  少于三行; ", outInfo, data.SheetName)
+			continue
+		}
+		for iji := 0; iji < len(data.Data[2]); iji++ {
+			if strings.TrimSpace(data.Data[2][iji]) == "单位" {
+				maxCell = iji
+			}
+		}
+		if maxCell == 0 {
+			//说明没有单位字段  报错？
+			outInfo = fmt.Sprintf("%s \n 表格: %s  没有单位数据; ", outInfo, data.SheetName)
+			continue
+		}
+		if (maxCell+1)%2 != 0 {
+			//如果是偶数  不合法 因为单位肯定在偶数列上
+			//加1 是因为 下标第一位是 0
+			outInfo = fmt.Sprintf("%s \n 表格: %s  没有单位列位置不合法; ", outInfo, data.SheetName)
+			continue
+		}
+
+		//从第四行开始
+		for ii := 3; ii < len(data.Data); ii++ {
+
+			if len(data.Data[ii]) <= 7 {
+				continue
+			}
+			if len(data.Data[ii]) <= 10 {
+				outInfo = fmt.Sprintf("%s \n 表格: %s  第%d行，数据无效 ", outInfo, data.SheetName, ii+1)
+				continue
+			}
+			//这里是每一行数据 。
+			//校验每个单元格的数据
+			//校验材料是否存在 //第三个单元格是材料
+			cp_code := data.Data[ii][2]
+
+			if strings.TrimSpace(cp_code) == "" {
+				outInfo = fmt.Sprintf("%s \n 表格: %s  第%d行，第%d列 材料编码为空; ", outInfo, data.SheetName, ii+1, 3)
+			}
+			//判断材料是否存在
+			_, ok := goodsMap[cp_code]
+			if !ok {
+				goods := model.Goods{}
+				goods.CpCode = strings.TrimSpace(cp_code)
+				err := goods.GetByCpCode(nil)
+				if err != nil || goods.Id == 0 {
+					log.Printf("GetGoodsById: err :%v", err)
+					outInfo = fmt.Sprintf("%s \n 表格: %s  第%d行，第%d列 无效的材料编码; ", outInfo, data.SheetName, ii+1, 3)
+				} else {
+					goodsMap[cp_code] = goods
+				}
+			}
+			//第三行 是表头  且包含了 分位置的信息。
+
+			//校验尺寸
+			for jjj := 7; jjj < maxCell; jjj = jjj + 3 {
+				//单元格从低6个开始
+				//分两种情况
+				//情况 1 两两一组
+				//情况 2 处在最后 且包含单位。
+				// 只需要校验是不是数字就行
+				base_str := strings.TrimSpace(data.Data[ii][jjj])
+
+				if base_str == "" {
+					continue
+				}
+				if strings.Contains(base_str, "*") {
+					//说明有*链接
+					ssLLL := strings.Split(base_str, "*")
+					if len(ssLLL) == 0 {
+						outInfo = fmt.Sprintf("%s \n 表格: %s  第%d行，第%d列 无效的尺寸; ", outInfo, data.SheetName, ii+1, jjj+1)
+					} else {
+						for _, sssss := range ssLLL {
+							_, erq1 := strconv.ParseFloat(sssss, 64)
+							if erq1 != nil {
+								//不是数值
+								outInfo = fmt.Sprintf("%s \n 表格: %s  第%d行，第%d列 无效的尺寸; ", outInfo, data.SheetName, ii+1, jjj+1)
+							}
+						}
+					}
+
+				} else {
+					_, erq := strconv.ParseFloat(base_str, 64)
+					if erq != nil {
+						//不是数值
+						outInfo = fmt.Sprintf("%s \n 表格: %s  第%d行，第%d列 无效的尺寸; ", outInfo, data.SheetName, ii+1, jjj+1)
+					}
+				}
+
+			}
+			//校验规格
+			for jjj := 8; jjj < maxCell; jjj = jjj + 3 {
+				//单元格从低6个开始
+				//分两种情况
+				//情况 1 两两一组
+				//情况 2 处在最后 且包含单位。
+				// 只需要校验是不是数字就行
+				base_str := strings.TrimSpace(data.Data[ii][jjj])
+
+				if base_str == "" {
+					continue
+				}
+				if strings.Contains(base_str, "*") {
+					//说明有*链接
+					ssLLL := strings.Split(base_str, "*")
+					if len(ssLLL) == 0 {
+						outInfo = fmt.Sprintf("%s \n 表格: %s  第%d行，第%d列 无效的规格; ", outInfo, data.SheetName, ii+1, jjj+1)
+					} else {
+						for _, sssss := range ssLLL {
+							_, erq1 := strconv.ParseFloat(sssss, 64)
+							if erq1 != nil {
+								//不是数值
+								outInfo = fmt.Sprintf("%s \n 表格: %s  第%d行，第%d列 无效的规格; ", outInfo, data.SheetName, ii+1, jjj+1)
+							}
+						}
+					}
+
+				} else {
+					_, erq := strconv.ParseFloat(base_str, 64)
+					if erq != nil {
+						//不是数值
+						outInfo = fmt.Sprintf("%s \n 表格: %s  第%d行，第%d列 无效的规格; ", outInfo, data.SheetName, ii+1, jjj+1)
+					}
+				}
+
+			}
+
+			//校验数量
+			for jjj := 9; jjj < maxCell; jjj = jjj + 3 {
+				//单元格从低6个开始
+				//分两种情况
+				//情况 1 两两一组
+				//情况 2 处在最后 且包含单位。
+				// 只需要校验是不是数字就行
+				base_str := strings.TrimSpace(data.Data[ii][jjj])
+
+				if base_str == "" {
+					continue
+				}
+
+				_, erq := strconv.ParseFloat(base_str, 64)
+				if erq != nil {
+					//不是数值
+					outInfo = fmt.Sprintf("%s \n 表格: %s  第%d行，第%d列 无效的数量; ", outInfo, data.SheetName, ii+1, jjj+1)
+
+				}
+			}
+
+		}
+	}
+	//所有的表格都校验过了
+
+	if outInfo != "" {
+		//说明没有校验通过
+		log.Printf(" 导入失败  沙发名称: %s", shafaName)
+		resp.Status = 201
+		resp.Desc = fmt.Sprintf(" 导入失败  具体原因为  :\n %s ", outInfo)
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	//校验通过 开始组装数据了；
+
+	//获取transeID
+
+	for _, data := range allSheetData.List {
+		//每个sheet
+		maxCell := 0
+		if len(data.Data) <= 2 {
+			//只有两行
+			outInfo = fmt.Sprintf("%s \n 表格: %s  少于三行; ", outInfo, data.SheetName)
+			continue
+		}
+		for iji := 0; iji < len(data.Data[2]); iji++ {
+			if strings.TrimSpace(data.Data[2][iji]) == "单位" {
+				maxCell = iji
+			}
+		}
+		transID, errxas := GetTranseId(strings.TrimSpace(data.Data[3][0]), user)
+		if transID == "" || errxas != nil {
+			//说明没有校验通过
+			log.Printf(" 导入失败  沙发名称: %s", shafaName)
+			resp.Status = 201
+			resp.Desc = fmt.Sprintf(" 导入失败  具体原因为  :\n %s ", "创建事务失败")
+			util.ReturnCompFunc(c, resp)
+			return
+		}
+
+		ConvertPostInfo(user, maxCell, goodsMap, transID, getGongyiNamesa(data.SheetName), data.Data[3][0], data.Data)
+	}
+
+	resp.Data = name
+	resp.Data = britData
+
+	util.ReturnCompFunc(c, resp)
+	return
+}
+
+func GetTranseId(shafa_code, user string) (string, error) {
+	//
+
+	oldTransList := model.TransList{}
+
+	errme := oldTransList.GetByShafaId(nil, shafa_code)
+	if errme != nil && errme != gorm.ErrRecordNotFound {
+		return "", errors.New("导入失败 获取导出记录 数据库错误")
+	} else if errme == gorm.ErrRecordNotFound || len(oldTransList) == 0 {
+		//创建一个新的
+		return RomId(shafa_code, user)
+	}
+	if oldTransList[0].IsSubmit == 1 {
+		//如果最近的一个已经上线了 创建一个新的
+		return RomId(shafa_code, user)
+	} else {
+		//最近的一个还没上线  返回最新的一个ID
+		return oldTransList[0].TransId, nil
+	}
+
+}
+func RomId(code string, user string) (string, error) {
+	////生成一个随机ID
+
+	nix := time.Now().Unix()
+
+	s := fmt.Sprintf("%d_%s", nix, code)
+
+	// 要记录一下
+
+	trans := model.Trans{
+		TransId:    s,
+		ShafaCode:  code,
+		CreateTime: time.Now(),
+		CreateUser: user,
+	}
+	er := trans.Create(nil)
+	if er != nil {
+		log.Printf(" 导入失败 创建事务入库失败 沙发code: %s,err:%v", code, er)
+		return s, er
+	}
+
+	return s, nil
+
+}
+
+func getGongyiNamesa(base string) string {
+
+	if strings.Contains(base, "海绵") {
+		return "海绵"
+	}
+	if strings.Contains(base, "裁工") {
+		return "裁工"
+	}
+	if strings.Contains(base, "车工") {
+		return "车工"
+	}
+	if strings.Contains(base, "木工") {
+		return "木工"
+	}
+	if strings.Contains(base, "扪工") {
+		return "扪工"
+	}
+
+	return ""
 }

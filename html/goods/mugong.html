@@ -58,6 +58,7 @@
             <td width="100px">数量</td>
             <td width="50px">单位</td>
             <td>备注</td>
+            <td width="50px">规格</td>
             <td width="100px">成本</td>
             <td width="100px">操作</td>
         </tr>
@@ -390,6 +391,8 @@
         let num = $('#mugong_goodNum_str').val()
         //  let unit = $('#mugong_insert_unit').val()
         let unit = $('#mugong_main_uint').val()
+        let main_size = $('#mugong_size').val()
+
 
         let desc = $('#mugong_good_desc').val()
         let totalPrice = $('#mugong_shiji_price').val()
@@ -404,6 +407,8 @@
             "            <td><input   style='width: 100px'readonly='readonly' class='name' name=\"input_num\" value='" + num + "'/></td>\n" +
             "            <td ><input  style='width: 50px' readonly='readonly' class='name' name=\"input_unit\" value='" + unit + "'/></td>\n" +
             "            <td><textarea  readonly='readonly' class='name' > " + desc + "</textarea></td>\n" +
+            "            <td ><input   style='width: 50px'readonly='readonly' class='name' name=\"input_main_size\" value='" + main_size + "'/></td>\n" +
+
             "            <td ><input  style='width: 100px' readonly='readonly' class='name' name=\"input_total_price\" value='" + totalPrice + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + jijiaNum + "'/></td>\n" +
             "            <td ><a id='delte'style='color: red' >删除</a></td>\n" +
 
@@ -453,6 +458,8 @@
                 } else if (i == 6) {
                     importObj['unit'] = $(this).find(".name").val()
                 } else if (i == 8) {
+                    importObj['owner_size'] = $(this).find(".name").val()
+                } else if (i == 9) {
                     importObj['total_price'] = $(this).find(".name").val()
                     importObj['ji_jia_num'] = $(this).find(".name_id").val()
                 }
@@ -516,6 +523,8 @@
                         "            <td><input   style='width: 100px' readonly='readonly' class='name' name=\"input_num\" value=\"" + element.nums + "\"/ ></td>\n" +
                         "            <td ><input  style='width: 50px'  readonly='readonly' class='name' name=\"input_unit\" value=\"" + element.unit + "\"/ ></td>\n" +
                         "            <td><textarea  readonly='readonly' class='name' >\n" + element.descs + " </textarea></td>\n" +
+                        "            <td ><input  style='width: 50px' readonly='readonly' class='name' name=\"input_main_size\" value=\"" + element.owner_size + "\"/ ></td>\n" +
+
                         "            <td ><input  style='width: 100px'  readonly='readonly' class='name' name=\"input_total_price\" value='" + element.total_price + "'/><input type='hidden' readonly='readonly' class='name_id' name=\"input_name\" value='" + element.ji_jia_num + "'/></td>\n" +
 
                         "            <td ><a id='delte' style='color: red' >删除</a></td>\n" +

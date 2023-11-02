@@ -219,6 +219,7 @@
 
     </table>
 </form>
+<input type="hidden" id="trans_id">
 </body>
 </html>
 
@@ -465,6 +466,7 @@
 
             });
             //将这行数据 放入 list中
+            importObj["trans_id"] = $('#trans_id').val()
             list.push(importObj)
 
         });
@@ -476,7 +478,7 @@
 
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() + "/v2/post_feng_wei",
+            url: GetBaseHost() + "/v2/post_draf_feng_wei",
             dataType: "json",
             data: {
                 "data": json,
@@ -498,19 +500,36 @@
 
     // 初始化的时候加载
     function caigong_loadData() {
+        //请求 沙发数据
+
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() + "/v2/get_feng_wei",
+            url: GetBaseHost() + "/v2/get_draf_shafa_import_byid",
+            dataType: "json",
+            data: {
+                "id": SF_CODE,
+            },
+            type: "get",
+            async: false,
+            success: function (data) {
+                //在这里 要填充 数据了
+                $("#trans_id").val(data.data.data.trans_id)
+            },
+        })
+
+        //开始请求数据
+        $.ajax({
+            url: GetBaseHost() + "/v2/get_draf_feng_wei",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,
-                "types": "裁工"
+                "types": "裁工",
+                "trans_id": $("#trans_id").val()
             },
             type: "get",
             async: false,
             success: function (data) {
                 $.each(data.data, function (index, element) {
-
                     //绘制数据 element.size
                     str = "        <tr class='caigong_dd'>" +
                         "            <td  name=\"gongyi_name\" >" + element.gong_yi_name + "</td>\n" +
@@ -591,11 +610,13 @@
         utll =
             //开始请求数据
             $.ajax({
-                url: GetBaseHost() + "/v2/get_feng_wei_group_by_name",
+                url: GetBaseHost() + "/v2/get_feng_wei_group_by_name_draf",
                 dataType: "json",
                 data: {
                     "shafa_id": SF_CODE,
-                    "types": "裁工"
+                    "types": "裁工",
+                    "trans_id": $("#trans_id").val()
+
                 },
                 type: "GET",
                 async: false,

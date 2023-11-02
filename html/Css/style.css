@@ -1,6 +1,23 @@
 @charset "utf-8";
 body{
+
+}
+body {
     font-size: 13px;
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+#upload {
+    margin: 20px auto;
+    display: block;
+}
+
+#table-container {
+    margin: 20px auto;
 }
 select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
     padding: 1px;

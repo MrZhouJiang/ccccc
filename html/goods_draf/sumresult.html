@@ -85,6 +85,8 @@
 
 <input id="page" type="hidden">
 <input id="size" type="hidden">
+<input type="hidden" id="trans_id">
+
 </body>
 </html>
 
@@ -99,10 +101,11 @@
 
     function getExportGoodsData() {
         $.ajax({
-            url: GetBaseHost() + "/v2/get_export_goods_group_by_fen_wei",
+            url: GetBaseHost() + "/v2/get_export_goods_group_by_fen_wei_draf",
             dataType: "json",
             data: {
-                "shafa_id": ssf_code
+                "shafa_id": ssf_code,
+                "trans_id": $("#trans_id").val()
             },
             type: "get",
             async: false,
@@ -150,14 +153,34 @@
         } else {
             $("#name").html(username)
         }
+
+        //开始请求数据
+        $.ajax({
+            url: GetBaseHost() + "/v2/get_draf_shafa_import_byid",
+            dataType: "json",
+            data: {
+                "id": ssf_code,
+            },
+            type: "get",
+            async: false,
+            success: function (data) {
+                //在这里 要填充 数据了
+                $("#trans_id").val(data.data.data.trans_id)
+            },
+        })
+
+
+
         getExportGoodsData()
         //查询列表
         $.ajax({
-            url: GetBaseHost() + "/v2/get_all_price",
+            url: GetBaseHost() + "/v2/get_all_price_draf",
             dataType: "json",
             data: {
 
-                "sf_code": ssf_code
+                "sf_code": ssf_code,
+                "trans_id": $("#trans_id").val()
+
             },
             type: "GET",
             async: false,
@@ -186,7 +209,7 @@
                             '<td colspan="6" style="text-align: center"> 裁工成本 </td>' +
                             '    </tr>'
                         str1 += '<tr class="data_1"  >      ' +
-                   /*         '<td > 分位名称 </td>' +*/
+                            /*         '<td > 分位名称 </td>' +*/
                             '<td > 产品名称 </td>' +
                             '<td > 数量(不包含损耗) </td>' +
                             '<td > 单位</td>' +
@@ -196,7 +219,7 @@
                             '    </tr>'
                         $.each(element.list, function (index, element1) {
                             str1 += '<tr class="data_1"  >      ' +
-                    /*            '<td >' + element1.fen_wei_name + ' </td>' +*/
+                                /*            '<td >' + element1.fen_wei_name + ' </td>' +*/
                                 '<td >' + element1.cl_name + ' </td>' +
                                 '<td >' + element1.ji_jia_num + ' </td>' +
                                 '<td >' + element1.unit + ' </td>' +
@@ -224,7 +247,7 @@
                             '<td colspan="6" style="text-align: center"> 车工成本 </td>' +
                             '    </tr>'
                         str2 += '<tr class="data_1"  >      ' +
-              /*              '<td > 分位名称 </td>' +*/
+                            /*              '<td > 分位名称 </td>' +*/
                             '<td > 产品名称 </td>' +
                             '<td > 数量(不包含损耗) </td>' +
                             '<td > 单位</td>' +
@@ -234,7 +257,7 @@
                             '    </tr>'
                         $.each(element.list, function (index, element1) {
                             str2 += '<tr class="data_1"  >      ' +
-                    /*            '<td >' + element1.fen_wei_name + ' </td>' +*/
+                                /*            '<td >' + element1.fen_wei_name + ' </td>' +*/
                                 '<td >' + element1.cl_name + ' </td>' +
                                 '<td >' + element1.ji_jia_num + ' </td>' +
                                 '<td >' + element1.unit + ' </td>' +
@@ -262,7 +285,7 @@
                             '<td colspan="6" style="text-align: center"> 海绵成本 </td>' +
                             '    </tr>'
                         str3 += '<tr class="data_1"  >      ' +
-           /*                 '<td > 分位名称 </td>' +*/
+                            /*                 '<td > 分位名称 </td>' +*/
                             '<td > 产品名称 </td>' +
                             '<td > 数量(不包含损耗) </td>' +
                             '<td > 单位</td>' +
@@ -272,7 +295,7 @@
                             '    </tr>'
                         $.each(element.list, function (index, element1) {
                             str3 += '<tr class="data_1"  >      ' +
-                  /*              '<td >' + element1.fen_wei_name + ' </td>' +*/
+                                /*              '<td >' + element1.fen_wei_name + ' </td>' +*/
                                 '<td >' + element1.cl_name + ' </td>' +
                                 '<td >' + element1.ji_jia_num + ' </td>' +
                                 '<td >' + element1.unit + ' </td>' +
@@ -302,7 +325,7 @@
                             '<td colspan="6" style="text-align: center"> 扪工成本 </td>' +
                             '    </tr>'
                         str4 += '<tr class="data_1"  >      ' +
-              /*              '<td > 分位名称 </td>' +*/
+                            /*              '<td > 分位名称 </td>' +*/
                             '<td > 产品名称 </td>' +
                             '<td > 数量(不包含损耗) </td>' +
                             '<td > 单位</td>' +
@@ -312,7 +335,7 @@
                             '    </tr>'
                         $.each(element.list, function (index, element1) {
                             str4 += '<tr class="data_1"  >      ' +
-       /*                         '<td >' + element1.fen_wei_name + ' </td>' +*/
+                                /*                         '<td >' + element1.fen_wei_name + ' </td>' +*/
                                 '<td >' + element1.cl_name + ' </td>' +
                                 '<td >' + element1.ji_jia_num + ' </td>' +
                                 '<td >' + element1.unit + ' </td>' +
@@ -343,7 +366,7 @@
                             '<td colspan="6" style="text-align: center"> 木工成本 </td>' +
                             '    </tr>'
                         str5 += '<tr class="data_1"  >      ' +
-             /*               '<td > 分位名称 </td>' +*/
+                            /*               '<td > 分位名称 </td>' +*/
                             '<td > 产品名称 </td>' +
                             '<td > 数量(不包含损耗) </td>' +
                             '<td > 单位</td>' +
@@ -353,7 +376,7 @@
                             '    </tr>'
                         $.each(element.list, function (index, element1) {
                             str5 += '<tr class="data_1"  >      ' +
-         /*                       '<td >' + element1.fen_wei_name + ' </td>' +*/
+                                /*                       '<td >' + element1.fen_wei_name + ' </td>' +*/
                                 '<td >' + element1.cl_name + ' </td>' +
                                 '<td >' + element1.ji_jia_num + ' </td>' +
                                 '<td >' + element1.unit + ' </td>' +

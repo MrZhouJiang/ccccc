@@ -221,6 +221,7 @@
 
     </table>
 </form>
+<input type="hidden" id="trans_id">
 </body>
 </html>
 
@@ -467,6 +468,7 @@
 
             });
             //将这行数据 放入 list中
+            importObj["trans_id"] = $('#trans_id').val()
             list.push(importObj)
 
         });
@@ -478,7 +480,7 @@
 
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() + "/v2/post_feng_wei",
+            url: GetBaseHost() + "/v2/post_draf_feng_wei",
             dataType: "json",
             data: {
                 "data": json,
@@ -502,11 +504,12 @@
     function haimian_loadData() {
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() + "/v2/get_feng_wei",
+            url: GetBaseHost() + "/v2/get_draf_feng_wei",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,
-                "types": "海绵"
+                "types": "海绵",
+                "trans_id": $("#trans_id").val()
             },
             type: "get",
             async: false,
@@ -592,11 +595,13 @@
         alert("数据导出中 请稍后")
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() + "/v2/get_feng_wei_group_by_name",
+            url: GetBaseHost() + "/v2/get_feng_wei_group_by_name_draf",
             dataType: "json",
             data: {
                 "shafa_id": SF_CODE,
-                "types": "海绵"
+                "types": "海绵",
+                "trans_id": $("#trans_id").val()
+
             },
             type: "GET",
             async: false,

@@ -2793,7 +2793,7 @@ func ImportFenweiInfo(c *gin.Context) {
 		//说明没有校验通过
 		log.Printf(" 导入失败  沙发名称: %s", shafaName)
 		resp.Status = 201
-		resp.Desc = fmt.Sprintf(" 导入失败  具体原因为  :\n %s ", outInfo)
+		resp.Desc = fmt.Sprintf(" %s ", outInfo)
 		util.ReturnCompFunc(c, resp)
 		return
 	}
@@ -2833,6 +2833,41 @@ func ImportFenweiInfo(c *gin.Context) {
 
 	util.ReturnCompFunc(c, resp)
 	return
+}
+
+func ChcekShafaDraf(user, code, transeId string) error {
+	//先判断有没有这个沙发。
+	//修改 沙发表
+	shafa := model.ShaFaDrafImportLog{}
+	errme := shafa.GetByType(nil, code)
+
+	if errme == gorm.ErrRecordNotFound || shafa.Id == 0 {
+		//需要创建一个。
+		copy1 := model.ShaFaImportLog{}
+		errme1 := copy1.GetByType(nil, code)
+		if errme1 != nil {
+			log.Printf("导入 失败 没有找到沙发 shafa_id:%s", code)
+			return errme1
+		}
+		shafa.GG = copy1.GG
+		shafa.ImportUser = user
+		shafa.CreateTime = time.Now()
+		shafa.UpdateTime = time.Now()
+		shafa.SfName = copy1.SfName
+		shafa.SfCode = copy1.SfCode
+		shafa.SDesc = copy1.SDesc
+		shafa.TransId = transeId
+		errr := shafa.Create(nil)
+		if errr != nil {
+			log.Printf("导入 失败 创建失败 shafa_id:%s；err:%v", code, errr)
+			return errr
+		}
+	} else {
+		//已经存在的情况
+		shafa.TransId = transeId
+		shafa.Update(nil)
+	}
+	return nil
 }
 
 func GetTranseId(shafa_code, user string) (string, error) {
@@ -2876,6 +2911,8 @@ func RomId(code string, user string) (string, error) {
 		log.Printf(" 导入失败 创建事务入库失败 沙发code: %s,err:%v", code, er)
 		return s, er
 	}
+	// 生成ID后 要将ID同步到 draf主沙发表
+	ChcekShafaDraf(user, code, s)
 
 	return s, nil
 

@@ -475,7 +475,7 @@
         dto['types'] = "扪工"
         dto['shafa_id'] = SF_CODE
         var json = JSON.stringify(dto)
-
+        const user = getUserName();
 
         //开始请求数据
         $.ajax({
@@ -483,6 +483,7 @@
             dataType: "json",
             data: {
                 "data": json,
+                "user": user,
             },
             type: "POST",
             async: false,

@@ -15,6 +15,8 @@ type Trans struct {
 	//  2 当前有草稿状态
 	IsSubmit   int       `json:"is_submit"`
 	CreateTime time.Time `json:"create_time"`
+	OnlineTime time.Time `json:"online_time"`
+	OnlineUser string    `json:"online_user"`
 	CreateUser string    `json:"create_user"`
 }
 
@@ -30,12 +32,27 @@ func (r *Trans) Create(d *gorm.DB) error {
 	err := d.Table(TransTableName).Create(r).Error
 	return err
 }
+func (r *Trans) Update(d *gorm.DB) error {
+	if d == nil {
+		d = db.BaseDB
+	}
+	err := d.Table(TransTableName).Save(r).Error
+	return err
+}
 
 func (r *TransList) GetByShafaId(d *gorm.DB, id string) error {
 	if d == nil {
 		d = db.BaseDB
 	}
 	err := d.Table(TransTableName).Where("shafa_code=?", id).Order("create_time desc").Find(&r).Error
+	return err
+}
+
+func (r *Trans) GetByShafaIdAndTrans(d *gorm.DB, id, trans string) error {
+	if d == nil {
+		d = db.BaseDB
+	}
+	err := d.Table(TransTableName).Where("shafa_code=? and trans_id = ?", id, trans).Order("create_time desc").Find(&r).Error
 	return err
 }
 

@@ -8,12 +8,151 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"log"
 	"strconv"
 	"strings"
 	"time"
 )
+
+func ChongSuanDraf(shafaCode string) {
+	//根据沙发 找出所有成本
+	allGongyi := model.GongYiDrafList{}
+
+	err := allGongyi.GetBySoFaCode(nil, shafaCode)
+
+	if err != nil {
+		log.Printf("ChongSuan err :%v", err)
+		return
+	}
+
+	for _, yi := range allGongyi {
+		goods := model.Goods{}
+		goods.CpCode = yi.CpCode
+		err2 := goods.GetByCpCode(nil)
+		if err2 != nil || goods.Id == 0 {
+			continue
+		}
+		nums, _ := strconv.ParseFloat(yi.Nums, 64)
+		ShunHao, _ := strconv.ParseFloat(goods.ShunHao, 64)
+		newPeice := GetPrice(nums, ShunHao, goods.Price, goods.ChangeP, goods.FuZhuXiShu, goods.MainXiShu, yi.CpCode, goods.MainSize, yi.Size, yi.OwnerSize)
+
+		yi.TotalPrice = fmt.Sprintf("%f", newPeice.TotalPrice)
+		yi.JiJiaNum = fmt.Sprintf("%f", newPeice.JiJiaNums)
+		errx := yi.Update(nil)
+		if errx != nil {
+			log.Printf("yi.Update err :%v", errx)
+
+		}
+
+	}
+
+}
+
+//重算沙发
+func ReloadShaFaDraf(c *gin.Context) {
+	params := common.GetUrlParams(c.Request)
+
+	resp := Response{
+		Status: 200,
+	}
+
+	sf_code := params["cp_code"]
+
+	ChongSuanDraf(sf_code)
+	resp.Data = ""
+	util.ReturnCompFunc(c, resp)
+	return
+}
+
+//拷贝沙发
+func CopyShaFaDraf(c *gin.Context) {
+	params := common.GetUrlParams(c.Request)
+
+	resp := Response{
+		Status: 200,
+	}
+
+	//被拷贝的
+	copy_shafa_code := params["copy_shafa_code"]
+	sf_code := params["cp_code"]
+
+	d, err1 := service.GetDrafShaFaImportById(sf_code)
+
+	if err1 != nil {
+		log.Printf("GetDrafShaFaImportById.Delete err :%v", err1)
+		resp.Status = 201
+		resp.Desc = err1.Error()
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+	transID := d.TransId
+	if transID == "" {
+		log.Printf("GetDrafShaFaImportById.  拷贝失败 没有选择版本")
+		resp.Status = 201
+		resp.Desc = "拷贝失败 没有选择版本"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	allGongyi := model.GongYiDrafList{}
+
+	//获取所有的配置
+	err := allGongyi.GetBySoFaCodeDraf(nil, sf_code, transID)
+	if err != nil || len(allGongyi) == 0 {
+		log.Printf(" sf_code :%s, err:%v", sf_code, err)
+		resp.Status = 201
+		resp.Desc = "沙发成本为空"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	shafa := model.ShaFaImportLog{}
+	errme := shafa.GetByType(nil, copy_shafa_code)
+	if shafa.Id == 0 {
+		log.Printf(" 找不到沙发ID ：%s", copy_shafa_code)
+		resp.Status = 201
+		resp.Desc = "找不到该沙发"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	/*	//先清空
+		deleteInfo := model.GongYi{}
+		deleteInfo.ShafaId = copy_shafa_code
+		err = deleteInfo.Delete(nil)
+		if err != nil {
+			log.Printf("deleteInfo.Delete err :%v", err)
+			resp.Status = 201
+			resp.Desc = err.Error()
+			util.ReturnCompFunc(c, resp)
+			return
+		}*/
+
+	//要创建一个事务ID
+
+	for _, yi := range allGongyi {
+		yi.Id = 0
+		yi.ShafaId = copy_shafa_code
+		yi.Create(nil)
+		if err != nil {
+			log.Printf("insertInfo.Create err :%v", err)
+			resp.Status = 201
+			resp.Desc = err.Error()
+			util.ReturnCompFunc(c, resp)
+			return
+		}
+	}
+
+	//修改 沙发表
+
+	if errme == nil {
+		shafa.IsSums = "是"
+		shafa.Update(nil)
+	}
+	resp.Data = ""
+	util.ReturnCompFunc(c, resp)
+	return
+}
 
 func GetAllPriceDraf(c *gin.Context) {
 	log.Printf("GetAllPriceDraf")
@@ -626,6 +765,8 @@ func PostDrafFengWei(c *gin.Context) {
 
 	data_ := params["data"]
 
+	user := params["user"]
+
 	dto := PostDrafFengWeiInDTO{}
 
 	err := json.Unmarshal([]byte(data_), &dto)
@@ -640,10 +781,22 @@ func PostDrafFengWei(c *gin.Context) {
 	//保存物料成本到每个具体的沙发
 	//保存都是直接覆盖的
 
+	// 先获取 trans_id
+
+	drafLog := model.ShaFaDrafImportLog{}
+	errad := drafLog.GetByType(nil, dto.ShafaId)
+	if errad != nil || drafLog.Id == 0 {
+		log.Printf("json.Unmarshal  err :%v", err)
+		resp.Status = 201
+		resp.Desc = "获取导入表失败"
+		return
+	}
+
 	//先清空
 	deleteInfo := model.GongYiDraf{}
 	deleteInfo.Types = dto.Types
 	deleteInfo.ShafaId = dto.ShafaId
+	deleteInfo.TransId = drafLog.TransId
 	err = deleteInfo.DeleteWithTrans(nil)
 	if err != nil {
 		log.Printf("deleteInfo.Delete err :%v", err)
@@ -655,7 +808,7 @@ func PostDrafFengWei(c *gin.Context) {
 
 	//循环插入
 	for _, detail := range dto.Details {
-		insertInfo := model.GongYi{}
+		insertInfo := model.GongYiDraf{}
 		insertInfo.CreateTime = time.Now()
 		insertInfo.Types = dto.Types
 		insertInfo.ShafaId = dto.ShafaId
@@ -672,6 +825,8 @@ func PostDrafFengWei(c *gin.Context) {
 		insertInfo.GoodsPoint = detail.GoodsPoint
 		insertInfo.JiJiaUnit = detail.Unit
 		insertInfo.OwnerSize = detail.OwnerSize
+		insertInfo.ImportUser = user
+		insertInfo.TransId = drafLog.TransId
 
 		//获取物料信息
 		goods := model.Goods{}
@@ -826,32 +981,32 @@ func postFenweiFraf(transeId, user string, dto PostGoodsInfoDrafInDTO) error {
 	log.Printf("导入 插入数据开始 postFenweiFraf req :%+v", dto)
 	//先判断有没有这个沙发。
 	//修改 沙发表
-	shafa := model.ShaFaDrafImportLog{}
-	errme := shafa.GetByType(nil, dto.ShafaId)
+	/*	shafa := model.ShaFaDrafImportLog{}
+		errme := shafa.GetByType(nil, dto.ShafaId)
 
-	if errme == gorm.ErrRecordNotFound || shafa.Id == 0 {
-		//需要创建一个。
-		copy1 := model.ShaFaImportLog{}
-		errme1 := copy1.GetByType(nil, dto.ShafaId)
-		if errme1 != nil {
-			log.Printf("导入 失败 没有找到沙发 shafa_id:%s", dto.ShafaId)
-			return errme1
-		}
-		shafa.GG = copy1.GG
-		shafa.ImportUser = user
-		shafa.CreateTime = time.Now()
-		shafa.UpdateTime = time.Now()
-		shafa.SfName = copy1.SfName
-		shafa.SfCode = copy1.SfCode
-		shafa.SDesc = copy1.SDesc
-		shafa.TransId = transeId
-		errr := shafa.Create(nil)
-		if errr != nil {
-			log.Printf("导入 失败 创建失败 shafa_id:%s；err:%v", dto.ShafaId, errr)
-			return errr
-		}
+		if errme == gorm.ErrRecordNotFound || shafa.Id == 0 {
+			//需要创建一个。
+			copy1 := model.ShaFaImportLog{}
+			errme1 := copy1.GetByType(nil, dto.ShafaId)
+			if errme1 != nil {
+				log.Printf("导入 失败 没有找到沙发 shafa_id:%s", dto.ShafaId)
+				return errme1
+			}
+			shafa.GG = copy1.GG
+			shafa.ImportUser = user
+			shafa.CreateTime = time.Now()
+			shafa.UpdateTime = time.Now()
+			shafa.SfName = copy1.SfName
+			shafa.SfCode = copy1.SfCode
+			shafa.SDesc = copy1.SDesc
+			shafa.TransId = transeId
+			errr := shafa.Create(nil)
+			if errr != nil {
+				log.Printf("导入 失败 创建失败 shafa_id:%s；err:%v", dto.ShafaId, errr)
+				return errr
+			}
 
-	}
+		}*/
 
 	// 要将 全套用量 替换掉其他掉
 	//循环插入
@@ -1145,5 +1300,189 @@ out:
 	}
 
 	return riceInfo
+
+}
+
+func GetShafaTransList(c *gin.Context) {
+	log.Printf("GetFinWeiGroupByName")
+	params := common.GetUrlParams(c.Request)
+
+	resp := Response{
+		Status: 200,
+	}
+
+	shafaId := params["id"]
+
+	log.Printf("shafa_id:%s", shafaId)
+
+	d := service.GetTransList(shafaId)
+	/*	if err != nil {
+			log.Printf("GetGoodsList err :%v", err)
+
+			resp.Status = 201
+			resp.Desc = err.Error()
+		}
+	*/
+	resp.Data = d
+
+	util.ReturnCompFunc(c, resp)
+	return
+
+}
+
+//选择版本
+func CheckTrans(c *gin.Context) {
+	log.Printf("CheckTrans")
+	params := common.GetUrlParams(c.Request)
+
+	resp := Response{
+		Status: 200,
+	}
+
+	shafaId := params["sf_code"]
+
+	trans_code := params["trans_id"]
+
+	log.Printf("CheckTrans shafa_id:%s trans_code:%s ", shafaId, trans_code)
+
+	imports := model.ShaFaDrafImportLog{}
+	err := imports.GetOne(shafaId)
+
+	if err != nil || imports.Id == 0 {
+		resp.Data = "切换版本失败 没有找到该沙发"
+		resp.Status = 201
+		util.ReturnCompFunc(c, resp)
+	}
+
+	imports.TransId = trans_code
+
+	err = imports.Update(nil)
+	if err != nil {
+		resp.Data = "切换版本失败 没有找到该版本"
+		resp.Status = 201
+		util.ReturnCompFunc(c, resp)
+	}
+
+	resp.Data = "成功"
+
+	util.ReturnCompFunc(c, resp)
+	return
+
+}
+
+//选择版本
+func OnlineTrans(c *gin.Context) {
+	log.Printf("OnlineTrans")
+	params := common.GetUrlParams(c.Request)
+
+	resp := Response{
+		Status: 200,
+	}
+
+	shafaId := params["sf_code"]
+	user := params["user"]
+	log.Printf("CheckTrans shafa_id:%s ", shafaId)
+
+	imports := model.ShaFaDrafImportLog{}
+	err := imports.GetOne(shafaId)
+
+	if err != nil || imports.Id == 0 {
+		resp.Data = "通过失败 没有找到该沙发"
+		resp.Status = 201
+		util.ReturnCompFunc(c, resp)
+	}
+
+	transId := imports.TransId
+
+	gongyiDrafS := model.GongYiDrafList{}
+	err = gongyiDrafS.GetBySoFaCodeDraf(nil, shafaId, transId)
+
+	if err != nil || len(gongyiDrafS) == 0 {
+		resp.Data = "通过失败 该版本没有成本"
+		resp.Status = 201
+		util.ReturnCompFunc(c, resp)
+	}
+
+	// 将原来的主表成本全部删除。
+	//先清空
+	deleteInfo := model.GongYi{}
+	deleteInfo.ShafaId = shafaId
+	err = deleteInfo.Delete(nil)
+	if err != nil {
+		log.Printf("deleteInfo.Delete err :%v", err)
+		resp.Status = 201
+		resp.Desc = "通过失败 删除原来成本失败"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+	for _, yi := range gongyiDrafS {
+		gy := model.GongYi{}
+		gy.Id = 0
+		gy.ShafaId = shafaId
+		gy.CreateTime = time.Now()
+		gy.Types = yi.Types
+		gy.JiJiaNum = yi.JiJiaNum
+		gy.Nums = yi.Nums
+		gy.GongYiName = yi.GongYiName
+		gy.OwnerSize = yi.OwnerSize
+		gy.CpCode = yi.CpCode
+		gy.CLName = yi.CLName
+		gy.FenWeiName = yi.FenWeiName
+		gy.ShunHaoPrice = yi.ShunHaoPrice
+		gy.GoodsPoint = yi.GoodsPoint
+		gy.JiJiaUnit = yi.JiJiaUnit
+		gy.TotalPrice = yi.TotalPrice
+		gy.Descs = yi.Descs
+		gy.Unit = yi.Unit
+		gy.Size = yi.Size
+		gy.Types = yi.Types
+
+		gy.Create(nil)
+		if err != nil {
+			log.Printf("insertInfo.Create err :%v", err)
+			resp.Status = 201
+			resp.Desc = "创建成本失败"
+			util.ReturnCompFunc(c, resp)
+			return
+		}
+	}
+	//更新事务表 记录为成功。
+
+	transInfo := model.Trans{}
+	err = transInfo.GetByShafaIdAndTrans(nil, shafaId, transId)
+	if err != nil {
+		log.Printf("GetByShafaIdAndTransr :%v", err)
+		resp.Status = 201
+		resp.Desc = "修改事务失败"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+	transInfo.IsSubmit = 1
+	transInfo.OnlineUser = user
+	transInfo.OnlineTime = time.Now()
+	err = transInfo.Update(nil)
+	if err != nil {
+		log.Printf("transInfo.Update(nil) :%v", err)
+		resp.Status = 201
+		resp.Desc = "修改事务失败"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	base_shafa := model.ShaFaImportLog{}
+	errme := base_shafa.GetByType(nil, shafaId)
+	if errme != nil || base_shafa.Id == 0 {
+		log.Printf(" 找不到沙发ID ：%s", shafaId)
+		resp.Status = 201
+		resp.Desc = "找不到该沙发"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	base_shafa.IsSums = "是"
+	base_shafa.Update(nil)
+	resp.Data = "成功"
+	util.ReturnCompFunc(c, resp)
+	return
 
 }

@@ -64,7 +64,7 @@ func HomeRouter(engine *gin.Engine) {
 
 		eg_v2.GET("/delete_merge", controller.DeleteMergeById)
 
-		//沙发草稿 开始
+		//沙发草稿 开始********************************************************************************************************************************************
 
 		//上传excel
 		eg_v2.POST("/uewiohrewr", controller.ImportFenweiInfo)
@@ -82,10 +82,16 @@ func HomeRouter(engine *gin.Engine) {
 
 		eg_v2.GET("/get_all_price_draf", controller.GetAllPriceDraf)
 		//拷贝一个沙发配置
-		/*	eg_v2.POST("/cpoy_shafa", controller.CopyShaFa)
-			//拷贝一个沙发配置
-			eg_v2.POST("/reload_shafa", controller.ReloadShaFa)*/
-		//沙发草稿 结束
+		eg_v2.POST("/cpoy_shafa_draf", controller.CopyShaFaDraf)
+		eg_v2.POST("/reload_shafa_draf", controller.ReloadShaFaDraf)
+		eg_v2.GET("/get_shafa_trans", controller.GetShafaTransList)
+		eg_v2.GET("/check_trans", controller.CheckTrans)
+		eg_v2.GET("/online_trans", controller.OnlineTrans)
+
+		//拷贝一个沙发配置
+		//eg_v2.POST("/cpoy_shafa", controller.CopyShaFa)
+		//拷贝一个沙发配置
+		//沙发草稿 结束********************************************************************************************************************************************
 	}
 
 }

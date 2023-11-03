@@ -267,3 +267,49 @@ func GetFenWeiListGroupByNameDraf(shafaId, types, transeId string) (list []GetFe
 	return
 
 }
+
+type TranseDto struct {
+	Id   string `json:"id"`
+	User string `json:"user"`
+	Time string `json:"time"`
+	//是否审核过
+	Issubmit   string `json:"issubmit"`
+	Ischeck    string `json:"ischeck"`
+	SfCode     string `json:"sf_code"`
+	OnlineUser string `json:"online_user"`
+	OnlineTime string `json:"online_time"`
+}
+
+func GetTransList(shafaId string) (out []TranseDto) {
+	out = make([]TranseDto, 0)
+	list := model.TransList{}
+	list.GetByShafaId(nil, shafaId)
+
+	if list != nil && len(list) != 0 {
+		for _, trans := range list {
+			dto := TranseDto{}
+			dto.Id = trans.TransId
+			dto.SfCode = trans.ShafaCode
+			dto.Time = trans.CreateTime.Format("2006-01-02 15:04:05")
+			dto.User = trans.CreateUser
+			dto.OnlineUser = trans.OnlineUser
+			dto.OnlineTime = trans.OnlineTime.Format("2006-01-02 15:04:05")
+			if trans.IsSubmit == 1 {
+				dto.Issubmit = "是"
+			} else {
+				dto.Issubmit = "否"
+			}
+			// 查询当前的 事务
+			imports := model.ShaFaDrafImportLog{}
+			imports.GetOne(shafaId)
+			if imports.TransId == trans.TransId {
+				dto.Ischeck = "是"
+			} else {
+				dto.Ischeck = "否"
+			}
+			out = append(out, dto)
+		}
+	}
+	return
+
+}

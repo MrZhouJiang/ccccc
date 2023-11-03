@@ -13,6 +13,12 @@
     <script type="text/javascript" src="../Js/common.js"></script>
     <script type="text/javascript" src="../Js/cookieHelp.js"></script>
     <script type="text/javascript" src="../Js/page.js"></script>
+    <script type="text/javascript" src="../Js/xlsx.js"></script>
+    <!--    <script type="text/javascript" src="../Js/xlsx.mini.flow.js"></script>-->
+    <script type="text/javascript" src="../Js/FileSaver.js"></script>
+    <script type="text/javascript" src="../Js/jszip.min.js"></script>
+    <script src="../Js/jszip-utils.min.js"></script>
+
 
     <style type="text/css">
         body {
@@ -34,22 +40,195 @@
 
 
     </style>
+    <title>自定义弹窗</title>
+    <style>
+        /*      body, P {
+                  margin: 0;
+                  padding: 0;
+              }
+      */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 8888;
+        }
+
+        .progress-bar {
+            width: 50.3rem;
+            height: .30rem;
+            border-radius: .5rem; /*进度条外圆角*/
+            font-size: 0; /*进度条高度空大*/
+            overflow: hidden;
+        }
+
+        .popup-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-image: url(https://lmg.jj20.com/up/allimg/4k/s/01/21092416063TI4-0-lp.jpg);
+            width: 1160px;
+            height: 635px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 80%;
+            overflow: auto;
+            max-height: 80%;
+        }
+
+        .popup-prc {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-image: url(https://lmg.jj20.com/up/allimg/4k/s/01/21092416063TI4-0-lp.jpg);
+            width: 1160px;
+            height: 635px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 80%;
+            overflow: auto;
+            max-height: 80%;
+            z-index: 9999;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 20px;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .popup-inner li {
+            margin-bottom: 6px;
+        }
+
+        .popup-inner li p {
+            display: inline-block;
+            width: 350px;
+            height: 58px;
+            background-color: #e1deff;
+            border: 1px solid #f6faff;
+            font-size: 20px;
+            line-height: 58px;
+            text-align: center;
+            color: #645488;
+            border-radius: 7px;
+        }
+
+        .popup-inner div {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .popup-inner div p {
+            display: inline-block;
+        }
+
+        .popup-inner ul {
+            padding-top: 25px;
+            margin-bottom: 25px;
+        }
+
+        .popup-inner h2 {
+            font-size: 35px;
+            color: #9f7cf1;
+        }
+
+        .popup-close {
+            font-size: 45px;
+        }
+
+        li {
+            list-style-type: none;
+        }
+
+        /*
+                a {
+                    text-decoration: none;
+                    color: #f7eeee;
+                    font-weight: bold;
+                }*/
+
+        span {
+            font-weight: bold;
+            color: #f7eeee;
+        }
+    </style>
 </head>
 <body>
+<div class="popup" id="popup">
+    <div class="popup-inner"><span class="popup-close" onclick="closePopup()">&times;</span>
+        <ul>
+            <li><span style="font-size: 30px;color: #0e0e0e">导入文件： <input type="file" id="file_1"
+                                                                          onchange="uploadExcel()"/></span></li>
+        </ul>
+        <div>
+            <span style="font-size: 30px;color: #0e0e0e">导入结果：</span>
+            <span>
+            </span>
+        </div>
+        <div>
+            <span id="pop1" style="font-size: 25px ;color: red"></span>
+        </div>
+        <div id="pop_1_box">
+            222
+        </div>
+    </div>
+    <div class="popup-prc" id="prc_div" style="display:none">
+        <progress style="size: 80px" id="prc" value="1" max="10"></progress>
+    </div>
+</div>
+
+
+<div class="popup" id="popup_trans">
+    <div class="popup-inner"><span class="popup-close" onclick="closePopupTrans()">&times;</span>
+        <table id='trans_table' class="table table-bordered table-hover definewidth m10">
+            <thead>
+            <tr>
+                <th>版本ID</th>
+                <th>上传人</th>
+                <th>时间</th>
+                <th>是否审核通过</th>
+                <th>审核人</th>
+                <th>审核时间</th>
+                <th>选择该版本视图</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
 <div class="form-inline definewidth m20" action="index.html" method="get">
     沙发编码：
     <input type="text" name="username" id="goodsCode" class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
     沙发名称：
     <input type="text" name="username" id="goodsName" class="abc input-default" placeholder="" value="">&nbsp;&nbsp;
-    是否汇算
-    <select id="isSelsct">
+    <!-- 是否汇算-->
+    <select id="isSelsct" style="display: none">
         <option value=""></option>
         <option value="是">是</option>
         <option value="否">否</option>
     </select>
     <button id="search" type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp;
     <!--<button type="button" class="btn btn-success" id="addnew">新增用户</button>-->
+
+    <button onclick="showPopup()">导入成本</button>
+
 </div>
+
 <table id='ClassTable' class="table table-bordered table-hover definewidth m10">
     <thead>
     <tr>
@@ -61,7 +240,7 @@
         <th>上传人</th>
         <th>创建时间</th>
         <th>修改时间</th>
-        <th>是否汇算</th>
+        <!--        <th>是否汇算</th>-->
         <th>操作</th>
     </tr>
     </thead>
@@ -71,6 +250,268 @@
 <input id="size" type="hidden">
 </body>
 </html>
+
+
+<script>
+    function showPopup() {
+        document.getElementById("popup").style.display = "block";
+        //document.getElementById('popup-inner').style.backgroundImage = "url(https://lmg.jj20.com/up/allimg/4k/s/01/21092416063TI4-0-lp.jpg)";
+        //document.getElementById("pop1").innerHTML=str;
+        //document.getElementById("pop1").innerHTML = "New Content";
+
+     /*   let page = "";
+        page += '<a href="javascript:;"  onclick="PTTSendClick(\'btn\',\'btn_top_pop2\',\'上一页\')">上一页</a>';
+        page += '<p><span>1</span>/<span>1</span></p>';
+        page += '<a href="javascript:;"  onclick="PTTSendClick(\'btn\',\'btn_down_pop2\',\'下一页\')">下一页</a>';
+        document.getElementById("pop_1_box").innerHTML = page;*/
+    }
+
+    function closePopup() {
+        document.getElementById("popup").style.display = "none";
+        document.getElementById('file_1').Value = ''
+        document.getElementById("pop1").innerHTML = '';
+        ReloadData()
+    }
+</script>
+<script>
+
+    function closePopupTrans() {
+
+        document.getElementById("popup_trans").style.display = "none";
+        ReloadData()
+    }
+
+    function showPopupTrans() {
+        document.getElementById("popup_trans").style.display = "block";
+    }
+
+    function loadTrans(shafaId) {
+        alert(shafaId)
+        showPopupTrans()
+        //先清除
+        $('tr.data_transe').remove();
+        // 显示
+        $.ajax({
+            url: GetBaseHost() + "/v2/get_shafa_trans",
+            dataType: "json",
+            data: {
+                "id": shafaId,
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $.each(data.data, function (index, element) {
+                    let sssq = ""
+                    sssq = '<tr class="data_transe" >      ' +
+                        '<td> ' + element.id + ' </td>' +
+                        '<td> ' + element.user + '</td> ' +
+                        '<td> ' + element.time + '</td> '
+                    if (element.issubmit == '是') {
+                        sssq += '<td style="color: red"> ' + element.issubmit + '</td> '
+                    } else {
+                        sssq += '<td> ' + element.issubmit + '</td> '
+                    }
+                    sssq += '<td> ' + element.online_user + '</td> ' +
+                        '<td> ' + element.online_time + '</td> '
+                    if (element.ischeck != "是") {
+                        sssq += '<td>  ' +
+                            ' <a onclick="xuznhetranse(' + "'" + element.sf_code + "," + element.id + "'" + ')">选择</>' +
+                            '</td> '
+                    } else {
+                        sssq += '<td style="color: red">  ' +
+                            ' 当前视图版本' +
+                            '</td> '
+                    }
+                    sssq += '    </tr>'
+                    $("#trans_table").append(sssq)
+
+                })
+            },
+        })
+    }
+
+    function xuznhetranse(shafaId) {
+        let mas = shafaId.split(",")
+
+        // 切换版本
+        $.ajax({
+            url: GetBaseHost() + "/v2/check_trans",
+            dataType: "json",
+            data: {
+                "sf_code": mas[0],
+                "trans_id": mas[1],
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("选择成功")
+                    closePopupTrans()
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+    }
+
+
+    //通过沙发  通过沙发后 会同步到 主表中。
+    function onlineShafa(shafaId) {
+        const username = getUserName();
+        //第一个是沙发ID  第二个是 事务号
+        // 切换版本
+        $.ajax({
+            url: GetBaseHost() + "/v2/online_trans",
+            dataType: "json",
+            data: {
+                "sf_code": shafaId,
+                "user": username
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("选择成功")
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+    }
+
+</script>
+
+
+<script>
+
+    function uploadExcel() {
+        const user = getUserName();
+
+        document.getElementById("prc_div").style.display = "block";
+        let file = document.querySelector('#file_1').files[0];
+        let reader = new FileReader();
+        reader.readAsBinaryString(file);
+        reader.onload = function (e) {
+
+            document.getElementById("prc").value = 2;
+            //分组获取
+            let data = e.target.result;
+            let workbook = XLSX.read(data, {type: 'binary'});
+            //每个sheet循环一遍
+            let data_base = ""
+            let base_name = ""
+            document.getElementById("prc").value = 3;
+            for (let i = 0; i < workbook.SheetNames.length; i++) {
+
+                let sheetName = workbook.SheetNames[i];
+                let worksheet = workbook.Sheets[sheetName];
+                let result = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                base_name += sheetName
+                base_name += "@"
+                if (result.length <= 1) {
+                    data_base += ""
+                    data_base += "@"
+                    continue
+                    //低于两行不处理
+                }
+                //开始正式处理
+                //参数 1  sheet名称 ：
+                //参数 2  表头
+                //参数 3  数据本身
+
+                for (let j = 0; j < result.length; j++) {
+                    data_base += result[j]
+                    data_base += "$"
+                }
+                data_base += "@"
+            }
+            document.getElementById("prc").value = 4;
+            //提交数据
+            $.ajax({
+                url: GetBaseHost() + "/v2/uewiohrewr",
+                dataType: "json",
+                data: {
+                    "sheet_name": base_name,
+                    "data": data_base,
+                    "user": user,
+                },
+                type: "POST",
+                async: false,
+                success: function (data) {
+                    document.getElementById("prc").value = 5;
+                    if (data.status == 200) {
+                        document.getElementById("prc_div").style.display = "none";
+                        document.getElementById('file_1').value = ""
+                        document.getElementById("pop1").innerHTML = "导入成功";
+                        document.getElementById("prc").value = 1;
+                    } else {
+                        document.getElementById("prc_div").style.display = "none";
+                        let str = ""
+                        let ss = data.desc.split(';')
+                        str += `<li> 导入失败 具体原因为 :</li>`
+                        str += `<li>`
+                        for (let i = 0; i < ss.length; i++) {
+                            str += `<li>
+                            ` + ss[i] + `
+                             </li>`
+                        }
+                        str += `</li>`
+                        document.getElementById("pop1").innerHTML = str;
+                        document.getElementById('file_1').value = ""
+                        document.getElementById("prc_div").style.display = "none";
+                        document.getElementById("prc").value = 1;
+
+                    }
+                },
+            })
+
+        };
+
+    }
+
+
+    function loadFile() {
+        var file = document.querySelector('#file').files[0];
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            var data = e.target.result;
+
+            alert("succc")
+            alert(data)
+            // 对读取出来的二进制数据进行操作
+            postUser(data)
+        }
+        reader.readAsText(file);
+
+    }
+
+    function postUser(data1) {
+
+        //开始请求数据
+        $.ajax({
+            url: GetBaseHost() + "/v2/uewiohrewr",
+            dataType: "json",
+            data: {
+                "data": data1,
+            },
+            type: "POST",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("添加成功")
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+
+
+    }
+
+
+</script>
+
 
 <script>
 
@@ -121,16 +562,17 @@
                         '<td> ' + element.import_user + '</td> ' +
                         '<td> ' + element.create_time + '</td> ' +
                         '<td> ' + element.update_time + '</td> '
-                    if (element.is_sums == '是') {
-                        sssq += '<td style="color: red"> ' + element.is_sums + '</td> '
-                    } else {
-                        sssq += '<td> ' + element.is_sums + '</td> '
-                    }
+                    /*               if (element.is_sums == '是') {
+                                       sssq += '<td style="color: red"> ' + element.is_sums + '</td> '
+                                   } else {
+                                       sssq += '<td> ' + element.is_sums + '</td> '
+                                   }*/
                     sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
                         '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
-                        ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +
-                        ' <a onclick="chongsuan(' +"'"+ element.sf_code + "'"+')">重算成本</>' +
-
+                        /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
+                        ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +
+                        ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
+                        ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核通过</>' +
                         '</td> '
                     sssq += '    </tr>'
                     $("#ClassTable").append(sssq)
@@ -147,7 +589,7 @@
 
         //开始请求数据
         $.ajax({
-            url: GetBaseHost() +"/v2/reload_shafa",
+            url: GetBaseHost() + "/v2/reload_shafa_draf",
             dataType: "json",
             data: {
                 "cp_code": shafaId,
@@ -194,20 +636,23 @@
                         '<td> ' + element.create_time + '</td> ' +
                         '<td> ' + element.update_time + '</td> '
 
-                    if (element.is_sums == '是') {
-                        sssq += '<td style="color: red"> ' + element.is_sums + '</td> '
-                    } else {
-                        sssq += '<td> ' + element.is_sums + '</td> '
-                    }
+                    /*               if (element.is_sums == '是') {
+                                       sssq += '<td style="color: red"> ' + element.is_sums + '</td> '
+                                   } else {
+                                       sssq += '<td> ' + element.is_sums + '</td> '
+                                   }*/
                     /*          sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a></td> '
                               sssq += '    </tr>'*/
 
                     sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
                         '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
-                        ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +
-                        ' <a onclick="chongsuan(' +"'"+ element.sf_code + "'"+')">重算成本</>' +
+                        /*  ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
+                        ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +
+                        ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
+                        ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核通过</>' +
                         '</td> '
                     sssq += '    </tr>'
+
                     $("#ClassTable").append(sssq)
                 })
                 total = data.data.total

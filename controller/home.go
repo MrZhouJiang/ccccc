@@ -2692,7 +2692,7 @@ func ImportFenweiInfo(c *gin.Context) {
 			//第三行 是表头  且包含了 分位置的信息。
 
 			//校验尺寸
-			for jjj := 7; jjj < maxCell; jjj = jjj + 3 {
+			for jjj := 7; jjj < len(data.Data[ii]); jjj = jjj + 3 {
 				//单元格从低6个开始
 				//分两种情况
 				//情况 1 两两一组

@@ -787,9 +787,9 @@ func PostDrafFengWei(c *gin.Context) {
 	drafLog := model.ShaFaDrafImportLog{}
 	errad := drafLog.GetByType(nil, dto.ShafaId)
 	if errad != nil || drafLog.Id == 0 {
-		log.Printf("json.Unmarshal  err :%v", err)
+		log.Printf("jdrafLog.GetByType  err :%v", err)
 		resp.Status = 201
-		resp.Desc = "获取导入表失败"
+		resp.Desc = "获取导入表失败  获取版本失败"
 		return
 	}
 
@@ -867,17 +867,17 @@ func PostDrafFengWei(c *gin.Context) {
 		}
 	}
 	//修改 沙发表
-	shafa := model.ShaFaImportLog{}
-	errme := shafa.GetByType(nil, dto.ShafaId)
-	if errme == nil {
-		size := len(dto.Details)
-		if size == 0 {
-			shafa.IsSums = "否"
-		} else {
-			shafa.IsSums = "是"
-		}
-		shafa.Update(nil)
-	}
+	/*	shafa := model.ShaFaImportLog{}
+		errme := shafa.GetByType(nil, dto.ShafaId)
+		if errme == nil {
+			size := len(dto.Details)
+			if size == 0 {
+				shafa.IsSums = "否"
+			} else {
+				shafa.IsSums = "是"
+			}
+			shafa.Update(nil)
+		}*/
 
 	resp.Data = dto
 	util.ReturnCompFunc(c, resp)
@@ -926,13 +926,17 @@ func ConvertPostInfo(user string, maxCell int, goodsMap map[string]model.Goods, 
 				desc = ll
 			}
 		}
-
+		//这一行有多长
+		leng := len(rowData[i])
 		for fenwei_name, fenwei_index := range fenWeiMap {
 			//如果数量为空 直接返回
-			if strings.TrimSpace(rowData[i][fenwei_index]) == "" {
+			numsdd := strings.TrimSpace(rowData[i][fenwei_index])
+			if numsdd == "" || numsdd == "0" {
 				continue
 			}
-
+			if leng < fenwei_index {
+				continue
+			}
 			draf := model.GongYiDraf{}
 			draf.CLName = goods.CpName
 			draf.CpCode = goods.CpCode

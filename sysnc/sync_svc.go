@@ -156,6 +156,18 @@ func StartSyncCp() {
 							shafaimport.GG = base.GG
 							shafaimport.Update(nil)
 						}
+						//修改草稿表
+						shafaimportDraf := model.ShaFaDrafImportLog{}
+						eeee1 := shafaimportDraf.GetByType(nil, goods.CpCode)
+						if eeee1 != nil {
+							log.Printf("sync update error  eeee  :%v \n", eeee1)
+						} else {
+							shafaimportDraf.SfName = base.CPMC
+							shafaimportDraf.SDesc = base.CPJC
+							shafaimportDraf.GG = base.GG
+							shafaimportDraf.Update(nil)
+						}
+
 						//更新基础物料表
 						DelSHafa(&goods, base.GG)
 					}
@@ -215,13 +227,13 @@ func DelSHafa(goods *model.Goods, new_guige string) {
 					}
 
 					//说明这次没有这个了 要把成本表 对应分位的成本删除。
-					deleteInfoDraf := model.GongYiDraf{}
-					deleteInfoDraf.FenWeiName = s
-					deleteInfoDraf.ShafaId = goods.CpCode
-					err2 := deleteInfoDraf.DeleteByFenweiName(nil)
-					if err2 != nil {
-						log.Printf("deleteInfo.Delete err :%v", err2)
-					}
+					/*					deleteInfoDraf := model.GongYiDraf{}
+										deleteInfoDraf.FenWeiName = s
+										deleteInfoDraf.ShafaId = goods.CpCode
+										err2 := deleteInfoDraf.DeleteByFenweiName(nil)
+										if err2 != nil {
+											log.Printf("deleteInfo.Delete err :%v", err2)
+										}*/
 				}
 			}
 		}

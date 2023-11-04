@@ -2651,13 +2651,13 @@ func ImportFenweiInfo(c *gin.Context) {
 			outInfo = fmt.Sprintf("%s \n 表格: %s  没有单位数据; ", outInfo, data.SheetName)
 			continue
 		}
-		if (maxCell+1)%2 != 0 {
-			//如果是偶数  不合法 因为单位肯定在偶数列上
-			//加1 是因为 下标第一位是 0
-			outInfo = fmt.Sprintf("%s \n 表格: %s  没有单位列位置不合法; ", outInfo, data.SheetName)
-			continue
-		}
-
+		/*		if (maxCell+1)%2 != 0 {
+					//如果是偶数  不合法 因为单位肯定在偶数列上
+					//加1 是因为 下标第一位是 0
+					outInfo = fmt.Sprintf("%s \n 表格: %s  没有单位列位置不合法; ", outInfo, data.SheetName)
+					continue
+				}
+		*/
 		//从第四行开始
 		for ii := 3; ii < len(data.Data); ii++ {
 

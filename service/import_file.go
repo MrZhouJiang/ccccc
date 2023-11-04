@@ -148,6 +148,16 @@ func GetDrafShaFaImportList(page, size int, name, code string, issums string) (l
 			GG:         datum.GG,
 			IsSums:     datum.IsSums,
 		}
+
+		trans := model.Trans{}
+		trans.GetByShafaIdAndTrans(nil, datum.SfCode, datum.TransId)
+		if trans.IsSubmit == 1 {
+			iiinfo.IsOnline = "是"
+		} else {
+			iiinfo.IsOnline = "否"
+
+		}
+
 		list = append(list, iiinfo)
 	}
 	return

@@ -6,6 +6,7 @@ import (
 	"ccccc/service"
 	"ccccc/util"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -1007,6 +1008,20 @@ func postFenweiFraf(transeId, user string, dto PostGoodsInfoDrafInDTO) error {
 			}
 
 		}*/
+
+	//先执行删除操作；
+
+	//先清空
+	deleteInfo := model.GongYiDraf{}
+	deleteInfo.Types = dto.Types
+	deleteInfo.ShafaId = dto.ShafaId
+	deleteInfo.TransId = transeId
+	err1 := deleteInfo.DeleteWithTrans(nil)
+	if err1 != nil {
+		log.Printf("deleteInfo.Delete err :%v", err1)
+
+		return errors.New(fmt.Sprintf("删除原有成本草稿失败 sf_code：%s  transId:%s", dto.ShafaId, transeId))
+	}
 
 	// 要将 全套用量 替换掉其他掉
 	//循环插入

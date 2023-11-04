@@ -2815,12 +2815,21 @@ func ImportFenweiInfo(c *gin.Context) {
 				maxCell = iji
 			}
 		}
+
+		if getGongyiNamesa(data.SheetName) == "" {
+			//说明没有校验通过
+			log.Printf(" 导入失败 sheet名字不对 沙发名称: %s", shafaName)
+			resp.Status = 201
+			resp.Desc = fmt.Sprintf(" \n %s ", "sheet名字不对")
+			util.ReturnCompFunc(c, resp)
+			return
+		}
 		transID, errxas := GetTranseId(strings.TrimSpace(data.Data[3][0]), user)
 		if transID == "" || errxas != nil {
 			//说明没有校验通过
 			log.Printf(" 导入失败  沙发名称: %s", shafaName)
 			resp.Status = 201
-			resp.Desc = fmt.Sprintf(" 导入失败  具体原因为  :\n %s ", "创建事务失败")
+			resp.Desc = fmt.Sprintf("\n %s ", "创建事务失败")
 			util.ReturnCompFunc(c, resp)
 			return
 		}
@@ -2887,6 +2896,8 @@ func GetTranseId(shafa_code, user string) (string, error) {
 		return RomId(shafa_code, user)
 	} else {
 		//最近的一个还没上线  返回最新的一个ID
+		// 生成ID后 要将ID同步到 draf主沙发表
+		ChcekShafaDraf(user, shafa_code, oldTransList[0].TransId)
 		return oldTransList[0].TransId, nil
 	}
 

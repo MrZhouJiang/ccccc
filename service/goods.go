@@ -239,8 +239,9 @@ type ShaFaInfoDto struct {
 	CreateTime time.Time `json:"create_time"`
 	UpdateTime time.Time `json:"update_time"`
 	//沙发规格（可以解析分位名称）
-	GG     string `json:"gg"`
-	IsSums string `json:"is_sums"`
+	GG       string `json:"gg"`
+	IsSums   string `json:"is_sums"`
+	IsOnline string `json:"is_online"`
 }
 
 func GetFenWeiList(shafaId, types string) (list []model.GongYi, err error) {

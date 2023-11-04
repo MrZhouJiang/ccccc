@@ -100,7 +100,7 @@
             max-width: 80%;
             overflow: auto;
             max-height: 80%;
-            z-index: 9999;
+            z-index: 99999;
         }
 
         .popup-close {
@@ -240,7 +240,7 @@
         <th>上传人</th>
         <th>创建时间</th>
         <th>修改时间</th>
-        <!--        <th>是否汇算</th>-->
+        <th>是否审核</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -255,21 +255,23 @@
 <script>
     function showPopup() {
         document.getElementById("popup").style.display = "block";
+        document.getElementById("prc_div").style.display = "none";
         //document.getElementById('popup-inner').style.backgroundImage = "url(https://lmg.jj20.com/up/allimg/4k/s/01/21092416063TI4-0-lp.jpg)";
         //document.getElementById("pop1").innerHTML=str;
         //document.getElementById("pop1").innerHTML = "New Content";
 
-     /*   let page = "";
-        page += '<a href="javascript:;"  onclick="PTTSendClick(\'btn\',\'btn_top_pop2\',\'上一页\')">上一页</a>';
-        page += '<p><span>1</span>/<span>1</span></p>';
-        page += '<a href="javascript:;"  onclick="PTTSendClick(\'btn\',\'btn_down_pop2\',\'下一页\')">下一页</a>';
-        document.getElementById("pop_1_box").innerHTML = page;*/
+        /*   let page = "";
+           page += '<a href="javascript:;"  onclick="PTTSendClick(\'btn\',\'btn_top_pop2\',\'上一页\')">上一页</a>';
+           page += '<p><span>1</span>/<span>1</span></p>';
+           page += '<a href="javascript:;"  onclick="PTTSendClick(\'btn\',\'btn_down_pop2\',\'下一页\')">下一页</a>';
+           document.getElementById("pop_1_box").innerHTML = page;*/
     }
 
     function closePopup() {
         document.getElementById("popup").style.display = "none";
         document.getElementById('file_1').Value = ''
         document.getElementById("pop1").innerHTML = '';
+        document.getElementById("prc_div").style.display = "none";
         ReloadData()
     }
 </script>
@@ -286,7 +288,6 @@
     }
 
     function loadTrans(shafaId) {
-        alert(shafaId)
         showPopupTrans()
         //先清除
         $('tr.data_transe').remove();
@@ -385,22 +386,23 @@
 <script>
 
     function uploadExcel() {
+        document.getElementById("prc").value = 4;
+        document.getElementById("prc_div").style.display = "block";
         const user = getUserName();
 
-        document.getElementById("prc_div").style.display = "block";
+        // showAlert("导入中 请稍后")
+
         let file = document.querySelector('#file_1').files[0];
         let reader = new FileReader();
         reader.readAsBinaryString(file);
         reader.onload = function (e) {
 
-            document.getElementById("prc").value = 2;
             //分组获取
             let data = e.target.result;
             let workbook = XLSX.read(data, {type: 'binary'});
             //每个sheet循环一遍
             let data_base = ""
             let base_name = ""
-            document.getElementById("prc").value = 3;
             for (let i = 0; i < workbook.SheetNames.length; i++) {
 
                 let sheetName = workbook.SheetNames[i];
@@ -425,7 +427,6 @@
                 }
                 data_base += "@"
             }
-            document.getElementById("prc").value = 4;
             //提交数据
             $.ajax({
                 url: GetBaseHost() + "/v2/uewiohrewr",
@@ -438,14 +439,13 @@
                 type: "POST",
                 async: false,
                 success: function (data) {
-                    document.getElementById("prc").value = 5;
+
                     if (data.status == 200) {
-                        document.getElementById("prc_div").style.display = "none";
+
                         document.getElementById('file_1').value = ""
                         document.getElementById("pop1").innerHTML = "导入成功";
                         document.getElementById("prc").value = 1;
                     } else {
-                        document.getElementById("prc_div").style.display = "none";
                         let str = ""
                         let ss = data.desc.split(';')
                         str += `<li> 导入失败 具体原因为 :</li>`
@@ -458,17 +458,25 @@
                         str += `</li>`
                         document.getElementById("pop1").innerHTML = str;
                         document.getElementById('file_1').value = ""
-                        document.getElementById("prc_div").style.display = "none";
+
                         document.getElementById("prc").value = 1;
 
                     }
                 },
             })
+            document.getElementById("prc_div").style.display = "none";
 
         };
 
     }
 
+    function showAlert() {
+        alert("欢迎来到pidancode.com!"); // 显示Alert
+
+        setTimeout(function () {
+            close(); // 关闭当前窗口
+        }, 3000); // 3秒后执行关闭操作
+    }
 
     function loadFile() {
         var file = document.querySelector('#file').files[0];
@@ -477,8 +485,7 @@
         reader.onload = function (e) {
             var data = e.target.result;
 
-            alert("succc")
-            alert(data)
+
             // 对读取出来的二进制数据进行操作
             postUser(data)
         }
@@ -529,6 +536,8 @@
     $(document).ready(function () {
         const username = getUserName();
         const bb = checkCookie();
+        //获取权限ID
+        const roleId = getUserRole()
 
         if (bb == false) {
             //document.location.url = '/Public/login.html'
@@ -561,20 +570,44 @@
                         '<td> ' + element.s_desc + '</td> ' +
                         '<td> ' + element.import_user + '</td> ' +
                         '<td> ' + element.create_time + '</td> ' +
-                        '<td> ' + element.update_time + '</td> '
+                        '<td> ' + element.update_time + '</td> ' +
+                        '<td> ' + element.is_online + '</td> '
                     /*               if (element.is_sums == '是') {
                                        sssq += '<td style="color: red"> ' + element.is_sums + '</td> '
                                    } else {
                                        sssq += '<td> ' + element.is_sums + '</td> '
                                    }*/
-                    sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
-                        '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
-                        /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
-                        ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +
-                        ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
-                        ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核通过</>' +
-                        '</td> '
-                    sssq += '    </tr>'
+                    if (roleId == 2) {
+                        //超级管理员
+                        sssq += '    <td>'
+                        if (element.is_online == '否') {
+                            sssq += '   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
+                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>'
+                        }
+                        sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
+                            /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
+                     /*       ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
+                            ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
+                            /*                ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核通过</>' +*/
+                            '</td> '
+                        sssq += '    </tr>'
+                    } else {
+                        sssq += '    <td>'
+                        if (element.is_online == '否') {
+                            sssq += '   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
+                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>'+
+                            ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
+                        }
+                        sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
+                            /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
+                  /*          ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
+                            ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
+
+                            '</td> '
+                        sssq += '    </tr>'
+                    }
+
+
                     $("#ClassTable").append(sssq)
 
                 })
@@ -610,7 +643,8 @@
     function ReloadData() {
         //先清除数据
         $('tr.data_1').remove()
-
+        //获取权限ID
+        const roleId = getUserRole()
         $.ajax({
             url: GetBaseHost() + "/v2/get_draf_shafa_import_list",
             dataType: "json",
@@ -643,15 +677,36 @@
                                    }*/
                     /*          sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a></td> '
                               sssq += '    </tr>'*/
+                    if (roleId == 2) {
+                        //超级管理员
+                        sssq += '    <td>'
+                        if (element.is_online == '否') {
+                            sssq += '   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
+                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>'
+                        }
+                        sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
+                            /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
+                            /*       ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
+                            ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
+                            /*                ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核通过</>' +*/
+                            '</td> '
+                        sssq += '    </tr>'
+                    } else {
+                        sssq += '    <td>'
+                        if (element.is_online == '否') {
+                            sssq += '   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
+                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>'+
+                                ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
+                        }
+                        sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
+                            /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
+                            /*          ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
+                            ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
 
-                    sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
-                        '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
-                        /*  ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
-                        ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +
-                        ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
-                        ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核通过</>' +
-                        '</td> '
-                    sssq += '    </tr>'
+                            '</td> '
+                        sssq += '    </tr>'
+                    }
+
 
                     $("#ClassTable").append(sssq)
                 })

@@ -2728,7 +2728,7 @@ func ImportFenweiInfo(c *gin.Context) {
 
 			}
 			//校验规格
-			for jjj := 8; jjj < maxCell; jjj = jjj + 3 {
+			for jjj := 8; jjj < len(data.Data[ii]); jjj = jjj + 3 {
 				//单元格从低6个开始
 				//分两种情况
 				//情况 1 两两一组
@@ -2765,7 +2765,7 @@ func ImportFenweiInfo(c *gin.Context) {
 			}
 
 			//校验数量
-			for jjj := 9; jjj < maxCell; jjj = jjj + 3 {
+			for jjj := 9; jjj < len(data.Data[ii]); jjj = jjj + 3 {
 				//单元格从低6个开始
 				//分两种情况
 				//情况 1 两两一组

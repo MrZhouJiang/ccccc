@@ -268,6 +268,7 @@
     }
 
     function closePopup() {
+
         document.getElementById("popup").style.display = "none";
         document.getElementById('file_1').Value = ''
         document.getElementById("pop1").innerHTML = '';
@@ -284,7 +285,9 @@
     }
 
     function showPopupTrans() {
+        ReloadData()
         document.getElementById("popup_trans").style.display = "block";
+
     }
 
     function loadTrans(shafaId) {
@@ -378,6 +381,7 @@
                 }
             },
         })
+        ReloadData()
     }
 
 </script>
@@ -586,7 +590,7 @@
                         }
                         sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
                             /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
-                     /*       ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
+                            /*       ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
                             ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
                             /*                ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核通过</>' +*/
                             '</td> '
@@ -595,12 +599,12 @@
                         sssq += '    <td>'
                         if (element.is_online == '否') {
                             sssq += '   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
-                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>'+
-                            ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
+                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +
+                                ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
                         }
                         sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
                             /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
-                  /*          ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
+                            /*          ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
                             ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
 
                             '</td> '
@@ -668,7 +672,9 @@
                         '<td> ' + element.s_desc + '</td> ' +
                         '<td> ' + element.import_user + '</td> ' +
                         '<td> ' + element.create_time + '</td> ' +
-                        '<td> ' + element.update_time + '</td> '
+                        '<td> ' + element.update_time + '</td> ' +
+                        '<td> ' + element.is_online + '</td> '
+
 
                     /*               if (element.is_sums == '是') {
                                        sssq += '<td style="color: red"> ' + element.is_sums + '</td> '
@@ -695,7 +701,7 @@
                         sssq += '    <td>'
                         if (element.is_online == '否') {
                             sssq += '   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
-                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>'+
+                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +
                                 ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
                         }
                         sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +

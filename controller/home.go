@@ -2692,7 +2692,7 @@ func ImportFenweiInfo(c *gin.Context) {
 			//第三行 是表头  且包含了 分位置的信息。
 
 			//校验尺寸
-			for jjj := 7; jjj < len(data.Data[ii]); jjj = jjj + 3 {
+			for jjj := 7; jjj < len(data.Data[ii]) && jjj < maxCell; jjj = jjj + 3 {
 				//单元格从低6个开始
 				//分两种情况
 				//情况 1 两两一组
@@ -2728,7 +2728,7 @@ func ImportFenweiInfo(c *gin.Context) {
 
 			}
 			//校验规格
-			for jjj := 8; jjj < len(data.Data[ii]); jjj = jjj + 3 {
+			for jjj := 8; jjj < len(data.Data[ii]) && jjj < maxCell; jjj = jjj + 3 {
 				//单元格从低6个开始
 				//分两种情况
 				//情况 1 两两一组
@@ -2765,7 +2765,7 @@ func ImportFenweiInfo(c *gin.Context) {
 			}
 
 			//校验数量
-			for jjj := 9; jjj < len(data.Data[ii]); jjj = jjj + 3 {
+			for jjj := 9; jjj < len(data.Data[ii]) && jjj < maxCell; jjj = jjj + 3 {
 				//单元格从低6个开始
 				//分两种情况
 				//情况 1 两两一组
@@ -2911,10 +2911,12 @@ func RomId(code string, user string) (string, error) {
 
 	// 要记录一下
 
+	TimeBsee := time.Date(1999, 01, 01, 12, 0, 0, 0, time.Local)
 	trans := model.Trans{
 		TransId:    s,
 		ShafaCode:  code,
 		CreateTime: time.Now(),
+		OnlineTime: TimeBsee,
 		CreateUser: user,
 	}
 	er := trans.Create(nil)

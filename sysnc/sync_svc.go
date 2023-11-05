@@ -24,7 +24,7 @@ func Task_base() {
 			next = cron.Next(now) //重新计算下次任务时间的时间对象
 		}
 		select {
-		case <-time.NewTicker(30 * time.Minute).C: //每秒扫描一遍 循环频率设定
+		case <-time.NewTicker(60 * time.Minute).C: //每秒扫描一遍 循环频率设定
 		}
 	}
 }

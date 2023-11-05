@@ -930,13 +930,14 @@ func ConvertPostInfo(user string, maxCell int, goodsMap map[string]model.Goods, 
 		leng := len(rowData[i])
 		for fenwei_name, fenwei_index := range fenWeiMap {
 			//如果数量为空 直接返回
+			if leng < fenwei_index {
+				continue
+			}
 			numsdd := strings.TrimSpace(rowData[i][fenwei_index])
 			if numsdd == "" || numsdd == "0" {
 				continue
 			}
-			if leng < fenwei_index {
-				continue
-			}
+
 			draf := model.GongYiDraf{}
 			draf.CLName = goods.CpName
 			draf.CpCode = goods.CpCode

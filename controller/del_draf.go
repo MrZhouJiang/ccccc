@@ -1089,6 +1089,10 @@ func postFenweiFraf(transeId, user string, dto PostGoodsInfoDrafInDTO) error {
 
 func sumsDraf(num, cpCode, shunhao, price, huansuan, size, main_xishu, main_size, fuzhu_xishu string) PriceInfo {
 
+	cdl := fmt.Sprintf("mus: %s;cpCOde:%s;shunhao:%s;price %s; huansuan:%s;size:%s manxishu:%s;main_size:%s;fuzhuxushu:%s",
+		num, cpCode, shunhao, price, huansuan, size, main_xishu, main_size, fuzhu_xishu)
+	log.Printf("Sums:param  :%s", cdl)
+
 	out := PriceInfo{}
 	num_i, e1 := strconv.ParseFloat(num, 64)
 	if e1 != nil {
@@ -1314,6 +1318,7 @@ out:
 		}
 
 	}
+	log.Printf("sums :  a1:%f; a2:%f", totalPrice, jijiaNums)
 	riceInfo := PriceInfo{
 		TotalPrice: totalPrice,
 		JiJiaNums:  jijiaNums,

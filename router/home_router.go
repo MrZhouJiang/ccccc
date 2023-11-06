@@ -87,6 +87,7 @@ func HomeRouter(engine *gin.Engine) {
 		eg_v2.GET("/get_shafa_trans", controller.GetShafaTransList)
 		eg_v2.GET("/check_trans", controller.CheckTrans)
 		eg_v2.GET("/online_trans", controller.OnlineTrans)
+		eg_v2.GET("/check_gongyi", controller.CheckGongyi)
 
 		//拷贝一个沙发配置
 		//eg_v2.POST("/cpoy_shafa", controller.CopyShaFa)

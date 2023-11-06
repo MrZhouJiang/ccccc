@@ -202,6 +202,8 @@
                 <th>版本ID</th>
                 <th>上传人</th>
                 <th>时间</th>
+                <th>成本是否全部完成</th>
+                <th>完成人</th>
                 <th>是否审核通过</th>
                 <th>审核人</th>
                 <th>审核时间</th>
@@ -241,6 +243,7 @@
         <th>创建时间</th>
         <th>修改时间</th>
         <th>是否审核</th>
+        <th>是否完成</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -310,6 +313,12 @@
                         '<td> ' + element.id + ' </td>' +
                         '<td> ' + element.user + '</td> ' +
                         '<td> ' + element.time + '</td> '
+                    if (element.is_check == '是') {
+                        sssq += '<td style="color: red"> ' + element.is_check + '</td> '
+                    } else {
+                        sssq += '<td> ' + element.is_check + '</td> '
+                    }
+                    sssq += '<td> ' + element.check_user + '</td> '
                     if (element.issubmit == '是') {
                         sssq += '<td style="color: red"> ' + element.issubmit + '</td> '
                     } else {
@@ -576,41 +585,58 @@
                         '<td> ' + element.create_time + '</td> ' +
                         '<td> ' + element.update_time + '</td> ' +
                         '<td> ' + element.is_online + '</td> '
-                    /*               if (element.is_sums == '是') {
-                                       sssq += '<td style="color: red"> ' + element.is_sums + '</td> '
-                                   } else {
-                                       sssq += '<td> ' + element.is_sums + '</td> '
-                                   }*/
+                    if (element.is_check == '是') {
+                        sssq += '<td style="color: red"> ' + element.is_check + '</td> '
+                    } else {
+                        sssq += '<td> ' + element.is_check + '</td> '
+                    }
                     if (roleId == 2) {
-                        //超级管理员
-                        sssq += '    <td>'
+                        //2 工艺部  3是财务部
+                        sssq += '<td>'
+                        //是否已经上线？
                         if (element.is_online == '否') {
                             sssq += '   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
                                 ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>'
+                            if (element.is_check == '否') {
+                                sssq += ' <a onclick="checkGongYi(' + "'" + element.sf_code + "'" + ')">完成成本</>'
+                            }
+                        }
+                        sssq += ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>'
+                        sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
+                            '</td> '
+                        sssq += '    </tr>'
+
+                    } else if (roleId == 3) {
+                        //如果是财务部的
+                        sssq += '    <td>'
+                        //未上线 ，且 已经提交 才可以审核。
+                        if (element.is_online == '否' && element.is_check == '是') {
+                            sssq += ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
                         }
                         sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
-                            /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
-                            /*       ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
                             ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
-                            /*                ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核通过</>' +*/
+
                             '</td> '
                         sssq += '    </tr>'
                     } else {
-                        sssq += '    <td>'
+                        //2 工艺部  3是财务部
+                        sssq += '<td>'
+                        //是否已经上线？
                         if (element.is_online == '否') {
                             sssq += '   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
-                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +
-                                ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
+                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>'
+                            if (element.is_check == '否') {
+                                sssq += ' <a onclick="checkGongYi(' + "'" + element.sf_code + "'" + ')">完成成本</>'
+                            }
                         }
+                        if (element.is_online == '否' && element.is_check == '是') {
+                            sssq += ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
+                        }
+                        sssq += ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>'
                         sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
-                            /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
-                            /*          ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
-                            ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
-
                             '</td> '
                         sssq += '    </tr>'
                     }
-
 
                     $("#ClassTable").append(sssq)
 
@@ -620,6 +646,29 @@
             },
         })
     })
+
+
+    function checkGongYi(shafaId) {
+        const username = getUserName();
+        //开始请求数据
+        $.ajax({
+            url: GetBaseHost() + "/v2/check_gongyi",
+            dataType: "json",
+            data: {
+                "shafa_id": shafaId,
+                "user": username
+            },
+            type: "GET",
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    alert("完成成本计算")
+                } else {
+                    alert(data.desc)
+                }
+            },
+        })
+    }
 
     function chongsuan(shafaId) {
 
@@ -674,41 +723,55 @@
                         '<td> ' + element.create_time + '</td> ' +
                         '<td> ' + element.update_time + '</td> ' +
                         '<td> ' + element.is_online + '</td> '
-
-
-                    /*               if (element.is_sums == '是') {
-                                       sssq += '<td style="color: red"> ' + element.is_sums + '</td> '
-                                   } else {
-                                       sssq += '<td> ' + element.is_sums + '</td> '
-                                   }*/
-                    /*          sssq += '<td>   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a></td> '
-                              sssq += '    </tr>'*/
+                    if (element.is_check == '是') {
+                        sssq += '<td style="color: red"> ' + element.is_check + '</td> '
+                    } else {
+                        sssq += '<td> ' + element.is_check + '</td> '
+                    }
                     if (roleId == 2) {
-                        //超级管理员
-                        sssq += '    <td>'
+                        //2 工艺部  3是财务部
+                        sssq += '<td>'
+                        //是否已经上线？
                         if (element.is_online == '否') {
                             sssq += '   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
                                 ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>'
+                            if (element.is_check == '否') {
+                                sssq += ' <a onclick="checkGongYi(' + "'" + element.sf_code + "'" + ')">完成成本</>'
+                            }
+                        }
+                        sssq += ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>'
+                        sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
+                            '</td> '
+                        sssq += '    </tr>'
+
+                    } else if (roleId == 3) {
+                        //如果是财务部的
+                        sssq += '    <td>'
+                        //未上线 ，且 已经提交 才可以审核。
+                        if (element.is_online == '否' && element.is_check == '是') {
+                            sssq += ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
                         }
                         sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
-                            /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
-                            /*       ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
                             ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
-                            /*                ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核通过</>' +*/
+
                             '</td> '
                         sssq += '    </tr>'
                     } else {
-                        sssq += '    <td>'
+                        //2 工艺部  3是财务部
+                        sssq += '<td>'
+                        //是否已经上线？
                         if (element.is_online == '否') {
                             sssq += '   <a href="gongyi_import.html?sf_name=' + element.sf_name + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">编辑成本</a>  ' +
-                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +
-                                ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
+                                ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>'
+                            if (element.is_check == '否') {
+                                sssq += ' <a onclick="checkGongYi(' + "'" + element.sf_code + "'" + ')">完成成本</>'
+                            }
                         }
+                        if (element.is_online == '否' && element.is_check == '是') {
+                            sssq += ' <a style="color: red" title="请谨慎操作 通过后会同步且覆盖到主数据库" onclick="onlineShafa(' + "'" + element.sf_code + "'" + ')">审核</>'
+                        }
+                        sssq += ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>'
                         sssq += '   <a href="sumresult.html?sf_code=' + element.sf_code + '">汇算结果</a>' +
-                            /*               ' <a href="copy_shfa.html?cp_code=' + element.sf_code + '&sf_code=' + element.sf_code + '&sf_gg=' + element.gg + '">拷贝成本</a>' +*/
-                            /*          ' <a onclick="chongsuan(' + "'" + element.sf_code + "'" + ')">重算成本</>' +*/
-                            ' <a onclick="loadTrans(' + "'" + element.sf_code + "'" + ')">选择版本</>' +
-
                             '</td> '
                         sssq += '    </tr>'
                     }

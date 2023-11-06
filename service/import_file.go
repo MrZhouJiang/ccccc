@@ -157,6 +157,12 @@ func GetDrafShaFaImportList(page, size int, name, code string, issums string) (l
 			iiinfo.IsOnline = "否"
 
 		}
+		if trans.IsCheck == 1 {
+			iiinfo.IsCheck = "是"
+		} else {
+			iiinfo.IsCheck = "否"
+		}
+		iiinfo.CheckUser = trans.CheckUser
 
 		list = append(list, iiinfo)
 	}
@@ -288,6 +294,9 @@ type TranseDto struct {
 	SfCode     string `json:"sf_code"`
 	OnlineUser string `json:"online_user"`
 	OnlineTime string `json:"online_time"`
+	//是否提交
+	IsCheck   string `json:"is_check"`
+	CheckUser string `json:"check_user"`
 }
 
 func GetTransList(shafaId string) (out []TranseDto) {
@@ -309,6 +318,13 @@ func GetTransList(shafaId string) (out []TranseDto) {
 			} else {
 				dto.Issubmit = "否"
 			}
+			if trans.IsCheck == 1 {
+				dto.IsCheck = "是"
+			} else {
+				dto.IsCheck = "否"
+			}
+			dto.CheckUser = trans.CheckUser
+
 			// 查询当前的 事务
 			imports := model.ShaFaDrafImportLog{}
 			imports.GetOne(shafaId)

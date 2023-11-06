@@ -2898,10 +2898,22 @@ func GetTranseId(shafa_code, user string) (string, error) {
 		//最近的一个还没上线  返回最新的一个ID
 		// 生成ID后 要将ID同步到 draf主沙发表
 		ChcekShafaDraf(user, shafa_code, oldTransList[0].TransId)
+		//要将事务表的 状态改成未提交
+		//
+		UdateTanseStatus(shafa_code, user, oldTransList[0].TransId)
+
 		return oldTransList[0].TransId, nil
 	}
-
 }
+
+func UdateTanseStatus(code string, user string, transeID string) {
+	transe := model.Trans{}
+	transe.GetByShafaIdAndTrans(nil, code, transeID)
+	transe.IsCheck = 0
+	transe.CheckUser = user
+	transe.Update(nil)
+}
+
 func RomId(code string, user string) (string, error) {
 	////生成一个随机ID
 
@@ -2918,6 +2930,7 @@ func RomId(code string, user string) (string, error) {
 		CreateTime: time.Now(),
 		OnlineTime: TimeBsee,
 		CreateUser: user,
+		IsCheck:    0,
 	}
 	er := trans.Create(nil)
 	if er != nil {

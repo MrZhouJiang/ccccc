@@ -866,6 +866,14 @@ func PostDrafFengWei(c *gin.Context) {
 			return
 		}
 	}
+	//修改事务表
+
+	transe := model.Trans{}
+	transe.GetByShafaIdAndTrans(nil, dto.ShafaId, drafLog.TransId)
+	transe.IsCheck = 0
+	transe.CheckUser = user
+	transe.Update(nil)
+
 	//修改 沙发表
 	/*	shafa := model.ShaFaImportLog{}
 		errme := shafa.GetByType(nil, dto.ShafaId)
@@ -960,7 +968,7 @@ func ConvertPostInfo(user string, maxCell int, goodsMap map[string]model.Goods, 
 				mainSize = strings.TrimSpace(rowData[i][fenwei_index-1])
 				draf.OwnerSize = mainSize
 			}
-
+			sumsDraf("0.5", "10210077", "2", "40.2000", "1.000", "", "1.000", "", "1..000")
 			sum_price := sumsDraf(draf.Nums, draf.CpCode, goods.ShunHao, fmt.Sprintf("%f", goods.Price), fmt.Sprintf("%f", goods.ChangeP), draf.Size, fmt.Sprintf("%f", goods.MainXiShu), mainSize, fmt.Sprintf("%f", goods.FuZhuXiShu))
 			draf.TotalPrice = fmt.Sprintf("%f", sum_price.TotalPrice)
 			draf.JiJiaNum = fmt.Sprintf("%f", sum_price.JiJiaNums)
@@ -1507,6 +1515,50 @@ func OnlineTrans(c *gin.Context) {
 	base_shafa.IsSums = "是"
 	base_shafa.Update(nil)
 	resp.Data = "成功"
+	util.ReturnCompFunc(c, resp)
+	return
+
+}
+
+func CheckGongyi(c *gin.Context) {
+	log.Printf("CheckGongyi")
+	params := common.GetUrlParams(c.Request)
+
+	resp := Response{
+		Status: 200,
+	}
+
+	shafaId := params["shafa_id"]
+	user := params["user"]
+
+	log.Printf("CheckGongyi  shafa_id:%s user: %s ;", shafaId, user)
+
+	shafaDrafInfo := model.ShaFaDrafImportLog{}
+	errme := shafaDrafInfo.GetByType(nil, shafaId)
+	if errme != nil && shafaDrafInfo.Id == 0 {
+		log.Printf("oldTransList.GetByShafaId err :%v", errme)
+
+		resp.Status = 201
+		resp.Desc = "未找到沙发"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+
+	transe := model.Trans{}
+	transe.GetByShafaIdAndTrans(nil, shafaId, shafaDrafInfo.TransId)
+	transe.IsCheck = 1
+	transe.CheckUser = user
+	er := transe.Update(nil)
+	if er != nil {
+		log.Printf("GetGoodsList err :%v", er)
+
+		resp.Status = 201
+		resp.Desc = "更改失败"
+		util.ReturnCompFunc(c, resp)
+		return
+	}
+	resp.Data = ""
+
 	util.ReturnCompFunc(c, resp)
 	return
 

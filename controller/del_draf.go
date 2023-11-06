@@ -968,7 +968,7 @@ func ConvertPostInfo(user string, maxCell int, goodsMap map[string]model.Goods, 
 				mainSize = strings.TrimSpace(rowData[i][fenwei_index-1])
 				draf.OwnerSize = mainSize
 			}
-			sumsDraf("0.5", "10210077", "2", "40.2000", "1.000", "", "1.000", "", "1..000")
+			//sumsDraf("0.5", "10210077", "2", "40.2000", "1.000", "", "1.000", "", "1..000")
 			sum_price := sumsDraf(draf.Nums, draf.CpCode, goods.ShunHao, fmt.Sprintf("%f", goods.Price), fmt.Sprintf("%f", goods.ChangeP), draf.Size, fmt.Sprintf("%f", goods.MainXiShu), mainSize, fmt.Sprintf("%f", goods.FuZhuXiShu))
 			draf.TotalPrice = fmt.Sprintf("%f", sum_price.TotalPrice)
 			draf.JiJiaNum = fmt.Sprintf("%f", sum_price.JiJiaNums)

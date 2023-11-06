@@ -583,8 +583,12 @@
                         '<td> ' + element.s_desc + '</td> ' +
                         '<td> ' + element.import_user + '</td> ' +
                         '<td> ' + element.create_time + '</td> ' +
-                        '<td> ' + element.update_time + '</td> ' +
-                        '<td> ' + element.is_online + '</td> '
+                        '<td> ' + element.update_time + '</td> '
+                    if (element.is_online == '是') {
+                        sssq += '<td style="color: red"> ' + element.is_online + '</td> '
+                    } else {
+                        sssq += '<td> ' + element.is_online + '</td> '
+                    }
                     if (element.is_check == '是') {
                         sssq += '<td style="color: red"> ' + element.is_check + '</td> '
                     } else {
@@ -722,8 +726,14 @@
                         '<td> ' + element.s_desc + '</td> ' +
                         '<td> ' + element.import_user + '</td> ' +
                         '<td> ' + element.create_time + '</td> ' +
-                        '<td> ' + element.update_time + '</td> ' +
-                        '<td> ' + element.is_online + '</td> '
+                        '<td> ' + element.update_time + '</td> '
+                    if (element.is_online == '是') {
+                        sssq += '<td style="color: red"> ' + element.is_online + '</td> '
+                    } else {
+                        sssq += '<td> ' + element.is_online + '</td> '
+                    }
+
+
                     if (element.is_check == '是') {
                         sssq += '<td style="color: red"> ' + element.is_check + '</td> '
                     } else {

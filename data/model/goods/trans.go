@@ -13,11 +13,16 @@ type Trans struct {
 	// 0 初始状态
 	// 1 当前已经上线 且没有新的 草稿
 	//  2 当前有草稿状态
-	IsSubmit   int       `json:"is_submit"`
+	IsSubmit int `json:"is_submit"`
+	//是否提交了   0 初始化 未提交  1 、 已提交
+	IsCheck   int    `json:"is_check"`
+	CheckUser string `json:"check_user"`
+
 	CreateTime time.Time `json:"create_time"`
 	OnlineTime time.Time `json:"online_time"`
-	OnlineUser string    `json:"online_user"`
-	CreateUser string    `json:"create_user"`
+
+	OnlineUser string `json:"online_user"`
+	CreateUser string `json:"create_user"`
 }
 
 const TransTableName = "trans"
